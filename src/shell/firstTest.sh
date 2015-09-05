@@ -5,19 +5,24 @@ source $DIR/setupData.sh
 
 show_help() {
 cat << EOF
-USAGE: ${0##*/} [-h] [-m DISTANCE METHOD] [-d DISTANCE OPTION] [-c SPECIES TREE FILE] [GENE TREES FILE]...
+USAGE: ${0##*/} [-h] [-sm SUMMARIZING  METHOD] [-so SUMMARIING  OPTION] [-d DISTANCE METHOD] [-ps PSEUDO COUNT] 
+[-do DISTANCE OPTION] [-c SPECIES TREE FILE] [GENE TREES FILE]
 Estimate species tree using ************ method. GNEE TREES FILE is the file of gene trees concatenated 
 and SPECIES TREE FILE is the species tree file.
 
 	-c	SPECIES TREE FILE	indicates to compare the tree provided by our method with the SPECIES TREE FILE.
 	-h      			display help and exit
-	-m 	DISTANCE METHOD		the method to produce estimated species tree based on distance matrix.
+	-sm 	SUMMARIZING METHOD	the method to produce estimated species tree based on distance matrix.
 					We use fastME (fm) and PhyDstar (ph). Note that thsse two pacakges should be installed
 					beforehand. PhyDstar should be located under WS_HOME path (described at setup.sh) 
 					under the folder PhyDstar.
-	-d	DISTANCE OPTION		Indicates wich method to use to infer species tree based on distance matrix if you
+	-so	SUMMARIZING OPTION	Indicates wich method to use to infer species tree based on distance matrix if you
 					use PhyDstar. Options are NJ, BioNJ, MVR, and UNJ. For more details look at: 
 					http://www.atgc-montpellier.fr/phyd/usersguide.php
+	-d 	DISTANCE METHOD		the method to compute distances. The methods are: min, prod, minavg, minmed
+	-do 	DISTANCE OPTION		If you choose the methods minavg or minmed you could define the percentile of which
+					the average or median will be computed as the distance
+	-ps 	PSEUDO COUNT		The pseudo count to avoid empty bin problem.
 EOF
 }
 m=fm
@@ -26,7 +31,7 @@ if [ $# -lt 1 ]; then
 	show_help
 	exit 0;
 fi  
-while getopts "hc:m:d:" opt; do
+while getopts "hc:sm:so:do:ps:d:" opt; do
 	case $opt in 
 	h) 
 		show_help
@@ -36,11 +41,18 @@ while getopts "hc:m:d:" opt; do
 		sp_tree=$OPTARG
 		echo $sp_tree
 		;;
-	m) 
+	sm) 
 		m=$OPTARG
 		;;
-	d) 
+	so) 
 		d=$OPTARG
+		;;
+	do)
+		do=$OPTARG
+		;;
+	ps)  	ps=$OPTARG
+		;;
+	d)	dm=$OPTARG
 		;;
 	'?')
 		show_help

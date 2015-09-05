@@ -1,9 +1,36 @@
 import sys
 import numpy as np
 import os
+from optparse import OptionParser
+from  prodDistance import prodDistance
+from printDistanceTable import printDistanceTable
+from minDistance import minDistance
+
+
+usage = "usage: %prog [options]"
+parser = OptionParser(usage)
+parser.add_option("-f", "--file", dest="filename", type="string",
+	      help="read data from FILENAME")
+parser.add_option("-m","--method",dest="method", default="min",choices=["min", "prod", "minavg", "minmed"],
+	      help="define the method to compute distance: min "
+		   "prod, minavg,minmed [default: min]")
+parser.add_option("-p","--percentile",dest="p",default=1, type="int",
+	      help="for the methods minavg, or minmed, "
+		   "find  average or median as the true probability in provided percentile")   
+parser.add_option("-c","--seudo_count",dest="ps_count",type="float",default=1e-8,
+	      help="pseudo count that will be replaced with the zero frequencies [default: 1e-8]")
+(options,args) = parser.parse_args()
+if (options.method == "minavg" or options.method=="minmed") and ~options.p :
+	print("warning, the percentile set to its default value (1)")
+
+filename = options.filename
+method = options.method
+percentile = options.p
+ps_count = options.ps_count
+f = open(filename, 'r')
 
 frq=dict()
-for line in sys.stdin:
+for line in f:
     k=line.split()
     v = dict()
     d = k[0].split('/')
@@ -13,53 +40,14 @@ for line in sys.stdin:
     frq[k[0]] = v
 keyDict = sorted(np.unique("/".join(frq.keys()).split("/")));
 mapDict = dict()
-v = set([0, 1, 2, 3])
-empty = 1e-8
-sz = sum(frq[frq.keys()[0]].values())
-for k in sorted(frq.keys()):
-	d = sorted(k.split('/'))
-	for i in range(1,4): 
-		distKey = d[0]+' '+d[i]
-		
-		if distKey not in mapDict.keys() and frq[k][d[i]]>0 and frq[k][d[i]]!=sz:
-			mapDict[distKey] = -np.log(float(frq[k][d[i]])/sz)
-		elif distKey not in mapDict.keys() and frq[k][d[i]]<1:
-			mapDict[distKey] = -np.log(empty)
-		elif distKey not in mapDict.keys() and frq[k][d[i]]==sz:
-			mapDict[distKey] = -np.log(float(frq[k][d[i]]-empty)/sz)
-		elif frq[k][d[i]] < 1:
-			mapDict[distKey] -= np.log(empty)
-		elif frq[k][d[i]]==sz:
-			mapDict[distKey] -= np.log(float(frq[k][d[i]]-empty)/sz)
-		else:
-			mapDict[distKey] -= np.log(float(frq[k][d[i]])/sz)
-		s = set([0,i])
-		g = sorted(list(v - s))
-		distKey = d[g[0]]+ ' ' +d[g[1]]
-		
-		if distKey not in mapDict.keys() and frq[k][d[i]]>0 and frq[k][d[i]]!=sz:
-			mapDict[distKey] = -np.log(float(frq[k][d[i]])/sz)
-		elif distKey not in mapDict.keys() and frq[k][d[i]]<1:
-			mapDict[distKey] = -np.log(empty)
-		elif distKey not in mapDict.keys() and frq[k][d[i]]==sz:
-			mapDict[distKey] = -np.log(float(frq[k][d[i]]-empty)/sz)
-		elif frq[k][d[i]] < 1:
-			mapDict[distKey] -= np.log(empty)
-		elif frq[k][d[i]]==sz:
-			mapDict[distKey] -= np.log(float(frq[k][d[i]]-empty)/sz)
-		else:
-			mapDict[distKey] -= np.log(float(frq[k][d[i]])/sz)
-l = len(keyDict)
-print l
-for i in range(0,l):
-	sp = keyDict[i]
-	print sp,
-	for j in range(0,l):
-		if i==j:
-			print 0,
-			continue
-		k = sorted([keyDict[j],keyDict[i]])
-		
-		print '%0.6f' % mapDict[k[0]+' '+k[1]],
-	print 
+def computeDistance(frq, method, percentile,ps_count):
+    return{
+        'min'  : minDistance(frq,ps_count),
+        'prod'  : prodDistance(frq,ps_count),
+#	'minavg': minAvgDistance(frq,percentile,ps_count),
+#	'minmed': minMedDistance(frq,percentile,ps_count)
+    }[method] 
+mapDict = computeDistance(frq,method,percentile,ps_count)
+printDistanceTable(mapDict,keyDict)
+
 	
