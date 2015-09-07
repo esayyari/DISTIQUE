@@ -37,5 +37,5 @@ def prodDistance(frq,ps_count):
 			elif frq[k][d[i]]==sz:
 				mapDict[distKey] -= np.log(float(frq[k][d[i]]-ps_count)/sz)
 			else:
-				mapDict[distKey] -=  float(frq[k][d[i]])/sz*np.log(float(frq[k][d[i]])/sz)
+				mapDict[distKey] -=  np.log(float(frq[k][d[i]])/sz)
 	return mapDict

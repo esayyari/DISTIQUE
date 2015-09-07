@@ -1,37 +1,42 @@
 #!/bin/bash
-DIR=$( cd "$( dirname "$BASH_SOURCE[0]}" )" && pwd )
+DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 source $DIR/setup.sh
 source $DIR/setupData.sh
 
 show_help() {
 cat << EOF
-USAGE: ${0##*/} [-h] [-sm SUMMARIZING  METHOD] [-so SUMMARIING  OPTION] [-d DISTANCE METHOD] [-ps PSEUDO COUNT] 
-[-do DISTANCE OPTION] [-c SPECIES TREE FILE] [GENE TREES FILE]
+USAGE: ${0##*/} [-h] [-s SUMMARIZING  METHOD] [-e SUMMARIING  OPTION] [-d DISTANCE METHOD] [-p PSEUDO COUNT] 
+[-o DISTANCE OPTION] [-c SPECIES TREE FILE] [GENE TREES FILE]
 Estimate species tree using ************ method. GNEE TREES FILE is the file of gene trees concatenated 
 and SPECIES TREE FILE is the species tree file.
 
 	-c	SPECIES TREE FILE	indicates to compare the tree provided by our method with the SPECIES TREE FILE.
 	-h      			display help and exit
-	-sm 	SUMMARIZING METHOD	the method to produce estimated species tree based on distance matrix.
-					We use fastME (fm) and PhyDstar (ph). Note that thsse two pacakges should be installed
+	-s 	SUMMARIZING METHOD	the method to produce estimated species tree based on distance matrix.
+					We use fastME (fm) and PhyDstar (pd). Note that thsse two pacakges should be installed
 					beforehand. PhyDstar should be located under WS_HOME path (described at setup.sh) 
 					under the folder PhyDstar.
-	-so	SUMMARIZING OPTION	Indicates wich method to use to infer species tree based on distance matrix if you
+	-e	SUMMARIZING OPTION	Indicates wich method to use to infer species tree based on distance matrix if you
 					use PhyDstar. Options are NJ, BioNJ, MVR, and UNJ. For more details look at: 
 					http://www.atgc-montpellier.fr/phyd/usersguide.php
 	-d 	DISTANCE METHOD		the method to compute distances. The methods are: min, prod, minavg, minmed
-	-do 	DISTANCE OPTION		If you choose the methods minavg or minmed you could define the percentile of which
+	-o 	DISTANCE OPTION		If you choose the methods minavg or minmed you could define the percentile of which
 					the average or median will be computed as the distance
-	-ps 	PSEUDO COUNT		The pseudo count to avoid empty bin problem.
+	-p 	PSEUDO COUNT		The pseudo count to avoid empty bin problem. This should be a positive integer, 
+					which indicates	power of 10 i.e. 10^-ps.
 EOF
 }
 m=fm
-d=nj
+d=mvr
+pc=8
+dm=prod
+do=1
+
 if [ $# -lt 1 ]; then
 	show_help
 	exit 0;
 fi  
-while getopts "hc:sm:so:do:ps:d:" opt; do
+while getopts "hc:s:e:d:o:p:" opt; do
 	case $opt in 
 	h) 
 		show_help
@@ -41,18 +46,20 @@ while getopts "hc:sm:so:do:ps:d:" opt; do
 		sp_tree=$OPTARG
 		echo $sp_tree
 		;;
-	sm) 
+	s) 
 		m=$OPTARG
 		;;
-	so) 
+	e) 
 		d=$OPTARG
 		;;
-	do)
+	o)
 		do=$OPTARG
 		;;
-	ps)  	ps=$OPTARG
+	p)  	
+		pc=$OPTARG
 		;;
-	d)	dm=$OPTARG
+	d)	
+		dm=$OPTARG
 		;;
 	'?')
 		show_help
@@ -65,9 +72,8 @@ FILE_NAME=$1
 WS_RES=$(dirname "${FILE_NAME}")
 NM=$(basename "${FILE_NAME}")
 printf  "start computing quartets\n"
-
-$DIR/quartet.freq.sh $1>$WS_RES/$NM"_d";
-
+$DIR/quartet.freq.sh -f $FILE_NAME -m $dm -p $do -c $pc >$WS_RES/$NM"_d" ;
+echo $m
 printf "start building species tree\n"
 case $m in
 fm)
