@@ -1,19 +1,19 @@
 #!/bin/bash
-s=fm
-e=bionj
+source ~/.bashrc
+DIR=`pwd`
+source $DIR/setup.sh
+s=pd
+e=nj
 c=8
 d=prod
 o=1
-mean='awk "BEGIN{s=0;n=0}{n+=1;s+=\$1}END{print s/n}"'
 true_sp=../../../data/11-taxon/10_taxon/10-taxon/higher-ILS/true-speciestrees
 gt=../../../data/11-taxon/10_taxon/10-taxon/higher-ILS/true-genetrees
 
-
 for i in {1..20}; do
-./firstTest.sh -s $s -e $e -c  $true_sp/R"$i".true.tre -d $d -o $o $gt/R"$i"/true.nwk
+./summarize.tree.sh -w 1 -s $s -e $e  -d $d -o $o -r $WS_LOC_RES/R"$i" $gt/R"$i"/true.nwk 
+./compare.tree.sh -s $true_sp/R"$i".true.tre -g $WS_LOC_RES/R"$i"/distance.d_"$e".t > $WS_LOC_RES/R"$i"/res.txt
+#./compare.tree.sh -s $true_sp/R"$i".true.tre -g $WS_LOC_RES/R"$i"/distance.d_fastme_tree.nwk>$WS_LOC_RES/R"$i"/res.txt
+
 done
-#cat $gt/R*/true.nwk_d_"$e".t_res_stat.txt> $gt/res_stat.txt
-cat $gt/R*/true.nwk_d_fastme_tree.nwk_res_stat.txt> $gt/res_stat.txt
-rm $gt/R*/true.nwk_*
-rm $gt/R*/log*
-cat $gt/res_stat.txt | awk '{print $3}' | mean
+cat $WS_LOC_RES/R*/res.txt > $WS_LOC_RES/res_stat.txt

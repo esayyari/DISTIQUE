@@ -12,5 +12,6 @@ export WS_LOC_BIN=$WS_LOC_HOME/bin
 export WS_LOC_SH=$WS_LOC_HOME/src/shell
 export WS_LOC_PUTIL=$WS_LOC_HOME/src/utils
 export WS_LOC_TS=$WS_LOC_HOME/tests
-export PATH=$PATH:$WS_LOC_SH:$WS_LOC_BIN:$WS_LOC_TS:$WS_LOC_PUTIL
+export WS_LOC_RES=$WS_LOC_HOME/results
+export PATH=$PATH:$WS_LOC_SH:$WS_LOC_BIN:$WS_LOC_TS:$WS_LOC_PUTIL:$WS_LOC_RES
 

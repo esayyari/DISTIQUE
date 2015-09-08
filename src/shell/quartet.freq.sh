@@ -4,7 +4,7 @@ DIR=$( dirname "${0}")
 source $DIR/setup.sh
 show_help() {
 cat << EOF
-USAGE: ${0##*/} [-h] [-m DISTANCE METHOD] [-c PSEUDO COUNT] [-p PERCENTILE] [-f FILENAME] 
+USAGE: ${0##*/} [-h] [-m DISTANCE METHOD] [-c PSEUDO COUNT] [-p PERCENTILE] [-f FILENAME] [-o OUTPUT FOLDER] [-w OVERWRITE FLAG] 
 Computes the distances using the python function distance.py on top of the gene trees file FILENAME:
 
 	-h	HELP		display help and exit
@@ -15,6 +15,8 @@ Computes the distances using the python function distance.py on top of the gene 
 	-f 	FILENAME 	The gene trees filename
 	-p	PERCENTILE	The percentile of the data that in methods minavg, and minmed will be used to 
 				compute distance. The default is 1.
+	-o 	OUTPUT FOLDER	The output folder to put the results there.i
+	-w 	OVERWRITE FLAG	The flag that indicates to overwrite the output folder if exists or not. 
 EOF
 }
 
@@ -24,8 +26,8 @@ fi
 m=prod
 c=8
 p=1
-
-while getopts "hc:m:f:p:" opt; do
+w=0
+while getopts "hc:m:f:p:o:w:" opt; do
         case $opt in
         h)
                 show_help
@@ -43,6 +45,12 @@ while getopts "hc:m:f:p:" opt; do
         m)
                 m=$OPTARG
                 ;;
+	o)
+		o=$OPTARG
+		;;
+	w)
+		w=$OPTARG
+		;;
         '?')
                 show_help
                 exit 1;
@@ -51,15 +59,21 @@ while getopts "hc:m:f:p:" opt; do
 done
 shift "$((OPTIND-1))"
 
+if [ -z $o ]; then
+printf "Enter the output directory"
+fi
 
-tmp=`mktemp`
-NM=$(basename "${filename}")
-WS_RES=$( dirname "${filename}")
+if [ -d $o ] && [ $w -eq 0 ]; then 
+printf "The output directory already exists, enter another output folder"
+elif [ ! -d $o ]; then
+mkdir $o
+fi
+tmp=`mktemp` 
+qfile="quartets.q"
 for x in `cat $filename`; do 
   echo -n "$x" >$tmp; 
   $WS_GLB_BIN/quart_bin fancy printQuartets $tmp;
-done |sed -e "s/^.*: //" | python $WS_LOC_PUTIL/quartetTable.py > $WS_RES/$NM"_qttable.q"
+done |sed -e "s/^.*: //" | python $WS_LOC_PUTIL/quartetTable.py> $o/$qfile
  
-python $WS_LOC_PUTIL/distance.py -m $m -c $c -p $p -f $WS_RES/$NM"_qttable.q" >$WS_RES/$NM"_d" 
+python $WS_LOC_PUTIL/distance.py -m $m -c $c -p $p -f $o/$qfile
 
-rm $tmp;
