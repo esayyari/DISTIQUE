@@ -1,4 +1,7 @@
 #!/bin/bash
+
+#set -x
+#set -e
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 source $DIR/setup.sh
 source $DIR/setupData.sh
@@ -90,11 +93,13 @@ $DIR/quartet.freq.sh -w $w -f $FILE_NAME -m $dm -p $do -c $pc -o $res_root  >$re
 printf "start building species tree\n"
 case $m in
 fm)
-	fastme -i $res_root/distance.d >$res_root/log.inof;
+	$WS_HOME/"fastme-2.1.4"/src/fastme -i $res_root/distance.d >$res_root/log.inof;
+#	$WS_HOME/"fastme-2.1.4"/src/fastme -i $res_root/distance.d -o estimated_species_tree.tre >$res_root/log.inof;	
 	;;
 	
 pd)
 	java -jar $WS_HOME/PhyDstar/PhyDstar.jar -d $d -i $res_root/distance.d
+#	$res_root/distance.d_"$d".t > estimated_species_tree.tre
 	;;
 esac
 

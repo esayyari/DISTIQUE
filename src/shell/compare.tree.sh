@@ -1,12 +1,13 @@
 #!/bin/bash
 DIR=$( dirname "${BASH_SOURCE[0]}" )
+source $DIR/setup.sh
+source $DIR/setupData.sh
 show_help(){
 cat << EOF
-USAGE: ${0##*/} [-h] [-s SPECIES TREE] [-g GENE TREE ] 
-Compares two trees. SPECIES TREE is the species tree or the reference tree, while GENE TREE is the tree infered from gene trees.
+USAGE: ${0##*/} [-h] [-s SPECIES TREE] [-g ESTIMATED SPECIES TREE ] 
+Compares two trees. SPECIES TREE is the species tree or the reference tree, while ESTIMATED SPECIES TREE is the tree infered from gene trees. 
 EOF
 }
-
 
 while getopts "hs:g:" opt; do
 	case $opt in
@@ -39,7 +40,15 @@ fi
 res_root=$( dirname "${g}")
 tmp1=`mktemp`
 tmp2=`mktemp`
-head -n 1 "$s">$tmp1
-head -n 1 "$g">$tmp2
+head -n 1 $s>$tmp1
+head -n 1 $g>$tmp2
+#for x in `head -n 1 $s`; do
+# echo -n "$x" > $tmp1 #| sed -e 's/:-[0-9]*\.[0-9]*\|:[0-9]*\.[0-9]*//g;s/;//g'>$tmp1
+#done
+#for x in `head -n 1 $g`; do
+# echo -n "$x" | sed -e 's/:-[0-9]*\.[0-9]*\|:[0-9]*\.[0-9]*//g;s/;//g'>$tmp2
+#done
 $WS_GLB_SH/compareTrees.missingBranch $tmp1 $tmp2
-			
+
+#rm $tmp1
+#rm $tmp2
