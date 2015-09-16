@@ -6,7 +6,7 @@ if [ -z $WS_HOME ]; then
   exit 1
 fi
 source $WS_HOME/global/src/shell/setup.sh
-export WS_LOC_HOME=$WS_HOME/DISTIQ
+export WS_LOC_HOME=$WS_HOME/DISTIQUE
 export WS_LOC_LIB=$WS_LOC_HOME/lib
 export WS_LOC_BIN=$WS_LOC_HOME/bin
 export WS_LOC_SH=$WS_LOC_HOME/src/shell
