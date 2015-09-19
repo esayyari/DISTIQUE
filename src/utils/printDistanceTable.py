@@ -1,14 +1,19 @@
 def printDistanceTable (mapDict , keyDict):
 	l = len(keyDict)
+	norm = 1.
+	ps = 20.
 	print l
 	for i in range(0,l):
         	sp = keyDict[i]
         	print sp,
         	for j in range(0,l):
                 	if i==j:
-                        	print '%0.6f' % 0,
+				b = 0.
+                        	print '%0.6f' % b,
                         	continue
                 	k = sorted([keyDict[j],keyDict[i]])
-
-                	print '%0.6f' % mapDict[k[0]+' '+k[1]],
+			a=mapDict[k[0]+' '+k[1]]
+			a += ps
+			a /=norm
+                	print '%0.6f' % a,
         	print

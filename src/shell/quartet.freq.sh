@@ -73,7 +73,7 @@ qfile="quartets.q"
 for x in `cat $filename`; do 
   echo -n "$x" >$tmp; 
   $WS_GLB_BIN/quart_bin fancy printQuartets $tmp;
-done |sed -e "s/^.*: //" | python $WS_LOC_PUTIL/quartetTable.py> $o/$qfile
+done | grep -e "\(alpha\|beta\|gamma\)" |sed -e "s/^.*: //" | python $WS_LOC_PUTIL/quartetTable.py> $o/$qfile
  
 python $WS_LOC_PUTIL/distance.py -m $m -c $c -p $p -f $o/$qfile
 

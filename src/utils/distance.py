@@ -28,7 +28,7 @@ filename = options.filename
 method = options.method
 percentile = options.p
 pst=-options.ps_count
-ps_count = 10**pst
+ps_count = -pst
 f = open(filename, 'r')
 frq=dict()
 for line in f:

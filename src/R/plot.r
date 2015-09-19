@@ -1,0 +1,1 @@
+qplot(V8,V12,data=d,color=interaction(V1,V2,V3),geom=c("point","line"),fun.y=mean,stat='summary')+facet_grid(V7~V9)+theme_bw()+theme(legend.position="bottom")+xlab("Number of genes")+stat_summary(geom="errorbar",fun.ymin=function(x) {mean(x)-sd(x)/sqrt(length(x))},fun.ymax = function(x) {mean(x)+sd(x)/sqrt(length(x))},width=10)
