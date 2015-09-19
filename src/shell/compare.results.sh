@@ -35,14 +35,16 @@ for data_name in `ls $data_dir`; do
 		tr_spt=$tr_sp_path2
 		true_tree=$( find $tr_sp_path2 -name "S_relabeled_tree.trees")
 		printf "Working on $true_tree and $file has been finished\n"
-		
-		$DIR/compare.tree.sh -s $true_tree -g $file >> $out/$data_name-dir/$save_name.txt
+				
+		$DIR/compare.tree.sh -s $file -g $file >> $out/$data_name-dir/$save_name-chk.txt
+#		$DIR/compare.tree.sh -s $true_tree -g $file >> $out/$data_name-dir/$save_name.txt
 		elif [ "$out_file" == "10-taxon" ]; then
 		tr_sp_tmp1=$( echo $tr_sp_path | sed -e 's/\(true-genetrees\|estimated-genetrees\).*$//g' )
 		tmp_name=$( echo $tr_sp_path | grep -o '\(true-genetrees\|estimated-genetrees\)')
 		R=$(echo $path | grep -o '\(R[0-9]*\)' )
 		tr_sp=$tr_sp_tmp1/true-speciestrees/$R.true.tre
-		$DIR/compare.tree.sh -s $tr_sp -g $file >> $out/$data_name-dir/$save_name.txt
+#		$DIR/compare.tree.sh -s $tr_sp -g $file >> $out/$data_name-dir/$save_name.txt
+		$DIR/compare.tree.sh -s $file -g $file >> $out/$data_name-dir/$save_name-chk.txt
 		printf "Working on $tr_sp and $file has been finished\n"
 		fi
 	done
