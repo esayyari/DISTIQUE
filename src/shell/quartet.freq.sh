@@ -21,7 +21,8 @@ EOF
 }
 
 if [ $# -lt 1 ]; then 
-	show_help 
+	show_help
+	exit 1 
 fi
 m=prod
 c=8
@@ -61,10 +62,12 @@ shift "$((OPTIND-1))"
 
 if [ -z $o ]; then
 printf "Enter the output directory"
+exit 1
 fi
 
 if [ -d $o ] && [ $w -eq 0 ]; then 
 printf "The output directory already exists, enter another output folder"
+exit 1
 elif [ ! -d $o ]; then
 mkdir $o
 fi
@@ -76,4 +79,4 @@ for x in `cat $filename`; do
 done | grep -e "\(alpha\|beta\|gamma\)" |sed -e "s/^.*: //" | python $WS_LOC_PUTIL/quartetTable.py> $o/$qfile
  
 python $WS_LOC_PUTIL/distance.py -m $m -c $c -p $p -f $o/$qfile
-
+rm $tmp
