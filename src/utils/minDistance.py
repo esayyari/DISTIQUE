@@ -4,9 +4,10 @@ import sys
 def minDistance(frq,ps_count):
 	mapDict = dict()
         v = set([0, 1, 2, 3])
-        sz = sum(frq[frq.keys()[0]].values())
         for k in sorted(frq.keys()):
                 d = sorted(k.split('/'))
+		
+        	sz = sum(frq[k].values())
                 for i in range(1,4):
                         distKey = d[0]+' '+d[i]
 
