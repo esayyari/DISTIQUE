@@ -43,4 +43,3 @@ for data_dir in `ls $input_path`; do
 	fi
 done
 
-

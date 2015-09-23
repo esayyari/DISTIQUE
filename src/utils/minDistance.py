@@ -13,7 +13,7 @@ def minDistance(frq,ps_count):
 
                         if distKey not in mapDict.keys() and frq[k][d[i]]>0 :
 				mapDict[distKey] = list()
-				p = min(1.5,3.*frq[k][d[i]]/float(sz))
+				p = np.log(min(1.,3.*frq[k][d[i]]/float(sz)))
                                 mapDict[distKey].append(p)
                         elif distKey not in mapDict.keys() and frq[k][d[i]]<1:
 				mapDict[distKey] = list()
@@ -21,7 +21,7 @@ def minDistance(frq,ps_count):
                         elif frq[k][d[i]] < 1:
                                 mapDict[distKey].append(-ps_count)
                         else:
-				p = np.log(min(1.5,3.*frq[k][d[i]]/float(sz)))
+				p = np.log(min(1.,3.*frq[k][d[i]]/float(sz)))
                                 mapDict[distKey].append(p)
                         s = set([0,i])
                         g = sorted(list(v - s))
@@ -30,7 +30,7 @@ def minDistance(frq,ps_count):
 
                         if distKey not in mapDict.keys() and frq[k][d[i]]>0:
 				mapDict[distKey] = list()
-				p = min(1.5,3.*np.log(frq[k][d[i]])/float(sz))
+				p = np.log(min(1.,3.*np.log(frq[k][d[i]])/float(sz)))
                                 mapDict[distKey].append(p)
                         elif distKey not in mapDict.keys() and frq[k][d[i]]<1:
 				mapDict[distKey] = list()
@@ -38,7 +38,7 @@ def minDistance(frq,ps_count):
                         elif frq[k][d[i]] < 1:
                                 mapDict[distKey].append(-ps_count)
                         else:
-				p = np.log(min(1.5,3.*frq[k][d[i]]/float(sz)))
+				p = np.log(min(1.,3.*frq[k][d[i]]/float(sz)))
                                 mapDict[distKey].append(p)
 	retDict = dict()
 
@@ -48,7 +48,7 @@ def minDistance(frq,ps_count):
 #		for i in mapDict[key]:
 #			print i,
 #		print
-		if m==np.log(1.5):
+		if m==np.log(1.):
 			m = 0
 		else: 	
 			m = min(mapDict[key])

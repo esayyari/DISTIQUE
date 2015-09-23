@@ -39,7 +39,7 @@ for line in f:
     v[d[2]] = int(k[2])
     v[d[3]] = int(k[3])
     frq[k[0]] = v
-keyDict = sorted(np.unique("/".join(frq.keys()).split("/")));
+keyDict = sorted(np.unique(("/".join(frq.keys())).split("/")));
 mapDict = dict()
 def computeDistance(frq, method, percentile,ps_count):
     return{
