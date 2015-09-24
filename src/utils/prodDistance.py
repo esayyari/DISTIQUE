@@ -1,7 +1,7 @@
 import numpy as np
 import sys
 
-def prodDistance(frq,ps_count):
+def prodDistance(frq):
 	mapDict = dict()
 	v = set([0, 1, 2, 3])
 	for k in sorted(frq.keys()):
@@ -11,14 +11,10 @@ def prodDistance(frq,ps_count):
 		for i in range(1,4):
 			distKey = d[0]+' '+d[i]
 
-			if distKey not in mapDict.keys() and frq[k][d[i]]>0 and frq[k][d[i]]!=sz:
+			if distKey not in mapDict.keys() and frq[k][d[i]]!=sz:
 				mapDict[distKey] = -np.log(float(frq[k][d[i]])/sz)
-			elif distKey not in mapDict.keys() and frq[k][d[i]]<1:
-				mapDict[distKey] = ps_count
 			elif distKey not in mapDict.keys() and frq[k][d[i]]==sz:
 				mapDict[distKey] = -np.log(float(frq[k][d[i]]-(10.**(-ps_count)))/sz)
-			elif frq[k][d[i]] < 1:
-				mapDict[distKey] -= -ps_count
 			elif frq[k][d[i]]==sz:
 				mapDict[distKey] -= np.log(float(frq[k][d[i]]-(10.**(-ps_count)))/sz)
 			else:
@@ -27,14 +23,10 @@ def prodDistance(frq,ps_count):
 			g = sorted(list(v - s))
 			distKey = d[g[0]]+ ' ' +d[g[1]]
 
-			if distKey not in mapDict.keys() and frq[k][d[i]]>0 and frq[k][d[i]]!=sz:
+			if distKey not in mapDict.keys()  and frq[k][d[i]]!=sz:
 				mapDict[distKey] = -np.log(float(frq[k][d[i]])/sz)
-			elif distKey not in mapDict.keys() and frq[k][d[i]]<1:
-				mapDict[distKey] = ps_count
 			elif distKey not in mapDict.keys() and frq[k][d[i]]==sz:
 				mapDict[distKey] = -np.log(float(frq[k][d[i]]-(10.**(-ps_count)))/sz)
-			elif frq[k][d[i]] < 1:
-				mapDict[distKey] -= -ps_count
 			elif frq[k][d[i]]==sz:
 				mapDict[distKey] -= np.log(float(frq[k][d[i]]-(10.**(-ps_count)))/sz)
 			else:

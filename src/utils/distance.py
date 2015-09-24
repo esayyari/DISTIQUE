@@ -5,7 +5,7 @@ from optparse import OptionParser
 from  prodDistance import prodDistance
 from printDistanceTable import printDistanceTable
 from minDistance import minDistance
-
+import pprint
 
 usage = "usage: %prog [options]"
 parser = OptionParser(usage)
@@ -41,14 +41,14 @@ for line in f:
     frq[k[0]] = v
 keyDict = sorted(np.unique(("/".join(frq.keys())).split("/")));
 mapDict = dict()
-def computeDistance(frq, method, percentile,ps_count):
+def computeDistance(frq, method, percentile):
     return{
-        'min'  : minDistance(frq,ps_count),
-        'prod'  : prodDistance(frq,ps_count),
+        'min'  : minDistance(frq),
+        'prod'  : prodDistance(frq),
 #	'minavg': minAvgDistance(frq,percentile,ps_count),
 #	'minmed': minMedDistance(frq,percentile,ps_count)
     }[method] 
-mapDict = computeDistance(frq,method,percentile,ps_count)
+mapDict = computeDistance(frq,method,percentile)
 printDistanceTable(mapDict,keyDict)
 
 	
