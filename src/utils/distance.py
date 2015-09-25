@@ -35,9 +35,9 @@ for line in f:
     k=line.split()
     v = dict()
     d = k[0].split('/')
-    v[d[1]] = int(k[1])
-    v[d[2]] = int(k[2])
-    v[d[3]] = int(k[3])
+    v[d[1]] = float(k[1])
+    v[d[2]] = float(k[2])
+    v[d[3]] = float(k[3])
     frq[k[0]] = v
 keyDict = sorted(np.unique(("/".join(frq.keys())).split("/")));
 mapDict = dict()

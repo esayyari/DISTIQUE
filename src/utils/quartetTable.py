@@ -13,14 +13,14 @@ for line in sys.stdin:
 	    
 		
 	    
-	    v = frq.get(k, dict (zip(trip[1:4],[1]*3)))
+	    v = frq.get(k, dict (zip(trip[1:4],[0.5]*3)))
 	    v[keym[1]] += 1
 	    frq[k] = v
 	else:
 	    line = re.sub("delta |epsilon ","",line)
             k = "/".join(sorted(line.split()))
 	    trip = sorted(k.split("/"))
-            v = frq.get(k, dict (zip(trip[1:4],[1]*3)))
+            v = frq.get(k, dict (zip(trip[1:4],[0.5]*3)))
             v[trip[1]] += 1
 	    v[trip[2]] += 1
 	    v[trip[3]] += 1
