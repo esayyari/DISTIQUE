@@ -43,7 +43,7 @@ keyDict = sorted(np.unique(("/".join(frq.keys())).split("/")));
 mapDict = dict()
 def computeDistance(frq, method, percentile):
     return{
-       # 'min'  : minDistance(frq),
+        'min'  : minDistance(frq),
         'prod'  : prodDistance(frq)
 #	'minavg': minAvgDistance(frq,percentile,ps_count),
 #	'minmed': minMedDistance(frq,percentile,ps_count)
