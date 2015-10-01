@@ -15,12 +15,12 @@ def minDistance(frq):
                         if distKey not in mapDict.keys()  :
 				mapDict[distKey] = list()
 				numPc[distKey] = 0
-				if np.abs(frq[k][d[i]]) < 5: 
+				if np.abs(frq[k][d[i]]) < 1: 
 					numPc[distKey] += 1
 				p = np.log(min(1.,3.*frq[k][d[i]]/(1.*sz)))
                                 mapDict[distKey].append(p)
                         else:
-				if np.abs(frq[k][d[i]]) < 5:
+				if np.abs(frq[k][d[i]]) < 1:
 					numPc[distKey] += 1
 				p = np.log(min(1.,3.*frq[k][d[i]]/(1.*sz)))
                                 mapDict[distKey].append(p)
@@ -30,14 +30,14 @@ def minDistance(frq):
 
                         if distKey not in mapDict.keys():
 				numPc[distKey] = 0
-                                if np.abs(frq[k][d[i]]) < 5: 
+                                if np.abs(frq[k][d[i]]) < 1: 
                                         numPc[distKey] += 1
 				mapDict[distKey] = list()
 				p = np.log(min(1.,3.*frq[k][d[i]]/(1.*sz)))
                                 mapDict[distKey].append(p)
                         else:
 				p = np.log(min(1.,3.*frq[k][d[i]]/(1.*sz)))
-				if np.abs(frq[k][d[i]]) < 5:
+				if np.abs(frq[k][d[i]]) < 1:
                                         numPc[distKey] += 1
                                 mapDict[distKey].append(p)
 			retDict = dict()
