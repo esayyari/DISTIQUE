@@ -5,6 +5,13 @@ if [ -z $WS_HOME ]; then
   echo set $WS_HOME to the parent directory where the 'global' direcotry resides
   exit 1
 fi
+syst=$( uname -a | grep -o "gordon" )
+if [ "$syst" == "gordon" ]; then
+	source /etc/profile.d/modules.sh
+	module load python
+	module load scipy
+	VIRTUAL_ENV_DISABLE_PROMPT=1 source python27-gordon/bin/activate
+fi
 source $WS_HOME/global/src/shell/setup.sh
 export WS_LOC_HOME=$WS_HOME/DISTIQUE
 export WS_LOC_LIB=$WS_LOC_HOME/lib

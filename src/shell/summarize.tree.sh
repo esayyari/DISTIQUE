@@ -10,7 +10,7 @@ show_help() {
 cat << EOF
 USAGE: ${0##*/} [-h] [-s SUMMARIZING  METHOD] [-e SUMMARIING  OPTION] [-d DISTANCE METHOD] [-p PSEUDO COUNT] 
 [-o DISTANCE OPTION]  [-r OUTPUT FOLDER ] [-w OVERWRITE FLAG] [GENE TREES FILE]
-Estimate species tree using ************ method. GNEE TREES FILE is the file of gene trees concatenated.
+Estimate species tree using DISTIQUE  method. GNEE TREES FILE is the file of gene trees concatenated.
 
 	-s 	SUMMARIZING METHOD	the method to produce estimated species tree based on distance matrix.
 					We use fastME (fm) and PhyDstar (pd). Note that thsse two pacakges should be installed

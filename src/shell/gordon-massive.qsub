@@ -1,0 +1,26 @@
+#!/bin/bash
+################################################################################
+#  Submit script for SDSC's Python-based job bundler for XSEDE/SDSC Gordon.
+#  This script shows how to bundle a massive amount of short-running, serial
+#  tasks into a single job submission.
+#
+#  Glenn K. Lockwood, San Diego Supercomputer Center             November 2013
+################################################################################
+#PBS -N bundler.gordon
+#PBS -q normal
+#PBS -l nodes=2:ppn=16:flash
+#PBS -l walltime=00:30:00
+#PBS -v Catalina_maxhops=None,QOS=0
+
+TASKS=tasks.massive         # the name of your tasks list
+
+cd $PBS_O_WORKDIR
+
+module load python
+module load scipy
+#module load scipy
+mpirun_rsh -export \
+    -np $PBS_NP \
+    -hostfile $PBS_NODEFILE \
+    /home/diag/opt/mpi4py/mvapich2/intel/1.3.1/lib/python/mpi4py/bin/python-mpi \
+    /home/diag/opt/sdsc-user/bundler/bundler.py $TASKS
