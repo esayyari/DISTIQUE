@@ -26,7 +26,7 @@ for line in sys.stdin:
 	    v[trip[3]] += 1
             frq[k] = v
 
-
+	
 for k in sorted(frq.keys()):
     print k,
     tf = frq[k]
