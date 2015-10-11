@@ -42,8 +42,8 @@ fi
 res_root=$( dirname "${g}")
 tmp1=`mktemp`
 tmp2=`mktemp`
-head -n 1 $s>$tmp1
-head -n 1 $g>$tmp2
+head -n 1 $s | sed -e 's/\[&U\] \|\[&R\] //'>$tmp1
+head -n 1 $g | sed -e 's/\[&U\] \|\[&R\] //'>$tmp2
 #for x in `head -n 1 $s`; do
 # echo -n "$x" > $tmp1 #| sed -e 's/:-[0-9]*\.[0-9]*\|:[0-9]*\.[0-9]*//g;s/;//g'>$tmp1
 #done

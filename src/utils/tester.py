@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+from averageQuartetTables import averageQuartetTables
 import dendropy
 import sys
 import os
@@ -18,6 +18,8 @@ from greedy_cons import greedy_cons
 import subprocess
 from getDistanceTable import distanceTable
 from  generateTaxaList import getTaxaList
+from labelNodes import labelNodes
+from findPolytomies import findPolytomies
 usage = "usage: %prog [options]"
 parser = OptionParser(usage)
 parser.add_option("-f", "--file", dest="filename", type="string",
@@ -32,7 +34,7 @@ gt = options.gt
 outpath = options.out
 
 
-thr=0.8
+thr=1
 if ( not options.gt or not options.filename or not options.out):
 	sys.exit("Please enter genetrees file and quartetTable file location")
 	
@@ -50,67 +52,40 @@ keyDict = sorted(np.unique(("/".join(frq.keys())).split("/")));
 src_fpath = os.path.expanduser(os.path.expandvars(gt))
 trees = dendropy.TreeList.get_from_path(src_fpath, 'newick')
 con_tree = trees.consensus(min_freq=thr)   
- 
-taxa = set(con_tree.leaf_nodes())
+labelNodes(con_tree)
+con_tree.write(path="consensusTree.nwk",schema="newick") 
 con_tree.print_plot() 
 to_resolve=dict()
 tmp = list()
 p = 0
 j = 0
-samplingNum = 100
-for e in con_tree.postorder_node_iter():
-	n = len(e.child_nodes())
-	tmp_set = set()
-	if n>3 or ( n==3 and e.parent_node>0 ):
-		e.label = "poly"+str(j)
-		j += 1
-		v = dict()
-		i = 0
-		for c in e.child_node_iter():
-			c.label = "child"+str(i)
-			if len(tmp)>0:
-				t = tmp.pop()
-				v["child"+str(i)] = t
-				tmp_set = tmp_set | t
-				i += 1
-		tmp.append(tmp_set);
-		if len(taxa-tmp_set)>0:
-			e.parent_node.label = str("child"+str(n))
-			t = taxa-tmp_set
-			v["child"+str(n)] = t
-		to_resolve[e] = v
-		#for vt in v:
-		#	for vtt in v[vt]:
-		#		print vtt.taxon.label,
-		#	print
-		#print
-		val = v
-		(taxa_list,taxa_inv) =  getTaxaList(to_resolve[e])
-		chn = e.child_nodes()
-		for a in range(0,samplingNum):
-			origKeys = generateKey(val,taxa_list)
-			partialTable1	     = partialQuartetTable(frq,origKeys,taxa_inv)
-			if a>0:
-				quartTable=addQuartetTables(partialTable1,quartTable)
-			else:
-				quartTable = partialTable1
-		for kt,vt in quartTable.iteritems():
-			vtt = kt.split("/")
-			print kt,quartTable[kt][vtt[1]], quartTable[kt][vtt[2]], quartTable[kt][vtt[3]]
-		print
-		distanceTable(quartTable,"prod",outpath+"/distancet.d")
-		subprocess.call(["/Users/Erfan/Documents/Research/fastme-2.1.4/src/fastme", "-i",outpath+"/distancet.d","-w","none","-o",outpath+"/distancet.d_fastme_tree.nwk"])	
-		resolvePolytomy(outpath+"/distancet.d_fastme_tree.nwk",e,con_tree)
-#		con_tree.print_plot()
+numToStop = 10
+numMax = 100
+eps = 0.01
+verbose=1
+to_resolve = findPolytomies(con_tree)
+if len(to_resolve)!= 1:
+	for e in con_tree.postorder_node_iter():
+		if e in to_resolve:
+			val = to_resolve[e]
+			(taxa_list,taxa_inv) =  getTaxaList(to_resolve[e])
+			quartTable = averageQuartetTables(eps,numToStop,numMax,taxa_list,frq,taxa_inv,verbose)
+			distanceTable(quartTable,"prod",outpath+"/distancet.d")
+			subprocess.call(["/Users/Erfan/Documents/Research/fastme-2.1.4/src/fastme", "-i",outpath+"/distancet.d","-w","none","-o",outpath+"/distancet.d_fastme_tree.nwk"])	
+			res= resolvePolytomy(outpath+"/distancet.d_fastme_tree.nwk",e,con_tree)	
+			print res
 	else:
-		for i in range(0,n):
-			if len(tmp)>0:
-				tmp_set = tmp_set | tmp.pop()
-		if e.is_leaf():
-			tmp_set.add(e)
-		tmp.append(tmp_set)
-con_tree.write(
-    path="trees1.newick",
-    schema="newick",
-    )
+		distanceTable(frq,"prod",outpath+"/distancet.d")
+		subprocess.call(["/Users/Erfan/Documents/Research/fastme-2.1.4/src/fastme", "-i",outpath+"/distancet.d","-w","none","-o",outpath+"/distancet.d_fastme_tree.nwk"])
+		res= resolvePolytomy(outpath+"/distancet.d_fastme_tree.nwk",e,con_tree)
+		print res
+
+con_tree.write(path="trees1.nwk",schema="newick")
+tns = dendropy.TaxonNamespace()
+tree1 = dendropy.Tree.get_from_path("/Users/Erfan/Documents/Research/data/mammalian/mammalian-model-species.tre","newick",taxon_namespace=tns,rooting="force-unrooted")
+tree2 = dendropy.Tree.get_from_path("trees1.nwk","newick",taxon_namespace=tns,rooting="force-unrooted")
+tree1.print_plot()
+tree2.print_plot()
+res1 = dendropy.calculate.treecompare.false_positives_and_negatives(tree1,tree2)
+print res1
 
