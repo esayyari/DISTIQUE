@@ -89,7 +89,7 @@ for e in con_tree.postorder_node_iter():
 			quartTable = averageQuartetTables(limit=eps,NumToStop = numToStop, NumMax = numMax,ListTaxa=taxa_list,QTable=frq,QtablePath=filename,QtableReady=True,Inv=taxa_inv,V=verbose)
 		else:
 			quartTable = averageQuartetTables(limit=eps,NumToStop = numToStop, NumMax = numMax,ListTaxa=taxa_list,QTable=frq,QtablePath=filename,QtableReady=False,workingPath = outpath,Inv=taxa_inv,V=verbose,treeList=trees)
-		distanceTable(quartTable,"prod",outpath+"/distancet.d")
+		distanceTable(quartTable,method,outpath+"/distancet.d")
 		subprocess.call([WS_LOC_FM+"/fastme", "-i",outpath+"/distancet.d","-w","none","-o",outpath+"/distancet.d_fastme_tree.nwk"])	
 		res= resolvePolytomy(outpath+"/distancet.d_fastme_tree.nwk",e,con_tree)	
 		if verbose:
