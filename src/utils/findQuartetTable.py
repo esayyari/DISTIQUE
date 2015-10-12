@@ -7,14 +7,17 @@ import os
 import subprocess
 from readTable import readTable
 from set_path import set_path
-def findQuartetTable(trees,origKeys,tmpPath,verbose):
+def findQuartetTable(trees,origKeys,keyType,tmpPath,verbose):
 	
 	WS_LOC_SH = os.environ['WS_HOME']+'/DISTIQUE/src/shell/'
 	out_path = src_fpath = os.path.expanduser(os.path.expandvars(tmpPath))
 	taxa = set()
-	for key in origKeys:	
-		l = key.split("/")
-		taxa = taxa | set(l)
+	if keyType==1:
+		for key in origKeys:	
+			l = key.split("/")
+			taxa = taxa | set(l)
+	else:
+		taxa = origKeys
 	i = 0	
 	treeList = dendropy.TreeList()
 	for tree in trees:

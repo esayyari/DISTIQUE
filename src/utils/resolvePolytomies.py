@@ -4,7 +4,7 @@ import dendropy
 import os
 from buildTree import buildTree
 import subprocess
-def resolvePolytomy(pathToTree,node,otr):
+def resolvePolytomy(pathToTree,node,otr,verbose):
 	src_fpath = os.path.expanduser(os.path.expandvars(pathToTree))
 	if not os.path.exists(src_fpath):
    		 sys.stderr.write('Not found: "%s"' % src_fpath)
@@ -47,14 +47,18 @@ def resolvePolytomy(pathToTree,node,otr):
 			e_t = e.taxon.__str__()
 			e_t = e_t.split("'")
 			stack.append(e_t[1])	
-	inferedTree = buildTree(adjacent_list,otr,node)
-	inferedTree.write(path="./tmp.nwk",schema="newick")
-	tns = dendropy.TaxonNamespace()
-	tree1 = dendropy.Tree.get_from_path(src_fpath,"newick",taxon_namespace=tns,rooting="force-unrooted")
-	tree2 = dendropy.Tree.get_from_path("tmp.nwk","newick",taxon_namespace=tns,rooting="force-unrooted")
-	res = dendropy.calculate.treecompare.false_positives_and_negatives(tree1,tree2)
-	print "done"	
-	return res 
+	if verbose:
+		inferedTree = buildTree(adjacent_list,otr,node)
+		inferedTree.write(path="./tmp.nwk",schema="newick")
+		tns = dendropy.TaxonNamespace()
+		tree1 = dendropy.Tree.get_from_path(src_fpath,"newick",taxon_namespace=tns,rooting="force-unrooted")
+		tree2 = dendropy.Tree.get_from_path("tmp.nwk","newick",taxon_namespace=tns,rooting="force-unrooted")
+		res = dendropy.calculate.treecompare.false_positives_and_negatives(tree1,tree2)
+		print "done"	
+		return res 
+	else:
+		print "done"
+		return None 
 		
 
 	

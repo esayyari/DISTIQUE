@@ -31,9 +31,11 @@ def averageQuartetTables( **kwargs):
 			wrkPath = v
 		elif k == 'treeList':
 			trees = v
+		elif k == 'KeyType':
+			keyType = v
 	if availTable and ('QTable' not in kwargs.keys()):
-		 frq = readQuartetTable(QtablePath)
-	
+		frq = readQuartetTable(QtablePath)
+			
 	
 	num = 0	
 	for a in range(0,numMax):
@@ -41,7 +43,7 @@ def averageQuartetTables( **kwargs):
 		if availTable:
 			partialTable1= partialQuartetTable(frq,origKeys,taxa_inv)
 		else:
-			frq = findQuartetTable(trees,origKeys,wrkPath,verbose)
+			frq = findQuartetTable(trees,origKeys,keyType,wrkPath,verbose)
 			partialTable1= partialQuartetTable(frq,origKeys,taxa_inv)
 		if a>0:
 			partialTable1=addQuartetTables(partialTable1,quartTable)
