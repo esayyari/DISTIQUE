@@ -25,7 +25,7 @@ WS_LOC_FM = os.environ['WS_HOME']+'/fastme-2.1.4/src'
 usage = "usage: %prog [options]"
 parser = OptionParser(usage)
 parser.add_option("-f", "--file", dest="filename", type="string",
-              help="read data from FILENAME")
+              help="read quartet table from FILENAME")
 parser.add_option("-g","--gene",dest="gt",type="string",
 		help="read genetrees from FILENAME")
 parser.add_option("-o","--output",dest="out",type="string",
@@ -98,7 +98,7 @@ for e in con_tree.postorder_node_iter():
 con_tree.write(path=outpath+"distance.d_fastme_tree.nwk",schema="newick")
 tns = dendropy.TaxonNamespace()
 tree1 = dendropy.Tree.get_from_path("/Users/Erfan/Documents/Research/data/mammalian/mammalian-model-species.tre","newick",taxon_namespace=tns,rooting="force-unrooted")
-tree2 = dendropy.Tree.get_from_path("trees1.nwk","newick",taxon_namespace=tns,rooting="force-unrooted")
+tree2 = dendropy.Tree.get_from_path(outpath+"distance.d_fastme_tree.nwk","newick",taxon_namespace=tns,rooting="force-unrooted")
 res1 = dendropy.calculate.treecompare.false_positives_and_negatives(tree1,tree2)
 print res1
 
