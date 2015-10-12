@@ -20,6 +20,9 @@ from getDistanceTable import distanceTable
 from  generateTaxaList import getTaxaList
 from labelNodes import labelNodes
 from findPolytomies import findPolytomies
+from readTable import readTable
+WS_LOC_SHELL= os.environ['WS_HOME']+'/DISTIQUE/src/shell'
+WS_LOC_FM = os.environ['WS_HOME']+'/fastme-2.1.4/src'
 usage = "usage: %prog [options]"
 parser = OptionParser(usage)
 parser.add_option("-f", "--file", dest="filename", type="string",
@@ -28,41 +31,57 @@ parser.add_option("-g","--gene",dest="gt",type="string",
 		help="read genetrees from FILENAME")
 parser.add_option("-o","--output",dest="out",type="string",
 		help="the PATH to write the generated files")
+parser.add_option("-t","--threshold",dest="thr",
+		help="the minimum frequency that consensus will use. Default is 0.5",default=0.5)
+parser.add_option("-n","--numToStop",dest="numToStop",
+		help="The number of steps that convergence criteria should be meet until the successful convergence. Default is 10",default=10)
+parser.add_option("-m","--method",dest="method",
+		help="The method to compute the distance of taxa. The default is prod.",default="prod")
+parser.add_option("-x","--numMax",dest="numMax",
+		help="The maximum number of steps for computing the average quartet table. The default is 100", default=100)
+parser.add_option("-e","--epsilon",dest="epsilon",
+		help="The threshold of convergence for computing the average quartet table using KL divergence. The default is 0.01 ",default=0.01)
+parser.add_option("-v","--verbose",dest="verbose",
+		help="Verbose",default=1)
+parser.add_option("-r","--readFromFile",dest="readFromFile",
+		help="Set it to 1 if you already computed the quartet table. If you want the code to compute the quartet tables set it to 0. Default is 0",default=0)
+parser.add_option("-p","--maxPoly",dest="maxPoly",
+		help="This indicates the maximum order of polytomy in the tree that you want the code to compute it using partial quartet tables. If you want the code to compute the whole quartet table your could set it to 0. Default is 20",default=20)
+
 (options,args) = parser.parse_args()
 filename = options.filename
 gt = options.gt
 outpath = options.out
+thr = options.thr
+thr=options.thr
+numToStop = options.numToStop
+numMax = options.numMax
+eps = options.epsilon
+verbose=options.verbose
+if options.readFromFile == 1:
+	readFromFile = True
+else:
+	readFromFile = False
+maxPossiblePolyOrder = options.maxPoly
+method = options.method
 
-
-thr=0.9
 if ( not options.gt or not options.filename or not options.out):
 	sys.exit("Please enter genetrees file and quartetTable file location")
-	
-f = open(filename, 'r')
-frq = dict()
-for line in f:
-    k=line.split()
-    v = dict()
-    d = k[0].split('/')
-    v[d[1]] = float(k[1])
-    v[d[2]] = float(k[2])
-    v[d[3]] = float(k[3])
-    frq[k[0]] = v
-keyDict = sorted(np.unique(("/".join(frq.keys())).split("/")));
+
+frq = readTable(filename)
+
 src_fpath = os.path.expanduser(os.path.expandvars(gt))
+
 trees = dendropy.TreeList.get_from_path(src_fpath, 'newick')
+
 con_tree = trees.consensus(min_freq=thr)   
+
 labelNodes(con_tree)
+
 con_tree.write(path="consensusTree.nwk",schema="newick") 
-#con_tree.print_plot() 
-numToStop = 10
-numMax = 100
-eps = 0.01
-verbose=1
-readFromFile = True
-maxPossiblePolyOrder = 20
+
 (to_resolve,maxPolyOrder) = findPolytomies(con_tree)
-#if len(to_resolve)!= 1:
+
 for e in con_tree.postorder_node_iter():
 	if e in to_resolve:
 		val = to_resolve[e]
@@ -72,18 +91,12 @@ for e in con_tree.postorder_node_iter():
 		else:
 			quartTable = averageQuartetTables(limit=eps,NumToStop = numToStop, NumMax = numMax,ListTaxa=taxa_list,QTable=frq,QtablePath=filename,QtableReady=False,workingPath = outpath,Inv=taxa_inv,V=verbose,treeList=trees)
 		distanceTable(quartTable,"prod",outpath+"/distancet.d")
-		subprocess.call(["/Users/Erfan/Documents/Research/fastme-2.1.4/src/fastme", "-i",outpath+"/distancet.d","-w","none","-o",outpath+"/distancet.d_fastme_tree.nwk"])	
+		subprocess.call([WS_LOC_FM+"/fastme", "-i",outpath+"/distancet.d","-w","none","-o",outpath+"/distancet.d_fastme_tree.nwk"])	
 		res= resolvePolytomy(outpath+"/distancet.d_fastme_tree.nwk",e,con_tree)	
-		print res
-#else:
-#	e = to_resolve.keys()
-#	e = e[0]
-#	distanceTable(frq,"prod",outpath+"/distancet.d")
-#	subprocess.call(["/Users/Erfan/Documents/Research/fastme-2.1.4/src/fastme", "-i",outpath+"/distancet.d","-w","none","-o",outpath+"/distancet.d_fastme_tree.nwk"])
-#	res= resolvePolytomy(outpath+"/distancet.d_fastme_tree.nwk",e,con_tree)
-#	print res
+		if verbose:
+			print res
 
-con_tree.write(path="trees1.nwk",schema="newick")
+con_tree.write(path=outpath+"distance.d_fastme_tree.nwk",schema="newick")
 tns = dendropy.TaxonNamespace()
 tree1 = dendropy.Tree.get_from_path("/Users/Erfan/Documents/Research/data/mammalian/mammalian-model-species.tre","newick",taxon_namespace=tns,rooting="force-unrooted")
 tree2 = dendropy.Tree.get_from_path("trees1.nwk","newick",taxon_namespace=tns,rooting="force-unrooted")

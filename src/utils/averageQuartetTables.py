@@ -41,7 +41,7 @@ def averageQuartetTables( **kwargs):
 		if availTable:
 			partialTable1= partialQuartetTable(frq,origKeys,taxa_inv)
 		else:
-			frq = findQuartetTable(trees,origKeys,wrkPath)
+			frq = findQuartetTable(trees,origKeys,wrkPath,verbose)
 			partialTable1= partialQuartetTable(frq,origKeys,taxa_inv)
 		if a>0:
 			partialTable1=addQuartetTables(partialTable1,quartTable)

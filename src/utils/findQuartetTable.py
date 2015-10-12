@@ -6,7 +6,10 @@ import sys
 import os
 import subprocess
 from readTable import readTable
-def findQuartetTable(trees,origKeys,tmpPath):
+from set_path import set_path
+def findQuartetTable(trees,origKeys,tmpPath,verbose):
+	
+	WS_LOC_SH = os.environ['WS_HOME']+'/DISTIQUE/src/shell/'
 	out_path = src_fpath = os.path.expanduser(os.path.expandvars(tmpPath))
 	taxa = set()
 	for key in origKeys:	
@@ -20,8 +23,10 @@ def findQuartetTable(trees,origKeys,tmpPath):
 		treeList.append(t)
 	outfile = out_path + "/partialQuartetTable.nwk"
 	treeList.write(path = outfile,schema="newick")
-	command = "/Users/Erfan/Documents/Research/DISTIQUE/src/shell/compute.quartet.freq.sh -o "+out_path+" -w 1 -f "+outfile
+	command = WS_LOC_SH+"compute.quartet.freq.sh -o "+out_path+" -w 1 -f "+outfile
 
 	os.system(command)
 	frq = 	readTable(out_path+'/quartet_tmp.q')
+	if verbose:
+		print "The quartet table has been computed"
 	return frq
