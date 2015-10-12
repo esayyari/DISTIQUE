@@ -48,14 +48,14 @@ def resolvePolytomy(pathToTree,node,otr,verbose):
 			e_t = e_t.split("'")
 			stack.append(e_t[1])	
 	if verbose:
-		inferedTree = buildTree(adjacent_list,otr,node)
-		inferedTree.write(path="./tmp.nwk",schema="newick")
-		tns = dendropy.TaxonNamespace()
-		tree1 = dendropy.Tree.get_from_path(src_fpath,"newick",taxon_namespace=tns,rooting="force-unrooted")
-		tree2 = dendropy.Tree.get_from_path("tmp.nwk","newick",taxon_namespace=tns,rooting="force-unrooted")
-		res = dendropy.calculate.treecompare.false_positives_and_negatives(tree1,tree2)
+	#	inferedTree = buildTree(adjacent_list,otr,node)
+	#	inferedTree.write(path="./tmp.nwk",schema="newick")
+	#	tns = dendropy.TaxonNamespace()
+	#	tree1 = dendropy.Tree.get_from_path(src_fpath,"newick",taxon_namespace=tns,rooting="force-unrooted")
+	#	tree2 = dendropy.Tree.get_from_path("tmp.nwk","newick",taxon_namespace=tns,rooting="force-unrooted")
+	#	res = dendropy.calculate.treecompare.false_positives_and_negatives(tree1,tree2)
 		print "done"	
-		return res 
+		return None 
 	else:
 		print "done"
 		return None 

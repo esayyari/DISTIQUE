@@ -8,9 +8,11 @@
 ################################################################################
 #PBS -N bundler.gordon
 #PBS -q normal
-#PBS -l nodes=8:ppn=16:flash
-#PBS -l walltime=08:00:00
-#PBS -v Catalina_maxhops=None,QOS=0
+#PBS -l nodes=4:ppn=16:flash
+#PBS -l walltime=06:00:00
+#PBS -o prod-mammalian-4.out
+#PBS -e prod-mammalian-4.err
+
 
 TASKS=tasks.massive         # the name of your tasks list
 
@@ -18,7 +20,6 @@ cd $PBS_O_WORKDIR
 
 module load python
 module load scipy
-#module load scipy
 mpirun_rsh -export \
     -np $PBS_NP \
     -hostfile $PBS_NODEFILE \
