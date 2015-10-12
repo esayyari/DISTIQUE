@@ -31,10 +31,11 @@ def resolvePolytomy(pathToTree,node,otr,verbose):
 		if n > 0:
 			tmp_next = str()
 			t = node.insert_new_child(n+1)
+			children = set(node.child_nodes())
 			for i in range(0,n):
 				if len(stack)>0:
 					tmp = stack.pop()
-					if dict_children[tmp]  in node.child_nodes():
+					if dict_children[tmp]  in children:
 						node.remove_child(dict_children[tmp])
 					elif len(node.child_nodes())==1:
 						continue
