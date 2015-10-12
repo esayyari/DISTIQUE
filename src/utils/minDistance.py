@@ -12,7 +12,7 @@ def minDistance(frq):
                 for i in range(1,4):
                         distKey = d[0]+' '+d[i]
 
-                        if distKey not in mapDict.keys()  :
+                        if distKey not in set(mapDict.keys())  :
 				mapDict[distKey] = list()
 				numPc[distKey] = 0
 				if np.abs(frq[k][d[i]]) < 1: 
@@ -28,7 +28,7 @@ def minDistance(frq):
                         g = sorted(list(v - s))
                         distKey = d[g[0]]+ ' ' +d[g[1]]
 
-                        if distKey not in mapDict.keys():
+                        if distKey not in set(mapDict.keys()):
 				numPc[distKey] = 0
                                 if np.abs(frq[k][d[i]]) < 1: 
                                         numPc[distKey] += 1
