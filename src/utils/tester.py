@@ -34,7 +34,7 @@ gt = options.gt
 outpath = options.out
 
 
-thr=1
+thr=0.9
 if ( not options.gt or not options.filename or not options.out):
 	sys.exit("Please enter genetrees file and quartetTable file location")
 	
@@ -55,30 +55,30 @@ con_tree = trees.consensus(min_freq=thr)
 labelNodes(con_tree)
 con_tree.write(path="consensusTree.nwk",schema="newick") 
 con_tree.print_plot() 
-to_resolve=dict()
-tmp = list()
-p = 0
-j = 0
 numToStop = 10
 numMax = 100
 eps = 0.01
 verbose=1
 to_resolve = findPolytomies(con_tree)
-if len(to_resolve)!= 1:
-	for e in con_tree.postorder_node_iter():
-		if e in to_resolve:
-			val = to_resolve[e]
-			(taxa_list,taxa_inv) =  getTaxaList(to_resolve[e])
-			quartTable = averageQuartetTables(eps,numToStop,numMax,taxa_list,frq,taxa_inv,verbose)
-			distanceTable(quartTable,"prod",outpath+"/distancet.d")
-			subprocess.call(["/Users/Erfan/Documents/Research/fastme-2.1.4/src/fastme", "-i",outpath+"/distancet.d","-w","none","-o",outpath+"/distancet.d_fastme_tree.nwk"])	
-			res= resolvePolytomy(outpath+"/distancet.d_fastme_tree.nwk",e,con_tree)	
-			print res
-	else:
-		distanceTable(frq,"prod",outpath+"/distancet.d")
-		subprocess.call(["/Users/Erfan/Documents/Research/fastme-2.1.4/src/fastme", "-i",outpath+"/distancet.d","-w","none","-o",outpath+"/distancet.d_fastme_tree.nwk"])
-		res= resolvePolytomy(outpath+"/distancet.d_fastme_tree.nwk",e,con_tree)
+#if len(to_resolve)!= 1:
+for e in con_tree.postorder_node_iter():
+	if e in to_resolve:
+		val = to_resolve[e]
+		(taxa_list,taxa_inv) =  getTaxaList(to_resolve[e])
+		print taxa_list
+		print taxa_inv
+		quartTable = averageQuartetTables(eps,numToStop,numMax,taxa_list,frq,taxa_inv,verbose)
+		distanceTable(quartTable,"prod",outpath+"/distancet.d")
+		subprocess.call(["/Users/Erfan/Documents/Research/fastme-2.1.4/src/fastme", "-i",outpath+"/distancet.d","-w","none","-o",outpath+"/distancet.d_fastme_tree.nwk"])	
+		res= resolvePolytomy(outpath+"/distancet.d_fastme_tree.nwk",e,con_tree)	
 		print res
+#else:
+#	e = to_resolve.keys()
+#	e = e[0]
+#	distanceTable(frq,"prod",outpath+"/distancet.d")
+#	subprocess.call(["/Users/Erfan/Documents/Research/fastme-2.1.4/src/fastme", "-i",outpath+"/distancet.d","-w","none","-o",outpath+"/distancet.d_fastme_tree.nwk"])
+#	res= resolvePolytomy(outpath+"/distancet.d_fastme_tree.nwk",e,con_tree)
+#	print res
 
 con_tree.write(path="trees1.nwk",schema="newick")
 tns = dendropy.TaxonNamespace()
