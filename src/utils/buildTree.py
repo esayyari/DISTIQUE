@@ -26,6 +26,4 @@ def buildTree(setNodeLabels,tree,center):
 	
 	inferedTree.retain_taxa(taxa,update_bipartitions=True)
 	inferedTree.deroot()		
-	#for node in inferedTree:
-	#	node.label=None 
 	return inferedTree

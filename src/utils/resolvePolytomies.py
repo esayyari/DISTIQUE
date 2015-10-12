@@ -17,16 +17,12 @@ def resolvePolytomy(pathToTree,node,otr):
 	for t in node.adjacent_nodes():		
 		dict_children[t.label] = t
 		adjacent_list.add(t.label)
-	print adjacent_list
 	if node.parent_node is not None:
 		label = node.parent_node.label
-		print label
 		filter = lambda taxon: True if taxon.label==label else False
 		nd = sp_tree.find_node_with_taxon(filter)
-		print nd
 		if nd is not None:
 			sp_tree.reroot_at_edge(nd.edge, update_bipartitions=False)
-	sp_tree.print_plot()
 	stack = list()
 	for e in sp_tree.postorder_node_iter():
 		n = len(e.child_nodes())

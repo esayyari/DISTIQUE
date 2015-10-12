@@ -54,20 +54,23 @@ trees = dendropy.TreeList.get_from_path(src_fpath, 'newick')
 con_tree = trees.consensus(min_freq=thr)   
 labelNodes(con_tree)
 con_tree.write(path="consensusTree.nwk",schema="newick") 
-con_tree.print_plot() 
+#con_tree.print_plot() 
 numToStop = 10
 numMax = 100
 eps = 0.01
 verbose=1
-to_resolve = findPolytomies(con_tree)
+readFromFile = True
+maxPossiblePolyOrder = 20
+(to_resolve,maxPolyOrder) = findPolytomies(con_tree)
 #if len(to_resolve)!= 1:
 for e in con_tree.postorder_node_iter():
 	if e in to_resolve:
 		val = to_resolve[e]
 		(taxa_list,taxa_inv) =  getTaxaList(to_resolve[e])
-		print taxa_list
-		print taxa_inv
-		quartTable = averageQuartetTables(eps,numToStop,numMax,taxa_list,frq,taxa_inv,verbose)
+		if maxPolyOrder > maxPossiblePolyOrder and readFromFile:
+			quartTable = averageQuartetTables(limit=eps,NumToStop = numToStop, NumMax = numMax,ListTaxa=taxa_list,QTable=frq,QtablePath=filename,QtableReady=True,Inv=taxa_inv,V=verbose)
+		else:
+			quartTable = averageQuartetTables(limit=eps,NumToStop = numToStop, NumMax = numMax,ListTaxa=taxa_list,QTable=frq,QtablePath=filename,QtableReady=False,workingPath = outpath,Inv=taxa_inv,V=verbose,treeList=trees)
 		distanceTable(quartTable,"prod",outpath+"/distancet.d")
 		subprocess.call(["/Users/Erfan/Documents/Research/fastme-2.1.4/src/fastme", "-i",outpath+"/distancet.d","-w","none","-o",outpath+"/distancet.d_fastme_tree.nwk"])	
 		res= resolvePolytomy(outpath+"/distancet.d_fastme_tree.nwk",e,con_tree)	
@@ -84,8 +87,6 @@ con_tree.write(path="trees1.nwk",schema="newick")
 tns = dendropy.TaxonNamespace()
 tree1 = dendropy.Tree.get_from_path("/Users/Erfan/Documents/Research/data/mammalian/mammalian-model-species.tre","newick",taxon_namespace=tns,rooting="force-unrooted")
 tree2 = dendropy.Tree.get_from_path("trees1.nwk","newick",taxon_namespace=tns,rooting="force-unrooted")
-tree1.print_plot()
-tree2.print_plot()
 res1 = dendropy.calculate.treecompare.false_positives_and_negatives(tree1,tree2)
 print res1
 
