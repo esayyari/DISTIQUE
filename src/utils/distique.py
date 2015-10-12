@@ -14,7 +14,6 @@ from getQuartetKeys import generateKey
 from findPartialQuartetFreq import partialQuartetTable
 from addQuartetTables import addQuartetTables
 from resolvePolytomies import resolvePolytomy
-from greedy_cons import greedy_cons
 import subprocess
 from getDistanceTable import distanceTable
 from  generateTaxaList import getTaxaList
