@@ -94,7 +94,7 @@ if n<maxPossiblePoly:
 	if verbose:
 		print "computing the total quartet table"
 	frq = findQuartetTable(trees,taxa,0,outpath,verbose)
-if len(to_resolve)< n-4:
+if len(to_resolve)<n:
 	for e in con_tree.postorder_node_iter():
 		if e in to_resolve:
 			val = to_resolve[e]
