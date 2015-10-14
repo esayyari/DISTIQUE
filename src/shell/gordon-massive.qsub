@@ -9,14 +9,12 @@
 #PBS -N bundler.gordon
 #PBS -q normal
 #PBS -l nodes=4:ppn=16:flash
-#PBS -l walltime=06:00:00
-#PBS -o prod-mammalian-4.out
-#PBS -e prod-mammalian-4.err
-
-
-TASKS=tasks.massive         # the name of your tasks list
-
-cd $PBS_O_WORKDIR
+#PBS -l walltime=2:00:00
+#PBS -o prod-mammalian-4-njst.out
+#PBS -e prod-mammalian-4-njst.err
+TASKS=$PBS_O_WORKDIR/tasks.massive-astral        # the name of your tasks list
+cd /scratch/$USER/$PBS_JOBID
+#cd $PBS_O_WORKDIR
 
 module load python
 module load scipy
