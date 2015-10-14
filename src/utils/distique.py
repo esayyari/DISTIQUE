@@ -94,16 +94,13 @@ if verbose:
 if n<maxPossiblePoly:
 	if verbose:
 		print "computing the total quartet table"
-<<<<<<< HEAD
 	if readFromFile:
 		frq = readTable(filename)
 	else:
 		frq = findQuartetTable(trees,taxa,0,outpath,verbose)
 if maxPolyOrder< n-4:
-=======
 	frq = findQuartetTable(trees,taxa,0,outpath,verbose)
 if len(to_resolve)<n:
->>>>>>> fc8361a5592fdbd6b0903caeabfc15dec790fd07
 	for e in con_tree.postorder_node_iter():
 		if e in to_resolve:
 			val = to_resolve[e]
