@@ -7,6 +7,7 @@ from checkConvergenceQuartTable import convergencedQuartTable
 import itertools
 from readQuartetTable import readQuartetTable
 from findQuartetTable import findQuartetTable
+from findTrueAverageTable import findTrueAverageTable
 def averageQuartetTables( **kwargs):
 	for k,v in kwargs.iteritems():
 		if k == 'limit':
@@ -15,7 +16,7 @@ def averageQuartetTables( **kwargs):
 			numToStop = v
 		elif k == 'NumMax':
 			numMax = v
-		elif k == 'ListTaxa':
+		if k == 'ListTaxa':
 			taxa_list = v
 		elif k == 'QTable':
 			frq = v
@@ -58,4 +59,5 @@ def averageQuartetTables( **kwargs):
 				num = 0
 		quartTable = partialTable1
 	print "Warning: quit averaging Quartet Tables without convergence"
+	print "Partial quartet table computed"
 	return quartTable

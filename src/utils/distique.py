@@ -21,6 +21,7 @@ from labelNodes import labelNodes
 from findPolytomies import findPolytomies
 from readTable import readTable
 from findQuartetTable import findQuartetTable
+from findTrueAverageTable import findTrueAverageTable
 WS_LOC_SHELL= os.environ['WS_HOME']+'/DISTIQUE/src/shell'
 WS_LOC_FM = os.environ['WS_HOME']+'/fastme-2.1.4/src'
 usage = "usage: %prog [options]"
@@ -93,8 +94,11 @@ if verbose:
 if n<maxPossiblePoly:
 	if verbose:
 		print "computing the total quartet table"
-	frq = findQuartetTable(trees,taxa,0,outpath,verbose)
-if len(to_resolve)< n-4:
+	if readFromFile:
+		frq = readTable(filename)
+	else:
+		frq = findQuartetTable(trees,taxa,0,outpath,verbose)
+if maxPolyOrder< n-4:
 	for e in con_tree.postorder_node_iter():
 		if e in to_resolve:
 			val = to_resolve[e]
@@ -111,6 +115,7 @@ if len(to_resolve)< n-4:
 				if verbose:
 					print "computing the partial quartet table in each step"
 				quartTable = averageQuartetTables(limit=eps,NumToStop = numToStop, NumMax = numMax,ListTaxa=taxa_list,QtableReady=False,workingPath = outpath,Inv=taxa_inv,V=verbose,treeList=trees,KeyType=1)
+			
 			if verbose:
 				print "computing distance table using the method: "+str(method)
 			distanceTable(quartTable,method,outpath+"/distancet.d")

@@ -14,8 +14,6 @@ def distanceTable(frq,method,outfile):
 	percentile = 1
 	keyDict = sorted(np.unique(("/".join(frq.keys())).split("/")));
 	mapDict = dict()
- 	keyDict = sorted(np.unique(("/".join(frq.keys())).split("/")));
-	mapDict = dict()
                	
 	def computeDistance(frq, method, percentile):
 	    return{
