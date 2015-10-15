@@ -4,7 +4,7 @@ DIR_NJst=$WS_HOME/ASTRID/src
 DIR_Astral=$WS_HOME/ASTRAL/Astral
 path_mammalian=/oasis/projects/nsf/uot136/esayyari/data/mammalian
 DIR_UTILS=$WS_HOME/DISTIQUE/src/utils
-method=prod
+method=min
 summethod=fm
 out=/oasis/projects/nsf/uot136/esayyari/outputs/
 
@@ -36,12 +36,15 @@ for file in `find $path_tmp -type f -name "*.gt"`; do
 		mkdir -p $out/$tmp_out/njst
 	fi
 #	if [ ! -s $out/$tmp_out/astral/distance.d_astral_tree.nwk ]; then 
-#	printf "mkdir -p ./$out/$tmp_out/astral;  /usr/bin/time -po ./$out/$tmp_out/astral/$f_tmp-log.info java -Xmx2000M -jar $DIR_Astral/astral.4.7.8.jar -i $file -o ./$out/$tmp_out/astral/distance.d_astral_tree.nwk; mv ./$out/$tmp_out/astral $out/$tmp_out/distique-cons/$method\n">>tasks.massive-astral.7
+#	printf "mkdir -p ./$out/$tmp_out/astral;  /usr/bin/time -po ./$out/$tmp_out/astral/$f_tmp-log.info java -Xmx2000M -jar $DIR_Astral/astral.4.7.8.jar -i $file -o ./$out/$tmp_out/astral/distance.d_astral_tree.nwk; mv ./$out/$tmp_out/astral $out/$tmp_out/distique-cons/$method\n">>tasks.massive-astral.7-$method
 #	fi
+if [ ! -s $out/$tmp_out/distique-cons/$method/$method/distance.d_distique_tree.nwk ]; then
+		printf "mkdir -p ./$out/$tmp_out/distique-cons/$method/; source /etc/profile.d/modules.sh; module load python; module load scipy; VIRTUAL_ENV_DISABLE_PROMPT=1; source $WS_HOME/python27-gordon/bin/activate; /usr/bin/time -po ./$out/$tmp_out/distique-cons/$mehtod/$f_tmp-log.info $DIR_UTILS/distique.py -g $file -m $method  -o ./$out/$tmp_out/distique-cons/$method -x 2; cp -r ./$out/$tmp_out/distique-cons/$method $out/$tmp_out/distique-cons/$method\n">>tasks.massive-$method.8
+	fi
 #	if [ ! -s $out/$tmp_out/distique-2/$method/distance.d_distique_tree.nwk ]; then
-		printf "mkdir -p ./$out/$tmp_out/distique-2/$method/; source /etc/profile.d/modules.sh; module load python; module load scipy; VIRTUAL_ENV_DISABLE_PROMPT=1; source $WS_HOME/python27-gordon/bin/activate; /usr/bin/time -po ./$out/$tmp_out/distique-2/$mehtod/$f_tmp-log.info $DIR_UTILS/distique-2.py -g $file -m $method  -o ./$out/$tmp_out/distique-2/$method -x 2; cp -r ./$out/$tmp_out/distique-2/$method $out/$tmp_out/distique-2/$method\n">>tasks.massive-$method.8
+#		printf "mkdir -p ./$out/$tmp_out/distique-2/$method/; source /etc/profile.d/modules.sh; module load python; module load scipy; VIRTUAL_ENV_DISABLE_PROMPT=1; source $WS_HOME/python27-gordon/bin/activate; /usr/bin/time -po ./$out/$tmp_out/distique-2/$mehtod/$f_tmp-log.info $DIR_UTILS/distique-2.py -g $file -m $method  -o ./$out/$tmp_out/distique-2/$method -x 2; cp -r ./$out/$tmp_out/distique-2/$method $out/$tmp_out/distique-2/$method\n">>tasks.massive-$method.8
 #	fi
 #	if [ ! -s $out/$tmp_out/distance.d_njst_tree.nwk ]; then
-	printf "mkdir -p ./$out/$tmp_out/njst source /etc/profile.d/modules.sh; module load python; module load scipy; VIRTUAL_ENV_DISABLE_PROMPT=1; source $WS_HOME/python27-gordon/bin/activate; /usr/bin/time -po ./$out/$tmp_out/njst/$f_tmp-log.info python $DIR_NJst/ASTRID.py -i $file -m fastme2 -o ./$out/$tmp_out/njst/distance.d_njst_tree.nwk -c ./$out/$tmp_out/njst/CACHE.csv; mv ./$out/$tmp_out/njst $out/$tmp_out/njst \n" >>tasks.massive-astrid.9
+#	printf "mkdir -p ./$out/$tmp_out/njst source /etc/profile.d/modules.sh; module load python; module load scipy; VIRTUAL_ENV_DISABLE_PROMPT=1; source $WS_HOME/python27-gordon/bin/activate; /usr/bin/time -po ./$out/$tmp_out/njst/$f_tmp-log.info python $DIR_NJst/ASTRID.py -i $file -m fastme2 -o ./$out/$tmp_out/njst/distance.d_njst_tree.nwk -c ./$out/$tmp_out/njst/CACHE.csv; mv ./$out/$tmp_out/njst $out/$tmp_out/njst \n" >>tasks.massive-astrid.9-$method
 #	fi
 done
