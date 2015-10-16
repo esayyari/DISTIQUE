@@ -15,6 +15,9 @@ def minDistance(frq):
                         if distKey not in set(mapDict.keys())  :
 				mapDict[distKey] = list()
 				numPc[distKey] = 0
+				print k
+				print d[i]
+				print frq[k]
 				if np.abs(frq[k][d[i]]) < 1: 
 					numPc[distKey] += 1
 				p = np.log(min(1.,3.*frq[k][d[i]]/(1.*sz)))

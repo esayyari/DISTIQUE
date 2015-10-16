@@ -1,35 +1,57 @@
-qplot(V8,V12,data=d,color=interaction(V1,V2,V3),geom=c("point","line"),fun.y=mean,stat='summary')+facet_grid(V7~V9)+theme_bw()+theme(legend.position="bottom")+xlab("Number of genes")+stat_summary(geom="errorbar",fun.ymin=function(x) {mean(x)-sd(x)/sqrt(length(x))},fun.ymax = function(x) {mean(x)+sd(x)/sqrt(length(x))},width=10)
+d<-read.csv('mammalian-avian-res.csv',sep=",",header=FALSE)
+require('ggplot2')
+levels(d$V6)<-list("500bp"="500","True gene trees"="true","1000bp"="1000","1500bp"="1500","250bp"="250")
+c<-d$V4 %in% c("0.2X")
+b<-d$V1 %in% c("mammalian")
+a<-d$V2 %in% c("distique-2-prod","distique-2-min","prod_fm","distique-cons-prod","distique-cons-min")
+g<-d$V5 %in% c(200)
+h<-d$V6 %in% c("500bp","True gene trees")
+e<-d$V2 %in% c("distique-2-prod","astrid","astral")
+f<-d$V2 %in% c("distique-2-prod","distique-2-min","prod_fm")
+i<-d$V1 %in% c("avian")
+j<-d$V4 %in% c("1X")
+l<-d$V2 %in% c("distique-2-prod","distique-2-min","prod_fm","distique-cons-prod","distique-cons-min")
+m<-d$V5 %in% c(1000)
+n<-d$V6 %in% c("500bp","True gene trees")
+o<-d$V2 %in% c("distique-2-prod","astrid","astral")
+p<-d$V2 %in% c("distique-2-prod","distique-2-min","prod_fm")
+ 
+ #d$V5<-as.factor(d$V5)
+qplot(V5,V8,data=d[a & b & c & h,],color=interaction(V2),geom=c("point","line"),fun.y=mean,stat='summary')+facet_grid(.~V6)+theme_bw()+theme(legend.position="bottom")+xlab("Number of genes")+ylab("FN rates")+stat_summary(geom="errorbar",fun.ymin=function(x) {mean(x)-sd(x)/sqrt(length(x))},fun.ymax = function(x) {mean(x)+sd(x)/sqrt(length(x))},width=10)+scale_color_brewer(name="",palette = "Paired",labels=c("Distique-min","Distique-all-pairs","Distique-rndsample-min","Distique-rndsample-all-pairs","all-pairs"))
+ggsave('Mammalian-0.2ILS-genetreesVSFNrates-Distique-vt.pdf')
+
+qplot(V4,V8,data=d[a & b & g & h,],color=V2,group = V2,geom=c("line"),fun.y=mean,stat='summary')+facet_grid(.~V6)+theme_bw()+theme(legend.position="bottom")+xlab("Number of genes")+ylab("FN rates")+stat_summary(geom="errorbar",fun.ymin=function(x) {mean(x)-sd(x)/sqrt(length(x))},fun.ymax = function(x) {mean(x)+sd(x)/sqrt(length(x))},width=0.05)+scale_color_brewer(name="",palette = "Paired",labels=c("Distique-min","Distique-all-pairs","Distique-rndsample-min","Distique-rndsample-all-pairs","all-pairs"))
+ggsave('Mammalian-200-genes-ILS-Vs-FNrate-Distique-vt.pdf')
+qplot(V4,V8,data=d[e & b & g & h,],color=V2,group = V2,geom=c("line"),fun.y=mean,stat='summary')+facet_grid(.~V6)+theme_bw()+theme(legend.position="bottom")+xlab("Number of genes")+ylab("FN rates")+stat_summary(geom="errorbar",fun.ymin=function(x) {mean(x)-sd(x)/sqrt(length(x))},fun.ymax = function(x) {mean(x)+sd(x)/sqrt(length(x))},width=0.05)+scale_color_brewer(name="",palette = "Paired",labels=c("Astral","Astrid (njst)","Distique-all-pairs"))
+ggsave('Mammalian-200-genes-ILS-Vs-FNrate-Distique-Vs-Other.pdf')
+
+qplot(V5,V8,data=d[e & b & c,],color=interaction(V2),geom=c("point","line"),fun.y=mean,stat='summary')+facet_grid(.~V6)+theme_bw()+theme(legend.position="bottom")+xlab("Number of genes")+ylab("FN rates")+stat_summary(geom="errorbar",fun.ymin=function(x) {mean(x)-sd(x)/sqrt(length(x))},fun.ymax = function(x) {mean(x)+sd(x)/sqrt(length(x))},width=10)+scale_color_brewer(name="",palette = "Paired",labels=c("Astral","Astrid (njst)","Distique-all-pairs"))
+ggsave('Mammalian-0.2ILS-genetreesVSFNrates-Distique-Vs-others.pdf')
+ 
+
+qplot(V5,V8,data=d[f & b & c,],color=interaction(V2),geom=c("point","line"),fun.y=mean,stat='summary')+facet_grid(.~V6)+theme_bw()+theme(legend.position="bottom")+xlab("Number of genes")+ylab("FN rates")+stat_summary(geom="errorbar",fun.ymin=function(x) {mean(x)-sd(x)/sqrt(length(x))},fun.ymax = function(x) {mean(x)+sd(x)/sqrt(length(x))},width=10)+scale_color_brewer(name="",palette = "Paired",labels=c("Distique-min","Distique-all-pairs","all-pairs"))
+ggsave('Mammalian-0.2ILS-genetreesVSFNrates-Distique.pdf')
+
+qplot(V4,V8,data=d[f & b & g & h,],color=V2,group = V2,geom=c("line"),fun.y=mean,stat='summary')+facet_grid(.~V6)+theme_bw()+theme(legend.position="bottom")+xlab("Number of genes")+ylab("FN rates")+stat_summary(geom="errorbar",fun.ymin=function(x) {mean(x)-sd(x)/sqrt(length(x))},fun.ymax = function(x) {mean(x)+sd(x)/sqrt(length(x))},width=0.05)+scale_color_brewer(name="",palette = "Paired",labels=c("Distique-min","Distique-all-pairs","all-pairs"))
+
+ggsave('Mammalian-200-genes-ILS-Vs-FNrate-Distique.pdf')
+
+qplot(V5,V8,data=d[l & i & j & n,],color=interaction(V2),geom=c("point","line"),fun.y=mean,stat='summary')+facet_grid(.~V6)+theme_bw()+theme(legend.position="bottom")+xlab("Number of genes")+ylab("FN rates")+stat_summary(geom="errorbar",fun.ymin=function(x) {mean(x)-sd(x)/sqrt(length(x))},fun.ymax = function(x) {mean(x)+sd(x)/sqrt(length(x))},width=10)+scale_color_brewer(name="",palette = "Paired",labels=c("Distique-min","Distique-all-pairs","Distique-rndsample-min","Distique-rndsample-all-pairs","all-pairs"))
+ggsave('Avian-1ILS-genetreesVSFNrates-Distique-vt.pdf')
 
 
+qplot(V4,V8,data=d[l & m & i & n,],color=V2,group = V2,geom=c("line"),fun.y=mean,stat='summary')+facet_grid(.~V6)+theme_bw()+theme(legend.position="bottom")+xlab("Number of genes")+ylab("FN rates")+stat_summary(geom="errorbar",fun.ymin=function(x) {mean(x)-sd(x)/sqrt(length(x))},fun.ymax = function(x) {mean(x)+sd(x)/sqrt(length(x))},width=0.05)+scale_color_brewer(name="",palette = "Paired",labels=c("Distique-min","Distique-all-pairs","Distique-rndsample-min","Distique-rndsample-all-pairs","all-pairs"))
+ggsave('Avian-1000-genes-ILS-Vs-FNrate-Distique-vt.pdf')
 
-qplot(X..sites,FN.rate,data=d,color=interaction(method),geom=c("point","line"),fun.y=mean,stat='summary')+facet_grid(model~X..genes)+theme_bw()+theme(legend.position="bottom")+xlab("Number of genes")+stat_summary(geom="errorbar",fun.ymin=function(x) {mean(x)-sd(x)/sqrt(length(x))},fun.ymax = function(x) {mean(x)+sd(x)/sqrt(length(x))},width=10)
+qplot(V5,V8,data=d[j & i & o & n,],color=interaction(V2),geom=c("point","line"),fun.y=mean,stat='summary')+facet_grid(.~V6)+theme_bw()+theme(legend.position="bottom")+xlab("Number of genes")+ylab("FN rates")+stat_summary(geom="errorbar",fun.ymin=function(x) {mean(x)-sd(x)/sqrt(length(x))},fun.ymax = function(x) {mean(x)+sd(x)/sqrt(length(x))},width=10)+scale_color_brewer(name="",palette = "Paired",labels=c("Astral","Astrid (njst)","Distique-all-pairs"))
+ggsave('Avian-1ILS-genes-ILS-Vs-FNrate-Distique-Vs-Other.pdf')
 
-qplot(X..sites,FN.rate,data=d,color=interaction(method),geom=c("point","line"),fun.y=mean,stat='summary')+facet_grid(model~X..genes)+theme_bw()+theme(legend.position="bottom")+xlab("Number of genes")+stat_summary(geom="errorbar",fun.ymin=function(x) {mean(x)-sd(x)/sqrt(length(x))},fun.ymax = function(x) {mean(x)+sd(x)/sqrt(length(x))},width=10)
+qplot(V4,V8,data=d[o & m & i & n,],color=V2,group = V2,geom=c("line"),fun.y=mean,stat='summary')+facet_grid(.~V6)+theme_bw()+theme(legend.position="bottom")+xlab("Number of genes")+ylab("FN rates")+stat_summary(geom="errorbar",fun.ymin=function(x) {mean(x)-sd(x)/sqrt(length(x))},fun.ymax = function(x) {mean(x)+sd(x)/sqrt(length(x))},width=0.05)+scale_color_brewer(name="",palette = "Paired",labels=c("Astral","Astrid (njst)","Distique-all-pairs"))
+ggsave('Avian-1000-genetreesVSFNrates-Distique-Vs-Other.pdf')
 
+qplot(V5,V8,data=d[j & i & p & n,],color=interaction(V2),geom=c("point","line"),fun.y=mean,stat='summary')+facet_grid(.~V6)+theme_bw()+theme(legend.position="bottom")+xlab("Number of genes")+ylab("FN rates")+stat_summary(geom="errorbar",fun.ymin=function(x) {mean(x)-sd(x)/sqrt(length(x))},fun.ymax = function(x) {mean(x)+sd(x)/sqrt(length(x))},width=0.1)+scale_color_brewer(name="",palette = "Paired",labels=c("Distique-min","Distique-all-pairs","all-pairs"))
+ggsave('Avian-1ILS-genetreesVSFNrates-Distique.pdf',width=4.5,height=4.5)
 
-qplot(X..sites,FN.rate,data=d,color=interaction(method),geom=c("point","line"),fun.y=mean,stat='summary')+facet_grid(model~X..genes,scales="free_y")+theme_bw()+theme(legend.position="bottom")+xlab("Number of genes")+stat_summary(geom="errorbar",fun.ymin=function(x) {mean(x)-sd(x)/sqrt(length(x))},fun.ymax = function(x) {mean(x)+sd(x)/sqrt(length(x))},width=5)
-ggsave("newres.pdf") 
+qplot(V4,V8,data=d[i & p & n & m,],color=V2,group = V2,geom=c("line"),fun.y=mean,stat='summary')+facet_grid(.~V6)+theme_bw()+theme(legend.position="bottom")+xlab("Number of genes")+ylab("FN rates")+stat_summary(geom="errorbar",fun.ymin=function(x) {mean(x)-sd(x)/sqrt(length(x))},fun.ymax = function(x) {mean(x)+sd(x)/sqrt(length(x))},width=0.05)+scale_color_brewer(name="",palette = "Paired",labels=c("Distique-min","Distique-all-pairs","all-pairs"))
 
-require(reshape2)
-install.packages(c('reshape'),dep=TRUE)
-d<-read.csv('filename',header=TRUE/FALSE,sep=',')
-The command is recast from the reshape package. 
-
-write.csv(data_wide, file = "wideFN_rates_11-taxon.csv",row.names=FALSE)
-
-data_wide <- spread(d, method,FN_rate )
-require(tidyr)
-install.packages('tidyr',dep=TRUE)
-
-require(reshape2)
-newdata<-dcast(d, model + X_sites + X_taxa + X_genes ~ method, value.var="FN_rate")
-
-d<-read.csv('FN_rates_11-taxon.csv',header=TRUE,sep=",",col.names = c('model','Xtaxa','method','Xsites','Xgenes','replicate','FNrate'))
-
-a<-d$method %in% c("min_fm","RAxML_bestTree.concatenation_raxml_10runs")
-
-qplot(Xsites,FNrate,data=d[!a,],color=interaction(method),geom=c("point","line"),fun.y=mean,stat='summary')+facet_grid(model~Xgenes,scales="free_y")+theme_bw()+theme(legend.position="bottom")+xlab("Number of genes")+stat_summary(geom="errorbar",fun.ymin=function(x) {mean(x)-sd(x)/sqrt(length(x))},fun.ymax = function(x) {mean(x)+sd(x)/sqrt(length(x))},width=5)
-
-
-
-qplot(Xsites,FNrate,data=d,color=interaction(method),geom=c("point","line"),fun.y=mean,stat='summary')+facet_grid(model~Xgenes,scales="free_y")+theme_bw()+theme(legend.position="bottom")+xlab("Number of genes")+stat_summary(geom="errorbar",fun.ymin=function(x) {mean(x)-sd(x)/sqrt(length(x))},fun.ymax = function(x) {mean(x)+sd(x)/sqrt(length(x))},width=5)
+ggsave('Avian-1000-genes-ILS-Vs-FNrate-Distique.pdf')

@@ -46,13 +46,18 @@ parser.add_option("-v","--verbose",dest="verbose",
 		help="Verbose",default=1)
 parser.add_option("-r","--readFromFile",dest="readFromFile",
 		help="Set it to 1 if you already computed the quartet table. If you want the code to compute the quartet tables set it to 0. Default is 0",default=0)
-
+parser.add_option("-a","--averagemethod",dest="av",
+		help="The average method to find the average quartet table. Default is power.", default="power")
+parser.add_option("-p","--power",dest="po",type=float,
+		help="set the power to compute the mean using usual norm definitions. Default is 1", default = 1)
 (options,args) = parser.parse_args()
 filename = options.filename
 gt = options.gt
 outpath = options.out
 thr = options.thr
 thr=options.thr
+av = options.av
+po = options.po
 numToStop = options.numToStop
 numMax = options.numMax
 eps = options.epsilon
@@ -104,7 +109,7 @@ for e in con_tree.postorder_node_iter():
 		if verbose:
 			print "computing the partial quartet table"
 		
-		quartTable = findTrueAverageTable(frq,taxa_list)
+		quartTable = findTrueAverageTable(frq,taxa_list,av,po)
 		if verbose:
 			print "computing distance table using the method: "+str(method)
 		distanceTable(quartTable,method,outpath+"/distancet.d")
