@@ -42,12 +42,7 @@ def findTrueAverageTable(frq,list_taxa,method,po):
 									if key_inv in TotalKey:
 										vt = TotalKey[key_inv] 
 										for keyt in vt.keys():
-<<<<<<< HEAD
-											vt[keyt] += v_inv[keyt]
-										TotalKey[key_inv] = vt
-=======
 											vt[keyt].append(v_inv[keyt])
->>>>>>> 6faf51cf1fe38618e1dd1ed33917b74d4656779b
 									else:
 										vt = dict()
 										for q in v_inv:
