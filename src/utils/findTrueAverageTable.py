@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 import dendropy
-def findTrueAverageTable(frq,list_taxa):
+from scipy import stats
+from numpy import mean, sqrt, square, arange
+def findTrueAverageTable(frq,list_taxa,method,po):
 	n = len(list_taxa)
 	print list_taxa
 	lst_taxa = list(list_taxa.keys())
@@ -40,11 +42,31 @@ def findTrueAverageTable(frq,list_taxa):
 									if key_inv in TotalKey:
 										vt = TotalKey[key_inv] 
 										for keyt in vt.keys():
+<<<<<<< HEAD
 											vt[keyt] += v_inv[keyt]
 										TotalKey[key_inv] = vt
+=======
+											vt[keyt].append(v_inv[keyt])
+>>>>>>> 6faf51cf1fe38618e1dd1ed33917b74d4656779b
 									else:
-										TotalKey[key_inv] = v_inv
-	return TotalKey
+										vt = dict()
+										for q in v_inv:
+											vt[q] = list()
+											vt[q].append(v_inv[q])
+									TotalKey[key_inv] = vt
+									
+	TotalKeyf = dict()
+	for q,v in TotalKey.iteritems():
+		vtt = dict()
+		for q2,v2 in v.iteritems():
+			if method == "gmean":
+				vtt[q2] = stats.gmean(v2)
+			elif method == "mean":
+				vtt[q2] = mean(v2)
+			else:
+				vtt[q2] = sqrt(mean(square(v2)))
+		TotalKeyf[q] = vtt
+	return TotalKeyf
 										
 									
 
