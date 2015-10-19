@@ -4,3 +4,5 @@ Its basic idea is to infer the species tree from gene trees by computing a dista
 include the two species. We have found ways to do this in a statistically consistent manner and are exploring ways to make this run in quadratic running time. 
 
 The method is currenlty under development and evaluation. Stay tuned for more. 
+
+We will publish the first **arXiv** version of DISTIQUE by the end of October. 
