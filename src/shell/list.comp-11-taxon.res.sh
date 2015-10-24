@@ -45,8 +45,8 @@ for data_dir in `ls $input_path`; do
                         #else
                          #       printf "the file $input_path/$data_dir/$i/$y/distique-cons/min/min/distance.d_distique_tree.nwk was not found\n"
 			#fi
-			if [ -s $input_path/$data_dir/$i/$y/distique-1/min/min/distance.d_fastme_tree.nwk ]; then
-				printf "mkdir -p ./$input_path/$data_dir/$i/$y/distique-1/min/min/; $DIR/compare.tree.sh -g $input_path/$data_dir/$i/$y/distique-1/min/min/distance.d_fastme_tree.nwk -s $path/$data_dir/$i/S_relabeled_tree.trees > .//$input_path/$data_dir/$i/$y/distique-1/min/min/11-taxon-distique-1-min-11-taxon-$data_dir-$y-R$i.txt\n">>tasks.massive
+			if [ -s $input_path/$data_dir/$i/$y/cons/distance.d_cons_tree.nwk ]; then
+				printf "mkdir -p ./$input_path/$data_dir/$i/$y/cons; $DIR/compare.tree.sh -g $input_path/$data_dir/$i/$y/cons/distance.d_cons_tree.nwk -s $path/$data_dir/$i/S_relabeled_tree.trees > .//$input_path/$data_dir/$i/$y/cons/11-taxon-cons-11-taxon-$data_dir-$y-R$i.txt\n">>list.comp.txt
                         else
                                 printf "the file $input_path/$data_dir/$i/$y/distique-cons/min/min/distance.d_distique_tree.nwk was not found\n"
 			fi
