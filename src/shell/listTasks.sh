@@ -101,4 +101,4 @@ for file in `find $path_tmp -type f -name "*.gt"`; do
 #	if [ ! -s $out/$tmp_out/cons/distance.d_cons_tree.nwk ]; then
  #              printf "mkdir -p /oasis/scratch/esayyari/temp_project/$out; mkdir -p ./$out/$tmp_out/cons/; source /etc/profile.d/modules.sh; module load python; module load scipy; VIRTUAL_ENV_DISABLE_PROMPT=1; source $WS_HOME/python27-gordon/bin/activate; /usr/bin/time -po ./$out/$tmp_out/cons/$f_tmp-log.info $DIR_UTILS/cons.py -g $file -o ./$out/$tmp_out/cons; cp -r ./$out/* /$out \n">>tasks.massive
   #      fi
-done
+don
