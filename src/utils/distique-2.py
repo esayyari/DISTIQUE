@@ -34,20 +34,14 @@ parser.add_option("-o","--output",dest="out",type="string",
 		help="the PATH to write the generated files")
 parser.add_option("-t","--threshold",dest="thr",type=float,
 		help="the minimum frequency that consensus will use. Default is 0.5",default=0.5)
-parser.add_option("-n","--numToStop",dest="numToStop",type=int,
-		help="The number of steps that convergence criteria should be meet until the successful convergence. Default is 10",default=10)
 parser.add_option("-m","--method",dest="method",type=str,
 		help="The method to compute the distance of taxa. The default is prod.",default="prod")
-parser.add_option("-x","--numMax",dest="numMax",type=int,
-		help="The maximum number of steps for computing the average quartet table. The default is 100", default=100)
-parser.add_option("-e","--epsilon",dest="epsilon",type=float,
-		help="The threshold of convergence for computing the average quartet table using KL divergence. The default is 0.01 ",default=0.01)
 parser.add_option("-v","--verbose",dest="verbose",
 		help="Verbose",default=1)
 parser.add_option("-r","--readFromFile",dest="readFromFile",
 		help="Set it to 1 if you already computed the quartet table. If you want the code to compute the quartet tables set it to 0. Default is 0",default=0)
 parser.add_option("-a","--averagemethod",dest="av",
-		help="The average method to find the average quartet table. Default is power.", default="power")
+		help="The average method to find the average quartet table. Default is mean.", default="mean")
 parser.add_option("-p","--power",dest="po",type=float,
 		help="set the power to compute the mean using usual norm definitions. Default is 1", default = 1)
 (options,args) = parser.parse_args()
