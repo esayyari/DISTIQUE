@@ -5,4 +5,4 @@ include the two species. We have found ways to do this in a statistically consis
 
 The method is currenlty under development and evaluation. Stay tuned for more. 
 
-We will publish the first **arXiv** version of DISTIQUE by the end of October. 
+Our first draft of the paper describing DISTIQUE is submitted to RECOMB and a version is available [here](http://esayyari.github.io/DISTIQUE).
