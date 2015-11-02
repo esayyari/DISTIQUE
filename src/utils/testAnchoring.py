@@ -30,13 +30,21 @@ parser.add_option("-a","--achs",dest="a",type="string",
 		help="Anchors that the table will be based on")
 parser.add_option("-s","--sp",dest="sp",
 		help="species tree")
+parser.add_option("-n","--numStep",dest="num",type="int",
+		help="The number of anchoring steps, default is 2",default=2)
+
 (options,args) = parser.parse_args()
 filename = options.filename
 gt = options.gt
 outpath = options.out
 thr = options.thr
 sp = options.sp
-ac = sorted(options.a.split(','))
+num = options.num
+if (not options.a):
+	ac = sorted(options.a.split(','))
+	randomSample=False
+else:
+	randomSample=True
 if options.filename:
 	readFromFile = True
 else:
@@ -56,6 +64,7 @@ con_tree = trees.consensus(min_freq=thr)
 taxa = list()
 for e in con_tree.leaf_nodes():
 	taxa.append(e.taxon.label)
+
 n = len(con_tree.leaf_nodes())
 if not readFromFile:
 	if verbose:
