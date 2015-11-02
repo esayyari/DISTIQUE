@@ -82,7 +82,6 @@ if verbose:
 	print "Number of taxa is: " + str(n)
 	print "the number of polytomies is: "+str(len(to_resolve))
 	print "the maximum order of polytomies is: "+str(maxPolyOrder)
-	print "the maxPossiblePoly is: "+str(maxPossiblePoly)
 if verbose:
 	print "computing the total quartet table"
 if readFromFile:
@@ -96,7 +95,7 @@ for e in con_tree.postorder_node_iter():
 		if verbose:
 			print "computing the partial quartet table"
 		
-		quartTable = findTrueAverageTable(frq,taxa_list,av,po)
+		quartTable = findTrueAverageTable(frq,taxa_list,av)
 		if verbose:
 			print "computing distance table using the method: "+str(method)
 		distanceTable(quartTable,method,outpath+"/distancet.d")

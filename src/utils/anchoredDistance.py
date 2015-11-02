@@ -16,12 +16,16 @@ def anchoredDistance(**kwargs):
 			achs = sorted(v)
 		elif k == "gt":
 			gt = v
+		elif k == "outfile":
+			outfile = v
 	if(readFromTable):
 		frq=readQuartetTable(qfile)	
 	else:
 		frq=findAnchoredQuartetTable(achs,gt)	
 	D = anchoredDistanceFromFrq(frq,achs)
-	return D
+	keyDict = sorted(np.unique((" ".join(D.keys())).split(" ")));               	
+	printDistanceTableToFile(D,keyDict,outfile)
+	return 
 def anchoredDistanceFromFrq(frq,achs):
 	D = dict()
 	for k,v in frq.iteritems():

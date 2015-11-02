@@ -2,7 +2,7 @@
 import dendropy
 from scipy import stats
 from numpy import mean, sqrt, square, arange
-def findTrueAverageTable(frq,list_taxa,method,po):
+def findTrueAverageTable(frq,list_taxa,method):
 	n = len(list_taxa)
 	print list_taxa
 	lst_taxa = list(list_taxa.keys())
