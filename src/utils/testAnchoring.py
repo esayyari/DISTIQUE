@@ -40,7 +40,7 @@ outpath = options.out
 thr = options.thr
 sp = options.sp
 num = options.num
-if (not options.a):
+if (options.a):
 	ac = sorted(options.a.split(','))
 	randomSample=False
 else:
@@ -66,13 +66,13 @@ for e in con_tree.leaf_nodes():
 	taxa.append(e.taxon.label)
 
 n = len(con_tree.leaf_nodes())
-if not readFromFile:
-	if verbose:
-		print "computing the total quartet table"
-	frq = findQuartetTable(trees,taxa,0,outpath,verbose)
-	printQuartetTableToFile(frq,outpath+'/quartet.q')
-	filename = outpath+'/quartet.q'
-	readFromFile=True
+#if not readFromFile:
+#	if verbose:
+#		print "computing the total quartet table"
+#	frq = findQuartetTable(trees,taxa,0,outpath,verbose)
+#	printQuartetTableToFile(frq,outpath+'/quartet.q')
+#	filename = outpath+'/quartet.q'
+#	readFromFile=True
 if verbose:
 	print "Number of taxa is: " + str(n)
 if readFromFile:
@@ -80,7 +80,7 @@ if readFromFile:
 	anchoredDistance(achs=ac,qfile=filename,outfile=outpath+'/distancet.d')
 else:
 	print "computing the distance table, anchoring seperately"
-	anchoredDistance(achs=ac,gt=gt,outfile=outpath+'/distancet.d')
+	anchoredDistance(achs=ac,gt=gt,wrkPath=outpath,outfile=outpath+'/distancet.d')
 subprocess.call([WS_LOC_FM+"/fastme", "-i",outpath+"/distancet.d","-w","none","-o",outpath+"/distance.d_fastme_tree.nwk"])
 if verbose:
 	
