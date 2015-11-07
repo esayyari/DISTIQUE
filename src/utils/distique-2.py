@@ -5,7 +5,6 @@ import sys
 import os
 from optparse import OptionParser
 from  prodDistance import prodDistance
-from printDistanceTable import printDistanceTable
 from minDistance import minDistance
 import numpy as np
 import itertools
@@ -22,6 +21,7 @@ from findPolytomies import findPolytomies
 from readTable import readTable
 from findQuartetTable import findQuartetTable
 from findTrueAverageTable import findTrueAverageTable
+import printTools as pr
 WS_LOC_SHELL= os.environ['WS_HOME']+'/DISTIQUE/src/shell'
 WS_LOC_FM = os.environ['WS_HOME']+'/fastme-2.1.4/src'
 usage = "usage: %prog [options]"

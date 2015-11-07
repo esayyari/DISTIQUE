@@ -5,7 +5,7 @@ import numpy as np
 import os
 from optparse import OptionParser
 from  prodDistance import prodDistance
-from printDistanceTableToFile import printDistanceTableToFile
+import printTools as pr
 from minDistance import minDistance
 import pprint
 
@@ -21,7 +21,7 @@ def distanceTable(frq,method,outfile):
 		'prod'  : prodDistance(frq)
 	    }[method]
 	mapDict = computeDistance(frq,method,percentile)
-	printDistanceTableToFile(mapDict,keyDict,outfile)
+	pr.printDistanceTableToFile(mapDict,keyDict,outfile)
 
 
 	
