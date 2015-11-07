@@ -7,6 +7,7 @@ import itertools
 import subprocess
 import printTools as pr
 import tableManipulationTools as tbs
+import anchoredTableTools as atbs
 import toolsTreeTaxa as tstt
 from optparse import OptionParser
 WS_LOC_SHELL= os.environ['WS_HOME']+'/DISTIQUE/src/shell'
@@ -63,27 +64,21 @@ taxa = list()
 for e in con_tree.leaf_nodes():
 	taxa.append(e.taxon.label)
 
+print taxa
 n = len(con_tree.leaf_nodes())
-#if not readFromFile:
-#	if verbose:
-#		print "computing the total quartet table"
-#	frq = findQuartetTable(trees,taxa,0,outpath,verbose)
-#	printQuartetTableToFile(frq,outpath+'/quartet.q')
-#	filename = outpath+'/quartet.q'
-#	readFromFile=True
 if verbose:
 	print "Number of taxa is: " + str(n)
 if readFromFile:
 	print "computing the distance table, reading from file"
-	anchoredDistance(achs=ac,qfile=filename,outfile=outpath+'/distancet.d')
+	atbs.anchoredDistance(achs=ac,qfile=filename,outfile=outpath+'/distancet.d')
 else:
 	print "computing the distance table, anchoring seperately"
-	anchoredDistance(achs=ac,gt=gt,wrkPath=outpath,outfile=outpath+'/distancet.d',taxa=taxa)
+	atbs.anchoredDistance(achs=ac,gt=gt,wrkPath=outpath,outfile=outpath+'/distancet.d',taxa=taxa)
 subprocess.call([WS_LOC_FM+"/fastme", "-i",outpath+"/distancet.d","-w","none","-o",outpath+"/distance.d_fastme_tree.nwk"])
 if verbose:
 	
 	print "writing the resulting tree as: "+outpath+"/distance.d_fastme_tree.nwk"
-res=compareAnchoredRes(outpath+'/distance.d_fastme_tree.nwk',taxa,ac,sp,outpath)
+res=tstt.compareAnchoredRes(outpath+'/distance.d_fastme_tree.nwk',taxa,ac,sp,outpath)
 f1 = open(outpath+'/res.txt','a')
 print >>f1, res
 f1.close()
