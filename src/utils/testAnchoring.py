@@ -5,11 +5,10 @@ import os
 import numpy as np
 import itertools
 import subprocess
-from readTable import readTable
-from anchoredDistance import anchoredDistance
-from compareAnchoredRes import compareAnchoredRes
+import printTools as pr
+import tableManipulationTools as tbs
+import toolsTreeTaxa as tstt
 from optparse import OptionParser
-from findQuartetTable import findQuartetTable
 WS_LOC_SHELL= os.environ['WS_HOME']+'/DISTIQUE/src/shell'
 WS_LOC_FM = os.environ['WS_HOME']+'/fastme-2.1.4/src'
 
