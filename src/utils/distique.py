@@ -8,13 +8,10 @@ from minDistance import minDistance
 import numpy as np
 import itertools
 import random
-from resolvePolytomies import resolvePolytomy
 import subprocess
-from  generateTaxaList import getTaxaList
-from labelNodes import labelNodes
-from findPolytomies import findPolytomies
 import tableManipulationTools as tbs
 import printTools as pr
+import toolsTreeTaxa as tstt
 WS_LOC_SHELL= os.environ['WS_HOME']+'/DISTIQUE/src/shell'
 WS_LOC_FM = os.environ['WS_HOME']+'/fastme-2.1.4/src'
 usage = "usage: %prog [options]"
@@ -62,11 +59,11 @@ trees = dendropy.TreeList.get_from_path(src_fpath, 'newick')
 
 con_tree = trees.consensus(min_freq=thr)   
 
-labelNodes(con_tree)
+tstt.labelNodes(con_tree)
 
-con_tree.write(path="consensusTree.nwk",schema="newick") 
+con_tree.write(path=outpath+"consensusTree.nwk",schema="newick") 
 
-(to_resolve,maxPolyOrder) = findPolytomies(con_tree)
+(to_resolve,maxPolyOrder) = tstt.findPolytomies(con_tree)
 taxa = list()
 for e in con_tree.leaf_nodes():
 	taxa.append(e.taxon.label)
@@ -84,7 +81,7 @@ else:
 for e in con_tree.postorder_node_iter():
 	if e in to_resolve:
 		val = to_resolve[e]
-		(taxa_list,taxa_inv) =  getTaxaList(to_resolve[e])
+		(taxa_list,taxa_inv) =  tstt.getTaxaList(to_resolve[e])
 		if verbose:
 			print "computing the partial quartet table"
 		
@@ -95,7 +92,7 @@ for e in con_tree.postorder_node_iter():
 		subprocess.call([WS_LOC_FM+"/fastme", "-i",outpath+"/distancet.d","-w","none","-o",outpath+"/distancet.d_fastme_tree.nwk"])
 		if verbose:
 			print "starting to resolve polytomy"	
-		res= resolvePolytomy(outpath+"/distancet.d_fastme_tree.nwk",e,con_tree,verbose)	
+		res= tstt.resolvePolytomy(outpath+"/distancet.d_fastme_tree.nwk",e,con_tree,verbose)	
 		if verbose:
 			print res
 if verbose:

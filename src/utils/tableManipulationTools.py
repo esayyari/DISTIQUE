@@ -7,14 +7,12 @@ import dendropy
 import itertools
 import os
 import printTools as pr
-from labelNodes import labelNodes
 from scipy import stats
 from numpy import mean, sqrt, square, arange
 from  prodDistance import prodDistance
 from minDistance import minDistance
 import copy
-from set_path import set_path
-
+import toolsTreeTaxa as tstt
 import numpy as np
 def anchoredDistance(**kwargs):
 	readFromTable=False
