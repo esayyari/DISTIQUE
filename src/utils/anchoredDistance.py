@@ -4,11 +4,9 @@ import itertools
 import sys
 import os
 from readQuartetTable import readQuartetTable
-from printTools import printDistanceTableToFile
 import printTools as pr
 from labelNodes import labelNodes
 
-from findAnchoredQuartetTable import findAnchoredQuartetTable
 import numpy as np
 def anchoredDistance(**kwargs):
 	readFromTable=False
@@ -22,16 +20,18 @@ def anchoredDistance(**kwargs):
 			gt = v
 		elif k == "outfile":
 			outfile = v
-		elif k == "wkrPath":
+		elif k == "wrkPath":
 			out = v
+		elif k == "taxa":
+			taxa = v
 	if(readFromTable):
 		frq=readQuartetTable(qfile)	
 	else:
-		frq=findAnchoredQuartetTable(achs,gt)	
+		frq=findAnchoredDistanceTable(achs,gt,taxa,out)	
 	D = anchoredDistanceFromFrq(frq,achs)
 	keyDict = sorted(np.unique((" ".join(D.keys())).split(" ")));              
 	print "print distance table to file"	
-	printDistanceTableToFile(D,keyDict,outfile)
+	pr.printDistanceTableToFile(D,keyDict,outfile)
 	return 
 def anchoredDistanceFromFrq(frq,achs):
 	D = dict()
@@ -48,12 +48,12 @@ def anchoredDistanceFromFrq(frq,achs):
 				D[key1]=-np.log(frq[k][achs[1]])	
 				D[key2]=D[key1]
 	return D		 
-def findAnchoredQuartets(anch,gt,out):
+def findAnchoredQuartets(anch,gt,taxa,out):
 	src_fpath = os.path.expanduser(os.path.expandvars(gt))
 	trees = dendropy.TreeList.get_from_path(src_fpath, 'newick')
 	Q = list()
 	anch = sorted(anch)
-	print anch
+	n = len(trees)
 	for tree in trees:
 		labelNodes(tree)
 		filter = lambda taxon: True if taxon.label==anch[0] else False
@@ -61,8 +61,8 @@ def findAnchoredQuartets(anch,gt,out):
 
 		tree.reroot_at_node(root,update_bipartitions=True, suppress_unifurcations=False)
 		filter = lambda taxon: True if taxon.label==anch[1] else False
+		Q = buildEmtyQuartetTable(anch,taxa,n) 
 		node = tree.find_node_with_taxon(filter)
-		print node.label
 		while node.parent_node != root:
 			nodePre = node
 			node = node.parent_node
@@ -77,7 +77,7 @@ def findAnchoredQuartets(anch,gt,out):
 					if len(leafset)<2: 
 						continue
 					else:
-						Q += listQ(leafset,anch)
+						Q  =listQ(Q,leafset,anch)
 						
 				
 			else:
@@ -88,14 +88,38 @@ def findAnchoredQuartets(anch,gt,out):
 					if len(leafset)<2:
 						continue
 					else:
-						Q += listQ(leafset,anch)
+						Q = listQ(Q,leafset,anch)
 	pr.printQuartetsToFile(Q,out+'/tmp.q')
-	return 
-def findAnchoredQuartetTables(outfile,anch,
+	return Q 
+def findAnchoredQuartetTables(D,Q):
+	for q in Q:
+		q = q.replace("|","")
+		key = "/".join(sorted(q.split(" ")))
+		D[key] += 1
+	for key in D:
+		
+	return D
+		
+def buildEmtyQuartetTable(anch,taxa,n):
+	taxa = set(taxa)-set(anch)
+	Q = dict()
+	taxaList = list(itertools.combinations(taxa,2))
+	for taxaPair in taxaList:
+		taxaPair = sorted(list(taxaPair))
+		l = anch[0]+" "+anch[1]+" | "+taxaPair[0]+" "+taxaPair[1]
+		Q[l] = [0.5, n]
+	return Q
+		
+		
+		
 def listQ(leafset,anch):
-	Q = list()
 	for l in list(itertools.combinations(leafset,2)):
 		lt = sorted([l[0].label,l[1].label])
-		Q.append(anch[0]+' '+anch[1]+'|'+lt[0]+' '+lt[1])
+		Q[anch[0]+' '+anch[1]+' | '+lt[0]+' '+lt[1]][0] += 1
 	return Q	
-				
+def findAnchoredDistanceTable(achs,gt,taxa,out):
+	Q = findAnchoredQuartets(achs,gt,taxa,out)
+	n = len(taxa)
+	Q = buildEmtyQuartetTable(achs,taxa,n)
+	D = anchoredDistanceFromFrq(Q,achs)
+	return D

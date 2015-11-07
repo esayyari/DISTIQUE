@@ -9,7 +9,6 @@ from readTable import readTable
 from anchoredDistance import anchoredDistance
 from compareAnchoredRes import compareAnchoredRes
 from optparse import OptionParser
-from printQuartetTable import printQuartetTableToFile
 from findQuartetTable import findQuartetTable
 WS_LOC_SHELL= os.environ['WS_HOME']+'/DISTIQUE/src/shell'
 WS_LOC_FM = os.environ['WS_HOME']+'/fastme-2.1.4/src'
@@ -80,7 +79,7 @@ if readFromFile:
 	anchoredDistance(achs=ac,qfile=filename,outfile=outpath+'/distancet.d')
 else:
 	print "computing the distance table, anchoring seperately"
-	anchoredDistance(achs=ac,gt=gt,wrkPath=outpath,outfile=outpath+'/distancet.d')
+	anchoredDistance(achs=ac,gt=gt,wrkPath=outpath,outfile=outpath+'/distancet.d',taxa=taxa)
 subprocess.call([WS_LOC_FM+"/fastme", "-i",outpath+"/distancet.d","-w","none","-o",outpath+"/distance.d_fastme_tree.nwk"])
 if verbose:
 	
