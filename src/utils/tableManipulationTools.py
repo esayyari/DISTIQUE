@@ -126,7 +126,6 @@ def partialQuartetTable(quartTable,origKeys,inv_taxa):
 	return pQuartTable
 def findTrueAverageTable(frq,list_taxa,method):
 	n = len(list_taxa)
-	print list_taxa
 	lst_taxa = list(list_taxa.keys())
 	TotalKey = dict()
 	s = {1,2,3}
