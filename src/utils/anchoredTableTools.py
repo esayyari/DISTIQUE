@@ -100,7 +100,6 @@ def findAnchoredQuartets(anch,gt,taxa,out):
 					else:
 						listTaxa = list(ch.taxon_leafs())
 						addQuartets(ch, listTaxa,Q,Q2)
-		postProcess(Q)
 		f = open(out+'quartets_'+anch[0]+anch[1]+'.q','w')
 		f.write("\n".join(Q2))
 		f.close()
@@ -138,11 +137,6 @@ def removeFromQuartetLength(Q,listTaxa,anch):
 	for p in keySet:
 		key = sorted(list(p) + anch)
 		Q["/".join(key)][1] -= 1
-	return
-def postProcess(Q):
-	for key in Q:
-		if Q[key][1]<0:
-			Q[key][1] = 0.5
 	return
 def findAnchoredDistanceTable(achs,gt,taxa,out):
 	frq=findAnchoredQuartets(achs,gt,taxa,out) 
