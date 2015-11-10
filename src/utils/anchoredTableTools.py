@@ -28,7 +28,7 @@ def anchoredDistance(**kwargs):
 	else:
 		D = findAnchoredDistanceTable(achs,gt,taxa,out)	
 	keyDict = sorted(list(np.unique((" ".join(D.keys())).split(" "))));
-	print keyDict 
+	#print keyDict 
 	pr.printDistanceTableToFile(D,keyDict,outfile)
 	return 
 def anchoredDistanceFromFrq(frq,achs):
