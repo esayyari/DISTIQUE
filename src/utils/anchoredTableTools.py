@@ -5,6 +5,7 @@ import os
 import tableManipulationTools as tbs
 import printTools as pr
 import toolsTreeTaxa as tstt
+import numpy as np
 def anchoredDistance(**kwargs):
 	readFromTable=False
 	for k,v in kwargs.iteritems():
@@ -23,11 +24,11 @@ def anchoredDistance(**kwargs):
 			taxa = v
 	if(readFromTable):
 		frq=tbs.readQuartetTable(qfile)	
+		D = anchoredDistanceFromFrq(frq,achs)
 	else:
-		frq=findAnchoredDistanceTable(achs,gt,taxa,out)	
-	D = anchoredDistanceFromFrq(frq,achs)
-	keyDict = sorted(np.unique((" ".join(D.keys())).split(" ")));              
-	print "print distance table to file"	
+		D = findAnchoredDistanceTable(achs,gt,taxa,out)	
+	keyDict = sorted(list(np.unique((" ".join(D.keys())).split(" "))));
+	print keyDict 
 	pr.printDistanceTableToFile(D,keyDict,outfile)
 	return 
 def anchoredDistanceFromFrq(frq,achs):
@@ -51,17 +52,17 @@ def buildEmptyQuartets(anch,taxa,n):
 	for pair in chooseTaxa(taxa):
 		p1 = sorted(list(pair))
 		p2 = sorted(anch)
-		p = genKey(p1,p2)	
-		Q[p] = [0.5,n]
+		p = "/".join(sorted(p1+p2))
+		Q[p] = [0.5,n+1.5]
 	return Q
 
 def chooseTaxa(taxa):
 	return set(itertools.combinations(taxa, 2))
 def genKey(p1,p2):
 	if p1[0]<p2[0]:
-                        p = p1[0]+' '+p1[1]+' | '+p2[0]+' '+p2[1]
-                else:
-                        p = p2[0]+' '+p2[1]+' | '+p1[0]+' '+p1[1]
+        	p = p1[0]+' '+p1[1]+' | '+p2[0]+' '+p2[1]
+       	else:
+        	p = p2[0]+' '+p2[1]+' | '+p1[0]+' '+p1[1]
 	return p
 def findAnchoredQuartets(anch,gt,taxa,out):
 	src_fpath = os.path.expanduser(os.path.expandvars(gt))
@@ -71,7 +72,7 @@ def findAnchoredQuartets(anch,gt,taxa,out):
 	Q = buildEmptyQuartets(anch,taxa,n)
 	Q2 = list()
 	for tree in trees:
-		rerooted=reroot(tree)
+		rerooted=reroot(tree,anch)
 		node = rerooted[0]
 		root = rerooted[1]
 		while(node.parent_node.label!=root.label):
@@ -85,32 +86,33 @@ def findAnchoredQuartets(anch,gt,taxa,out):
 					if (ch == node_pre):
 						continue
 					else:
-						listTaxa = list(ch.taxon_leafs())
-						addQuartets(ch, listTaxa,Q,Q2)
+						listTaxa = list(ch.leaf_nodes())
+						Q= addQuartets(ch, listTaxa,Q,Q2,anch)
 					for j in range(i+1,chs_n):
 						if (chs[i] == chs[j]):
 							continue
 						else:
-							listTaxatmp = [listTaxa,list(chs[j].taxon_leafs())]
-							removeFromQuartetsLength(Q,listTaxatmp,anch)
+							listTaxatmp = [listTaxa,list(chs[j].leaf_nodes())]
+							Q=removeFromQuartetsLength(Q,listTaxatmp,anch)
 			else:
 				for ch in chs:
 					if (ch==node_pre):
 						continue
 					else:
-						listTaxa = list(ch.taxon_leafs())
-						addQuartets(ch, listTaxa,Q,Q2)
-		f = open(out+'quartets_'+anch[0]+anch[1]+'.q','w')
+						listTaxa = list(ch.leaf_nodes())
+						Q= addQuartets(ch, listTaxa,Q,Q2,anch)
+		a = out+'/quartets_'+anch[0]+anch[1]+'.q'
+		f = open(a,'a')
 		f.write("\n".join(Q2))
 		f.close()
 	return Q
-def reroot(tree):
-		tstt.labelNodes(tree)
-		filter = lambda taxon: True if taxon.label==anch[0] else False
-		root = tree.find_node_with_taxon(filter)
-		filter = lambda taxon: True if taxon.label==anch[1] else False
-		node = tree.find_node_with_taxon(filter)
-		tree.reroot_at_node(root, update_bipartitions=True, suppress_unifurcations=False)
+def reroot(tree,anch):
+	tstt.labelNodes(tree)
+	filter = lambda taxon: True if taxon.label==anch[0] else False
+	root = tree.find_node_with_taxon(filter)
+	filter = lambda taxon: True if taxon.label==anch[1] else False
+	node = tree.find_node_with_taxon(filter)
+	tree.reroot_at_node(root, update_bipartitions=True, suppress_unifurcations=False)
 	return [node,root]
 def findAllChildrenPairs(listTaxa):
 	listTaxaLabels = list()
@@ -118,14 +120,14 @@ def findAllChildrenPairs(listTaxa):
 		listTaxaLabels.append(t.label)
 	pairs = chooseTaxa(listTaxaLabels)
 	return pairs
-def addQuartets( ch, listTaxa,Q):
-		pairs = findAllChildrenPairs(listTaxa)
-		for p in paris:
-			key=genKey(list(p),anch)
-			t = sorted(list(p)+anch)
-			Q2.append(key)
-			Q["/".join(t)][0] += 1
-	return
+def addQuartets( ch, listTaxa,Q,Q2,anch):
+	pairs = findAllChildrenPairs(listTaxa)
+	for p in pairs:
+		key=genKey(list(p),anch)
+		t = sorted(list(p)+anch)
+		Q2.append(key)
+		Q["/".join(t)][0] += 1
+	return Q
 def removeFromQuartetLength(Q,listTaxa,anch):
 	x = list()
 	for et in listTaxa:
@@ -137,7 +139,7 @@ def removeFromQuartetLength(Q,listTaxa,anch):
 	for p in keySet:
 		key = sorted(list(p) + anch)
 		Q["/".join(key)][1] -= 1
-	return
+	return Q
 def findAnchoredDistanceTable(achs,gt,taxa,out):
 	frq=findAnchoredQuartets(achs,gt,taxa,out) 
         D = dict()

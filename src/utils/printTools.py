@@ -22,6 +22,7 @@ def printDistanceTable (mapDict , keyDict):
 def printDistanceTableToFile (mapDict , keyDict, outfile):
 	print outfile
 	f1 = open(outfile, 'w+')
+	keyDict = list(keyDict)
 	l = len(keyDict)
 	norm = 1.
 	ps = 5.
