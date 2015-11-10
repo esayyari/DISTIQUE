@@ -9,6 +9,7 @@ import printTools as pr
 import tableManipulationTools as tbs
 import anchoredTableTools as atbs
 import toolsTreeTaxa as tstt
+import timer as tm
 from optparse import OptionParser
 WS_LOC_SHELL= os.environ['WS_HOME']+'/DISTIQUE/src/shell'
 WS_LOC_FM = os.environ['WS_HOME']+'/fastme-2.1.4/src'
@@ -55,10 +56,15 @@ if ( not options.gt  or not options.out):
 
 src_fpath = os.path.expanduser(os.path.expandvars(gt))
 
+tm.tic()
+print "reading trees"
 trees = dendropy.TreeList.get_from_path(src_fpath, 'newick')
+tm.toc()
 
-
+tm.tic()
+print "majority consensus"
 con_tree = trees.consensus(min_freq=thr)   
+tm.toc()
 
 taxa = list()
 for e in con_tree.leaf_nodes():
@@ -70,10 +76,14 @@ if verbose:
 	print "Number of taxa is: " + str(n)
 if readFromFile:
 	print "computing the distance table, reading from file"
+	tm.tic()
 	atbs.anchoredDistance(achs=ac,qfile=filename,outfile=outpath+'/distancet.d')
+	tm.toc()
 else:
 	print "computing the distance table, anchoring seperately"
-	atbs.anchoredDistance(achs=ac,gt=gt,wrkPath=outpath,outfile=outpath+'/distancet.d',taxa=taxa)
+	tm.tic()
+	atbs.anchoredDistance(achs=ac,gt=trees,wrkPath=outpath,outfile=outpath+'/distancet.d',taxa=taxa)
+	tm.toc()
 subprocess.call([WS_LOC_FM+"/fastme", "-i",outpath+"/distancet.d","-w","none","-o",outpath+"/distance.d_fastme_tree.nwk"])
 if verbose:
 	

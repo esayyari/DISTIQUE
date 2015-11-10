@@ -15,7 +15,7 @@ def anchoredDistance(**kwargs):
 		elif k == "achs":
 			achs = sorted(v)
 		elif k == "gt":
-			gt = v
+			trees = v
 		elif k == "outfile":
 			outfile = v
 		elif k == "wrkPath":
@@ -26,7 +26,7 @@ def anchoredDistance(**kwargs):
 		frq=tbs.readQuartetTable(qfile)	
 		D = anchoredDistanceFromFrq(frq,achs)
 	else:
-		D = findAnchoredDistanceTable(achs,gt,taxa,out)	
+		D = findAnchoredDistanceTable(achs,trees,taxa,out)	
 	keyDict = sorted(list(np.unique((" ".join(D.keys())).split(" "))));
 	#print keyDict 
 	pr.printDistanceTableToFile(D,keyDict,outfile)
@@ -64,9 +64,7 @@ def genKey(p1,p2):
        	else:
         	p = p2[0]+' '+p2[1]+' | '+p1[0]+' '+p1[1]
 	return p
-def findAnchoredQuartets(anch,gt,taxa,out):
-	src_fpath = os.path.expanduser(os.path.expandvars(gt))
-	trees = dendropy.TreeList.get_from_path(src_fpath, 'newick')
+def findAnchoredQuartets(anch,trees,taxa,out):
 	anch = sorted(anch)
 	n = len(trees)
 	Q = buildEmptyQuartets(anch,taxa,n)
@@ -93,7 +91,7 @@ def findAnchoredQuartets(anch,gt,taxa,out):
 							continue
 						else:
 							listTaxatmp = [listTaxa,list(chs[j].leaf_nodes())]
-							Q=removeFromQuartetsLength(Q,listTaxatmp,anch)
+							Q=removeFromQuartetsLentreesh(Q,listTaxatmp,anch)
 			else:
 				for ch in chs:
 					if (ch==node_pre):
@@ -101,10 +99,10 @@ def findAnchoredQuartets(anch,gt,taxa,out):
 					else:
 						listTaxa = list(ch.leaf_nodes())
 						Q= addQuartets(ch, listTaxa,Q,Q2,anch)
-		a = out+'/quartets_'+anch[0]+anch[1]+'.q'
-		f = open(a,'a')
-		f.write("\n".join(Q2))
-		f.close()
+#		a = out+'/quartets_'+anch[0]+anch[1]+'.q'
+#		f = open(a,'a')
+#		f.write("\n".join(Q2))
+#		f.close()
 	return Q
 def reroot(tree,anch):
 	tstt.labelNodes(tree)
@@ -128,7 +126,7 @@ def addQuartets( ch, listTaxa,Q,Q2,anch):
 		Q2.append(key)
 		Q["/".join(t)][0] += 1
 	return Q
-def removeFromQuartetLength(Q,listTaxa,anch):
+def removeFromQuartetLentreesh(Q,listTaxa,anch):
 	x = list()
 	for et in listTaxa:
 		T = list()
@@ -140,8 +138,8 @@ def removeFromQuartetLength(Q,listTaxa,anch):
 		key = sorted(list(p) + anch)
 		Q["/".join(key)][1] -= 1
 	return Q
-def findAnchoredDistanceTable(achs,gt,taxa,out):
-	frq=findAnchoredQuartets(achs,gt,taxa,out) 
+def findAnchoredDistanceTable(achs,trees,taxa,out):
+	frq=findAnchoredQuartets(achs,trees,taxa,out) 
         D = dict()
         for k,v in frq.iteritems():
                 kt = sorted(k.split("/"))
