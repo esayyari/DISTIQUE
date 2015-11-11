@@ -77,14 +77,17 @@ if verbose:
 if readFromFile:
 	print "computing the distance table, reading from file"
 	tm.tic()
-	atbs.anchoredDistance(achs=ac,qfile=filename,outfile=outpath+'/distancet.d')
+	atbs.anchoredDistance(achs=ac,qfile=filename,outfile=outpath+'/distancetr.d')
 	tm.toc()
 else:
 	print "computing the distance table, anchoring seperately"
 	tm.tic()
 	atbs.anchoredDistance(achs=ac,gt=trees,wrkPath=outpath,outfile=outpath+'/distancet.d',taxa=taxa)
 	tm.toc()
-subprocess.call([WS_LOC_FM+"/fastme", "-i",outpath+"/distancet.d","-w","none","-o",outpath+"/distance.d_fastme_tree.nwk"])
+if readFromFile:
+	subprocess.call([WS_LOC_FM+"/fastme", "-i",outpath+"/distancetr.d","-w","none","-o",outpath+"/distance.d_fastme_tree.nwk"])
+else:
+	subprocess.call([WS_LOC_FM+"/fastme", "-i",outpath+"/distancet.d","-w","none","-o",outpath+"/distance.d_fastme_tree.nwk"])
 if verbose:
 	
 	print "writing the resulting tree as: "+outpath+"/distance.d_fastme_tree.nwk"
