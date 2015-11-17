@@ -26,11 +26,11 @@ def anchoredDistance(**kwargs):
 		frq=tbs.readQuartetTable(qfile)	
 		D = anchoredDistanceFromFrq(frq,achs)
 	else:
-		D = findAnchoredDistanceTable(achs,trees,taxa,out)	
+		[D,frq] = findAnchoredDistanceTable(achs,trees,taxa,out)	
 	keyDict = sorted(list(np.unique((" ".join(D.keys())).split(" "))));
 	#print keyDict 
 	pr.printDistanceTableToFile(D,keyDict,outfile)
-	return 
+	return frq 
 def anchoredDistanceFromFrq(frq,achs):
 	D = dict()
 	for k,v in frq.iteritems():
@@ -149,7 +149,7 @@ def findAnchoredDistanceTable(achs,trees,taxa,out):
                         key2 = s[1]+" "+s[0]
                        	D[key1]=-np.log(frq[k][0]/float(frq[k][1]))
                         D[key2]=D[key1]
-        return D
+        return [D,frq]
 	
 def resolvePolytomy(pathToTree,node,verbose):
         src_fpath = os.path.expanduser(os.path.expandvars(pathToTree))

@@ -24,7 +24,7 @@ def generateKey(taxa_list):
 	allQuartetComb = itertools.combinations(chosen,4)
 	origKeys = ['/'.join(sorted(q)) for q in allQuartetComb ]
 	return origKeys
-		
+	
 		
 def findTrueAverageTableAnchoring(frq,anch,list_taxa,method):
 	anch = sorted(list(anch))
