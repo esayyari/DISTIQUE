@@ -205,6 +205,11 @@ def findPolytomies(con_tree,taxa,anch):
 	maxPolyOrder = 0
 	tmp = list()
 	node_dict = dict()
+	filter = lambda taxon: True if taxon.label==anch[0] else False
+        nd1 = con_tree.find_node_with_taxon(filter)
+	filter = lambda taxon: True if taxon.label==anch[1] else False
+        nd2 = con_tree.find_node_with_taxon(filter)
+	anch_nodes = {nd1,nd2}
 	anch = set(anch)
 	taxa = set(con_tree.leaf_nodes())
 	for e in con_tree.postorder_node_iter():
@@ -215,7 +220,7 @@ def findPolytomies(con_tree,taxa,anch):
 		
 		n = len(ch_tmp)
 		anch_to_retain = list()
-		if (n>3 and interLen = 0 ) or (n>4 and interLen = 1) or (n>5 and interLen = 2):
+		if (n>3 and interLen == 0 ) or (n>4 and interLen == 1) or (n>5 and interLen == 2):
 			sz = n
 			maxPolyOrder = max(maxPolyOrder,sz)
 			v = dict()
@@ -227,14 +232,15 @@ def findPolytomies(con_tree,taxa,anch):
 						anch_to_retain.append(c.label)
 						continue
 					v[c.label] = node_dict[c.label]
-					if t in anch:
+					if t in anch_nodes:
 						continue
 					tmp_set = tmp_set | t
 			tmp.append(tmp_set);
 			node_dict[e.label] = tmp_set
-			if len(taxa-tmp_set)>0 and e.parent_node.label not in anch:
-				t = taxa-tmp_set-anch
+			if len(taxa-tmp_set)>0 and e.parent_node and e.parent_node.label not in anch:
+				t = (taxa-tmp_set)-anch_nodes
 				v[e.parent_node.label] = t
+				print t
 			to_resolve[e] = v
 		else:
 			for i in range(0,n-1):

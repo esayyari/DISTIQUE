@@ -61,7 +61,7 @@ con_tree = trees.consensus(min_freq=thr)
 
 tstt.labelNodes(con_tree)
 
-con_tree.write(path=outpath+"consensusTree.nwk",schema="newick") 
+con_tree.write(path=outpath+"/consensusTree.nwk",schema="newick") 
 
 (to_resolve,maxPolyOrder) = tstt.findPolytomies(con_tree)
 taxa = list()

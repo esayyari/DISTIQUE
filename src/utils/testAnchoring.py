@@ -70,64 +70,66 @@ print "majority consensus"
 con_tree = trees.consensus(min_freq=thr)   
 tstt.labelNodes(con_tree)
 
-con_tree.write(path=outpath+"consensusTree.nwk",schema="newick") 
-
-(to_resolve,maxPolyOrder) = tstt.findPolytomies(con_tree)
-n = len(con_tree.leaf_nodes())
-if verbose:
-	print "Number of taxa is: " + str(n)
-	print "the number of polytomies is: "+str(len(to_resolve))
-	print "the maximum order of polytomies is: "+str(maxPolyOrder)
-if verbose:
-	print "computing the total quartet table"
-
-tm.toc()
+con_tree.write(path=outpath+"/consensusTree.nwk",schema="newick") 
 
 taxa = list()
 for e in con_tree.leaf_nodes():
 	taxa.append(e.taxon.label)
 if randomSample:
 	ac = tstt.random_combination(itertools.combinations(taxa,2),num)	
-print taxa
 n = len(con_tree.leaf_nodes())
 if verbose:
 	print "Number of taxa is: " + str(n)
+
+tm.toc()
+
+if verbose:
+	print "Number of taxa is: " + str(n)
 for anch in ac:
-	anch = list(anch)
+	anch = sorted(list(anch))
+	print anch
+	con_tree_tmp = con_tree.clone(2)
+		
+	(to_resolve,maxPolyOrder) = atbs.findPolytomies(con_tree_tmp,taxa,anch)
+	for e in to_resolve:
+		v=to_resolve[e]
+		for vt in v:
+			print vt,
+			for lt in v[vt]:
+				print lt.label,
+			print
 	if verbose:
 		print "computing the distance table, anchoring seperately"
 		tm.tic()
-		frq=atbs.anchoredDistance(achs=ac,gt=trees,wrkPath=outpath,outfile=outpath+'/distancet.d',taxa=taxa)
+		frq=atbs.findAnchoredDistanceTable(anch,trees,taxa,outpath)
+		print frq.type()
 		tm.toc()
-	for e in con_tree.postorder_node_iter():
+	for e in con_tree_tmp.postorder_node_iter():
 		if e in to_resolve:
 			val = to_resolve[e]
-			(taxa_list,taxa_inv) =  tstt.getTaxaList(to_resolve[e])
+			(taxa_list,taxa_inv) =  tstt.getTaxaList(val)
 			if verbose:
 				print "computing the partial quartet table"
 			
-			quartTable = tbsa.findTrueAverageTableAnchoring(frq,anch,list_taxa,am)
+			quartTable = tbsa.findTrueAverageTableAnchoring(frq,anch,taxa_list,am)
 
 			if verbose:
 				print "computing distance table using the method: "+str(am)
 			D=atbs.anchoredDistanceFromFrq(quartTable,anch)
 			keyDict = sorted(list(np.unique((" ".join(D.keys())).split(" "))))
-			fileDistance = outpath+"/distancet-"+str(anch[0])+"-"+str(anch[1]i)+".d"
+			fileDistance = outpath+"/distancet-"+str(anch[0])+"-"+str(anch[1])+".d"
 			pr.printDistanceTableToFile(D,keyDict,fileDistance)
 			subprocess.call([WS_LOC_FM+"/fastme", "-i",fileDistance,"-w","none","-o",fileDistance+"_fastme_tree.nwk"])
 			if verbose:
 				print "starting to resolve polytomy"	
-			res= tstt.resolvePolytomy(fileDistance+"_fastme_tree.nwk",e,con_tree_tmp,verbose)	
+			res=tstt.resolvePolytomy(fileDistance+"_fastme_tree.nwk",con_tree_tmp,verbose)	
 			if verbose:
 				print res
-	print "writing the resulting tree as: "+outpath+"/distance.d_fastme_tree.nwk"
-	con_tree_tmp.write(path=outpath+"/distance-"+str(anch[0])+"-"+str(anch[1]i)+".d",schema="newick") 
+	print "writing the resulting tree as: "+outpath+"/distance-"+str(anch[0])+"-"+str(anch[1])+".d_fastme_tree.nwk"
+	con_tree_tmp.write(path=outpath+"/distance-"+str(anch[0])+"-"+str(anch[1])+".d_fastme_tree.nwk",schema="newick") 
+	res=tstt.compareAnchoredRes(outpath+"/distance-"+str(anch[0])+"-"+str(anch[1])+".d_fastme_tree.nwk",taxa,anch,sp,outpath)
+	print res
 
-
-	res=tstt.compareAnchoredRes(outpath+'/distance.d_fastme_tree.nwk',taxa,ac,sp,outpath)
-f1 = open(outpath+'/res.txt','a')
-print >>f1, res
-f1.close()
 
 
 
