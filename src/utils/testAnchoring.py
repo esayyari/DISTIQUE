@@ -11,6 +11,8 @@ import anchoredTableTools as atbs
 import toolsTreeTaxa as tstt
 import timer as tm
 from optparse import OptionParser
+import tableManipulationToolsAnchoring as tbsa
+
 WS_LOC_SHELL= os.environ['WS_HOME']+'/DISTIQUE/src/shell'
 WS_LOC_FM = os.environ['WS_HOME']+'/fastme-2.1.4/src'
 
