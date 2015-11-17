@@ -95,3 +95,49 @@ res=tstt.compareAnchoredRes(outpath+'/distance.d_fastme_tree.nwk',taxa,ac,sp,out
 f1 = open(outpath+'/res.txt','a')
 print >>f1, res
 f1.close()
+
+
+
+
+#######################
+con_tree = trees.consensus(min_freq=thr)   
+
+tstt.labelNodes(con_tree)
+
+con_tree.write(path=outpath+"consensusTree.nwk",schema="newick") 
+
+(to_resolve,maxPolyOrder) = tstt.findPolytomies(con_tree)
+taxa = list()
+for e in con_tree.leaf_nodes():
+	taxa.append(e.taxon.label)
+n = len(con_tree.leaf_nodes())
+if verbose:
+	print "Number of taxa is: " + str(n)
+	print "the number of polytomies is: "+str(len(to_resolve))
+	print "the maximum order of polytomies is: "+str(maxPolyOrder)
+if verbose:
+	print "computing the total quartet table"
+if readFromFile:
+	frq = tbs.readTable(filename)
+else:
+	frq = tbs.findQuartetTable(trees,taxa,0,outpath,verbose)
+for e in con_tree.postorder_node_iter():
+	if e in to_resolve:
+		val = to_resolve[e]
+		(taxa_list,taxa_inv) =  tstt.getTaxaList(to_resolve[e])
+		if verbose:
+			print "computing the partial quartet table"
+		
+		quartTable = tbs.findTrueAverageTable(frq,taxa_list,av)
+		if verbose:
+			print "computing distance table using the method: "+str(method)
+		tbs.distanceTable(quartTable,method,outpath+"/distancet.d")
+		subprocess.call([WS_LOC_FM+"/fastme", "-i",outpath+"/distancet.d","-w","none","-o",outpath+"/distancet.d_fastme_tree.nwk"])
+		if verbose:
+			print "starting to resolve polytomy"	
+		res= tstt.resolvePolytomy(outpath+"/distancet.d_fastme_tree.nwk",e,con_tree,verbose)	
+		if verbose:
+			print res
+if verbose:
+	print "writing the resulting tree as: "+outpath+"/distance.d_distique_tree.nwk"
+con_tree.write(path=outpath+"/distance.d_distique_tree.nwk",schema="newick")
