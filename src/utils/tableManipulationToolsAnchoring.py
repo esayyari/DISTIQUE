@@ -27,13 +27,10 @@ def generateKey(taxa_list):
 	
 		
 def findTrueAverageTableAnchoring(frq,anch,list_taxa,method):
-	print list_taxa
 	anch = sorted(list(anch))
 	lst_taxa = list(list_taxa.keys())
-	print lst_taxa
 	TotalKey = dict()
 	n = len(lst_taxa)
-	print frq
 	for i in range(0,n):
 		for j in range(i+1,n):
 			for taxon_i in list_taxa[lst_taxa[i]]:

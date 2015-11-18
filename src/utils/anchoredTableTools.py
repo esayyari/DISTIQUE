@@ -240,7 +240,6 @@ def findPolytomies(con_tree,taxa,anch):
 			if len(taxa-tmp_set)>0 and e.parent_node and e.parent_node.label not in anch:
 				t = (taxa-tmp_set)-anch_nodes
 				v[e.parent_node.label] = t
-				print t
 			to_resolve[e] = v
 		else:
 			for i in range(0,n-1):
