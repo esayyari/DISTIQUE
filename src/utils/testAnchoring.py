@@ -101,8 +101,7 @@ for anch in ac:
 	if verbose:
 		print "computing the distance table, anchoring seperately"
 		tm.tic()
-		frq=atbs.findAnchoredDistanceTable(anch,trees,taxa,outpath)
-		print frq.type()
+		[D,frq]=atbs.findAnchoredDistanceTable(anch,trees,taxa,outpath)
 		tm.toc()
 	for e in con_tree_tmp.postorder_node_iter():
 		if e in to_resolve:
@@ -122,17 +121,11 @@ for anch in ac:
 			subprocess.call([WS_LOC_FM+"/fastme", "-i",fileDistance,"-w","none","-o",fileDistance+"_fastme_tree.nwk"])
 			if verbose:
 				print "starting to resolve polytomy"	
-			res=tstt.resolvePolytomy(fileDistance+"_fastme_tree.nwk",con_tree_tmp,verbose)	
+			res=atbs.resolvePolytomy(fileDistance+"_fastme_tree.nwk",con_tree_tmp,verbose)	
 			if verbose:
 				print res
 	print "writing the resulting tree as: "+outpath+"/distance-"+str(anch[0])+"-"+str(anch[1])+".d_fastme_tree.nwk"
 	con_tree_tmp.write(path=outpath+"/distance-"+str(anch[0])+"-"+str(anch[1])+".d_fastme_tree.nwk",schema="newick") 
 	res=tstt.compareAnchoredRes(outpath+"/distance-"+str(anch[0])+"-"+str(anch[1])+".d_fastme_tree.nwk",taxa,anch,sp,outpath)
 	print res
-
-
-
-
-
-
 

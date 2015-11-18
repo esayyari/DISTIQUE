@@ -40,10 +40,10 @@ def anchoredDistanceFromFrq(frq,achs):
 			key1 = s[0]+" "+s[1]
 			key2 = s[1]+" "+s[0]
 			if s[0]<achs[0]:
-				D[key1]=-np.log(frq[k][s[1]])
+				D[key1]=-np.log(frq[k])
 				D[key2]=D[key1]	
 			elif s[0]>achs[0]:
-				D[key1]=-np.log(frq[k][achs[1]])	
+				D[key1]=-np.log(frq[k])	
 				D[key2]=D[key1]
 	return D
 def buildEmptyQuartets(anch,taxa,n):
