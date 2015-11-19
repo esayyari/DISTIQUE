@@ -93,11 +93,6 @@ for anch in ac:
 	(to_resolve,maxPolyOrder) = atbs.findPolytomies(con_tree_tmp,taxa,anch)
 	for e in to_resolve:
 		v=to_resolve[e]
-		for vt in v:
-			print vt,
-			for lt in v[vt]:
-				print lt.label,
-			print
 	if verbose:
 		print "computing the distance table, anchoring seperately"
 		tm.tic()
@@ -121,7 +116,7 @@ for anch in ac:
 			subprocess.call([WS_LOC_FM+"/fastme", "-i",fileDistance,"-w","none","-o",fileDistance+"_fastme_tree.nwk"])
 			if verbose:
 				print "starting to resolve polytomy"	
-			res=atbs.resolvePolytomy(fileDistance+"_fastme_tree.nwk",con_tree_tmp,verbose)	
+			res=atbs.resolvePolytomy(fileDistance+"_fastme_tree.nwk",e,verbose)	
 			if verbose:
 				print res
 	print "writing the resulting tree as: "+outpath+"/distance-"+str(anch[0])+"-"+str(anch[1])+".d_fastme_tree.nwk"
