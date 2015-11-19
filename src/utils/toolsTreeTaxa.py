@@ -34,6 +34,16 @@ def buildTree(setNodeLabels,tree,center):
 	inferedTree.retain_taxa(taxa,update_bipartitions=True)
 	inferedTree.deroot()		
 	return inferedTree
+def compareRes(tree,taxa,anch,sp,outpath):
+	tns = dendropy.TaxonNamespace()	
+	tns = dendropy.TaxonNamespace()
+	tree1 = dendropy.Tree.get_from_path(sp,"newick",taxon_namespace=tns,rooting="force-unrooted")
+	tree2 = dendropy.Tree.get_from_path(tree,"newick",taxon_namespace=tns,rooting="force-unrooted")
+	res = dendropy.calculate.treecompare.false_positives_and_negatives(tree1,tree2)
+
+	
+	return res
+
 def compareAnchoredRes(tree,taxa,achs,sp,outpath):
 	taxa = set(taxa)-{achs[0],achs[1]}
 	tns = dendropy.TaxonNamespace()
@@ -43,10 +53,16 @@ def compareAnchoredRes(tree,taxa,achs,sp,outpath):
 	inferedTree = tree1.clone(2)
 	inferedTree.retain_taxa_with_labels(taxa, update_bipartitions=True)
 	inferedTree.deroot()		
-	inferedTree.write(path=outpath+"/sp.nwk",schema="newick")
-	tns = dendropy.TaxonNamespace()
-	tree1 = dendropy.Tree.get_from_path(outpath+'/sp.nwk',"newick",taxon_namespace=tns,rooting="force-unrooted")
+	inferedTree.write(path=outpath+"/sp.nwk-"+achs[0]+"-"+achs[1],schema="newick")
+
 	tree2 = dendropy.Tree.get_from_path(tree,"newick",taxon_namespace=tns,rooting="force-unrooted")
+        inferedTree = tree2.clone(2)
+        inferedTree.retain_taxa_with_labels(taxa, update_bipartitions=True)
+        inferedTree.deroot()
+        inferedTree.write(path=tree+".retained",schema="newick")
+	tns = dendropy.TaxonNamespace()
+	tree1 = dendropy.Tree.get_from_path(outpath+"/sp.nwk-"+achs[0]+"-"+achs[1],"newick",taxon_namespace=tns,rooting="force-unrooted")
+	tree2 = dendropy.Tree.get_from_path(tree+".retained","newick",taxon_namespace=tns,rooting="force-unrooted")
 	res = dendropy.calculate.treecompare.false_positives_and_negatives(tree1,tree2)
 
 	
@@ -99,9 +115,9 @@ def getTaxaList(taxaDict):
         for key1,vals1 in taxaDict.iteritems():
                 v = list()
                 for t in vals1:
-                        k = t.taxon.__str__()
-                        kv = k.split("'")
-                        v.append(kv[1])
+                        k = t.taxon.label
+			print k
+                        v.append(k)
                 taxa_list[key1] = v
 	for k, v in taxa_list.iteritems():
                 for v2 in v:
@@ -177,4 +193,16 @@ def random_combination(iterable, r):
     pool = tuple(iterable)
     n = len(pool)
     indices = sorted(random.sample(xrange(n), r))
-    return tuple(pool[i] for i in indices)	
+    return tuple(pool[i] for i in indices)
+
+def prune_tree_trivial_nodes(tree):
+	tree.update_bipartitions()
+#	for e in tree.postorder_node_iter():
+
+#		ch = e.child_nodes()
+#		p = e.parent_node
+#		if len(ch)==1 and (p is not None):
+#			p.add_child(ch[0])
+#			e.remove_child(ch[0])
+#			p.remove_child(e)
+	return	

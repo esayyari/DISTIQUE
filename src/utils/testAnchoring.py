@@ -46,6 +46,7 @@ num = options.num
 am = options.am
 if (options.a):
 	ac = sorted(options.a.split(','))
+	ac = [(ac[i],ac[i+1])for i in range(0,len(ac)/2)]
 	randomSample=False
 else:
 	randomSample=True
@@ -89,8 +90,9 @@ for anch in ac:
 	anch = sorted(list(anch))
 	print anch
 	con_tree_tmp = con_tree.clone(2)
+	#(par1,par2,par1_is_Poly,par2_is_Poly,par1_child,par2_child)	
+	(to_resolve,maxPolyOrder,con_map) = atbs.findPolytomies(con_tree_tmp,taxa,anch)
 		
-	(to_resolve,maxPolyOrder) = atbs.findPolytomies(con_tree_tmp,taxa,anch)
 	for e in to_resolve:
 		v=to_resolve[e]
 	if verbose:
@@ -119,8 +121,27 @@ for anch in ac:
 			res=atbs.resolvePolytomy(fileDistance+"_fastme_tree.nwk",e,verbose)	
 			if verbose:
 				print res
+	(a_nodes,seed_lab,pa1,pa2,par1_is_Poly,par2_is_Poly,par1_child,par2_child) = con_map	
+	p1_pre_child = {xy for xy in par1_child} 
+	p2_pre_child = {xy for xy in par2_child}
+	#(p1child,p2child)=atbs.addAnchores(con_tree_tmp,con_map)
+	#print p1child
+	#print p2child
+	#p1_post_child = {xy.label for xy in p1child}
+	#p2_post_child = {xy.label for xy in p2child}
+	#tstt.prune_tree_trivial_nodes(con_tree_tmp)	
 	print "writing the resulting tree as: "+outpath+"/distance-"+str(anch[0])+"-"+str(anch[1])+".d_fastme_tree.nwk"
-	con_tree_tmp.write(path=outpath+"/distance-"+str(anch[0])+"-"+str(anch[1])+".d_fastme_tree.nwk",schema="newick") 
+	con_tree_tmp.write(path=outpath+"/distance-"+str(anch[0])+"-"+str(anch[1])+".d_fastme_tree.nwk",schema="newick")
+	 
+	#res2 = tstt.compareRes(outpath+"/distance-"+str(anch[0])+"-"+str(anch[1])+".d_fastme_tree.nwk",taxa,anch,sp,outpath)
 	res=tstt.compareAnchoredRes(outpath+"/distance-"+str(anch[0])+"-"+str(anch[1])+".d_fastme_tree.nwk",taxa,anch,sp,outpath)
+#	if p1_post_child == p1_pre_child and p2_post_child == p2_pre_child:
+#		print True
+#		print "parent of anchores have the same children"
+#	else:
+#		print False
+#		print "Parent of anchores do not have the same children"
+
 	print res
+	#print res2
 
