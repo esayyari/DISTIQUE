@@ -209,53 +209,47 @@ def findPolytomies(con_tree,taxa,anch):
         nd1 = con_tree.find_node_with_taxon(filter)
 	filter = lambda taxon: True if taxon.label==anch[1] else False
         nd2 = con_tree.find_node_with_taxon(filter)
+	par1 = nd1.parent_node
+	par2 = nd2.parent_node
+	con_map1 = par1.reversible_remove_child(nd1)
+	con_map2 = par2.reversible_remove_child(nd2)
 	anch_nodes = {nd1,nd2}
 	anch = set(anch)
 	taxa = set(con_tree.leaf_nodes())
 	for e in con_tree.postorder_node_iter():
 		tmp_set = set()
-		ch_tmp = set(e.adjacent_nodes())
-		intersect = ch_tmp & anch
-		interLen = len(intersect)
-		
-		n = len(ch_tmp)
-		anch_to_retain = list()
-		if (n>3 and interLen == 0 ) or (n>4 and interLen == 1) or (n>5 and interLen == 2):
-			sz = n
+		n = len(e.child_nodes())
+		if n>3 or ( n==3 and e.parent_node != None ):
+			if e.parent_node != None:
+				sz = n + 1
+			else:
+				sz = n
 			maxPolyOrder = max(maxPolyOrder,sz)
 			v = dict()
-			
 			for c in e.child_nodes():
 				if len(tmp)>0:
 					t = tmp.pop()
-					if c.label in anch:
-						anch_to_retain.append(c.label)
-						continue
+					
 					v[c.label] = node_dict[c.label]
-					if t in anch_nodes:
-						continue
 					tmp_set = tmp_set | t
 			tmp.append(tmp_set);
 			node_dict[e.label] = tmp_set
-			if len(taxa-tmp_set)>0 and e.parent_node and e.parent_node.label not in anch:
-				t = (taxa-tmp_set)-anch_nodes
+			if len(taxa-tmp_set)>0:
+				t = taxa-tmp_set
 				v[e.parent_node.label] = t
 			to_resolve[e] = v
 		else:
-			for i in range(0,n-1):
+			for i in range(0,n):
 				if len(tmp)>0:
-					a = set(tmp.pop())
-					if a in anch:
-						continue
-					tmp_set = tmp_set | a
-			if e.is_leaf() and e.label not in anch:
+					tmp_set = tmp_set | set(tmp.pop())
+			if e.is_leaf():
 				tmp_set.add(e)
-			if e.label not in anch:
-				node_dict[e.label] = tmp_set
+			node_dict[e.label] = tmp_set
 			tmp.append(tmp_set)
 
 
 	return (to_resolve,maxPolyOrder)
+
 def getTaxaList(taxaDict):
         taxa = dict()
         inv_taxa=dict()
