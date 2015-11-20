@@ -44,10 +44,10 @@ def compareRes(tree,taxa,anch,sp,outpath):
 	
 	return res
 
-def compareAnchoredRes(tree,taxa,achs,sp,outpath):
-	taxa = set(taxa)-{achs[0],achs[1]}
+def compareAnchoredRes(tree,taxa,achs,sp,outpath,trueAnch):
+	taxa = set(taxa)-set(achs)
 	tns = dendropy.TaxonNamespace()
-	
+	achs = trueAnch
 	
 	tree1 = dendropy.Tree.get_from_path(sp,"newick",taxon_namespace=tns,rooting="force-unrooted")
 	inferedTree = tree1.clone(2)

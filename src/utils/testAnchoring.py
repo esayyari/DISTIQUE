@@ -126,9 +126,9 @@ for anch in ac:
 	print "writing the resulting tree as: "+outpath+"/distance-"+str(anch[0])+"-"+str(anch[1])+".d_fastme_tree.nwk"
 	con_tree_tmp.write(path=outpath+"/distance-"+str(anch[0])+"-"+str(anch[1])+".d_fastme_tree.nwk",schema="newick")
 	 
-	res2 = tstt.compareAnchoredRes(outpath+"/distance-"+str(anch[0])+"-"+str(anch[1])+".d_fastme_tree.nwk",taxa,anch,sp,outpath)
+	res2 = tstt.compareAnchoredRes(outpath+"/distance-"+str(anch[0])+"-"+str(anch[1])+".d_fastme_tree.nwk",taxa,anch,sp,outpath,anch)
 	ach_al = [a.label for a in ach_a]
-	res=tstt.compareAnchoredRes(outpath+"/distance-"+str(anch[0])+"-"+str(anch[1])+".d_fastme_tree.nwk",taxa,ach_al,sp,outpath)
+	res=tstt.compareAnchoredRes(outpath+"/distance-"+str(anch[0])+"-"+str(anch[1])+".d_fastme_tree.nwk",taxa,ach_al,sp,outpath,anch)
 #	if p1_post_child == p1_pre_child and p2_post_child == p2_pre_child:
 #		print True
 #		print "parent of anchores have the same children"
