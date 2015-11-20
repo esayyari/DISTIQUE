@@ -211,6 +211,12 @@ def findPolytomies(con_tree,taxa,anch):
         nd2 = con_tree.find_node_with_taxon(filter)
 	par1 = nd1.parent_node
 	par2 = nd2.parent_node
+	isSibiling = False
+	if par1 == par2:
+		isSibiling = True
+		if par1.parent_node is not None:
+			par1 = par1.parent_node
+			par2 = par2.parent_node 
 	n1 = len(par1.adjacent_nodes())
 	n2 = len(par2.adjacent_nodes())
 	if n1>3:
@@ -221,12 +227,15 @@ def findPolytomies(con_tree,taxa,anch):
 		par2_is_Poly = True
 	else:
 		par2_is_Poly = False
-	par1_child = {n.label for n in par1.leaf_iter()}
-	par2_child = {n.label for n in par2.leaf_iter()}
-	con_tree.prune_taxa([nd1.taxon,nd2.taxon], update_bipartitions=True, suppress_unifurcations=False)	
+	if ~isSibiling:
+		par1_child = {n.label for n in par1.leaf_iter()}
+		par2_child = {n.label for n in par2.leaf_iter()}
+	else:
+		par1_child = {n.label for n in nd1.parent_node.leaf_iter()}
+		par2_child = {n.label for n in nd2.parent_node.leaf_iter()}
+	con_tree.prune_taxa([nd1.taxon,nd2.taxon], update_bipartitions=False, suppress_unifurcations=False)	
 	#par1.remove_child(nd1)
 	#par2.remove_child(nd2)
-	con_tree.update_bipartitions()
 	anch_nodes = {nd1,nd2}
 	anch = set(anch)
 	taxa = set(con_tree.leaf_nodes())
@@ -279,24 +288,60 @@ def addAnchores(con_tree,con_map):
 	(anch,con_tree.seed_node.label,par1,par2,par1_is_Poly,par2_is_Poly,par1_child,par2_child)=con_map
 	p1 = False
 	p2 = False
-	if len(par1.adjacent_nodes())>0:
+	isSibiling = (par1_child == par2_child)
+	nu = 0
+	ach_a =list()
+	if len(par1.adjacent_nodes())>0 and ~par1_is_Poly and ~isSibiling:
 		par1.insert_child(0,anch[1])
+		nu += 1
+		ach_a.append(anch[1])
 		p1 = True
-	if len(par2.adjacent_nodes())>0:
+	if len(par2.adjacent_nodes())>0 and ~par2_is_Poly and ~isSibiling:
 		par2.insert_child(0,anch[0])
 		p2 = True
-		if p1:
+		ach_a.append(anch[0])
+		nu += 1
+		if p1 or par1_is_Poly:
 			print "adding anchores without traversing"
-			return (par1.leaf_nodes(),par2.leaf_nodes())
-	pc1 = par1.leaf_nodes()
-	pc2 = par2.leaf_nodes() 
-	if ~p1:
-		pc1 = addAnchor(con_tree,anch[1],con_tree.seed_node.label,par1,par1_is_Poly,par1_child)
-	elif ~p2:
-		pc2 = addAnchor(con_tree,anch[0],con_tree.seed_node.label,par2,par2_is_Poly,par2_child)
-	print "adding anchores with traversing"
-	return (pc1,pc2)
-def addAnchor(con_tree,anch,seed_lab,par,par_is_Poly,par_child):
+			return (nu,ach_a)
+	if isSibiling and ~par1_is_Poly:
+		t=par1.add_new_child(0)
+		t.add_child(anch[0])
+		t.add_child(anch[1])
+		nu += 2
+		ach_a.append(anch[0])
+		ach_a.append(anch[1])
+		return (nu,ach_a)
+	if (par1_is_Poly and par2_is_Poly) or (par2_is_Poly and p1):
+		return (nu,ach_a) 
+	if anch[1].label in par2_child:
+		if ~p1 and ~par1_is_Poly:
+			a=addAnchor(con_tree,anch[1],con_tree.seed_node.label,par1,par1_is_Poly,par1_child,anch)
+			nu += a
+			ach_a.append(anch[1])
+		elif par1_is_Poly:
+			par2_child = par2_child - set(anch[1].label)
+		elif ~p2 and ~par2_is_Poly:
+			a=addAnchor(con_tree,anch[0],con_tree.seed_node.label,par2,par2_is_Poly,par2_child,anch)
+			nu += a
+			ach_a.append(anch[0])
+		print "adding anchores with traversing"
+		return (nu,ach_a)
+	elif anch[0].label in par1_child:
+		if ~p2 and ~par2_is_Poly:
+			a=addAnchor(con_tree,anch[0],con_tree.seed_node.label,par2,par2_is_Poly,par2_child,anch)
+			nu += a
+			ach_a.append(anch[0])
+		elif par2_is_Poly:
+			par1_child = par1_child - set(anch[0].label)
+		elif ~p1 and ~par1_is_Poly:
+			a=addAnchor(con_tree,anch[1],con_tree.seed_node.label,par1,par1_is_Poly,par1_child,anch)
+			nu += a
+			ach_a.append(anch[0])
+		print "adding anchores with traversing"
+		return (nu,ach_a)
+	
+def addAnchor(con_tree,anch,seed_lab,par,par_is_Poly,par_child,both_anch):
 	tmp = list()
 	con_tree.update_bipartitions()
 	tmp_lab = list()
@@ -315,33 +360,24 @@ def addAnchor(con_tree,anch,seed_lab,par,par_is_Poly,par_child):
 		tmp_lab.append(tmp_set_lab)
 		tmp.append(tmp_set)
 		if par_child == tmp_set_lab:
-			print "in condition 1"
-			if par_is_Poly:
-				e.add_child(anch)
-				return par.leaf_nodes()
+			if e.parent_node is not None:
+				t = e.parent_node.insert_new_child(n+1)
+				e.parent_node.remove_child(e)
+				t.add_child(e)
+				t.add_child(anch)
+				return 1
 			else:
-				if e.parent_node is not None:
-					t = e.parent_node.insert_new_child(n+1)
-					e.parent_node.remove_child(e)
-					t.add_child(e)
-					t.add_child(anch)
-					return e.parent_node.leaf_nodes()
-				else:
-					raise ValueError("There is no parent")
-		elif par_child == taxa-tmp_set_lab:
+				raise ValueError("There is no parent")
+		elif par_child == (taxa-tmp_set_lab):
 			print "in condition 2"
 			p = e.parent_node
-			if par_is_Poly:
-				p.add_child(anch)
-				return set(con_tree.leaf_nodes())-set(e.leaf_nodes())
+			if e.parent_node is not None:
+				t = e.parent_node.insert_new_child(n+1)
+				e.parent_node.remove_child(e)
+				t.add_child(e)
+				t.add_child(anch)
+				return 1
 			else:
-				if e.parent_node is not None:
-					t = e.parent_node.insert_new_child(n+1)
-					e.parent_node.remove_child(e)
-					t.add_child(e)
-					t.add_child(anch)
-					return set(con_tree.leaf_nodes())-set(e.leaf_nodes())
-				else:
-					raise ValueError("There is no parent")	
+				raise ValueError("There is no parent")	
 
-	return anch
+	raise ValueError("Nothing happend!")

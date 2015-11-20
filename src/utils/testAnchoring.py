@@ -121,27 +121,23 @@ for anch in ac:
 			res=atbs.resolvePolytomy(fileDistance+"_fastme_tree.nwk",e,verbose)	
 			if verbose:
 				print res
-	(a_nodes,seed_lab,pa1,pa2,par1_is_Poly,par2_is_Poly,par1_child,par2_child) = con_map	
-	p1_pre_child = {xy for xy in par1_child} 
-	p2_pre_child = {xy for xy in par2_child}
-	#(p1child,p2child)=atbs.addAnchores(con_tree_tmp,con_map)
-	#print p1child
-	#print p2child
-	#p1_post_child = {xy.label for xy in p1child}
-	#p2_post_child = {xy.label for xy in p2child}
-	#tstt.prune_tree_trivial_nodes(con_tree_tmp)	
+	(num_add,ach_a)=atbs.addAnchores(con_tree_tmp,con_map)
+	tstt.prune_tree_trivial_nodes(con_tree_tmp)	
 	print "writing the resulting tree as: "+outpath+"/distance-"+str(anch[0])+"-"+str(anch[1])+".d_fastme_tree.nwk"
 	con_tree_tmp.write(path=outpath+"/distance-"+str(anch[0])+"-"+str(anch[1])+".d_fastme_tree.nwk",schema="newick")
 	 
-	#res2 = tstt.compareRes(outpath+"/distance-"+str(anch[0])+"-"+str(anch[1])+".d_fastme_tree.nwk",taxa,anch,sp,outpath)
-	res=tstt.compareAnchoredRes(outpath+"/distance-"+str(anch[0])+"-"+str(anch[1])+".d_fastme_tree.nwk",taxa,anch,sp,outpath)
+	res2 = tstt.compareAnchoredRes(outpath+"/distance-"+str(anch[0])+"-"+str(anch[1])+".d_fastme_tree.nwk",taxa,anch,sp,outpath)
+	ach_al = [a.label for a in ach_a]
+	res=tstt.compareAnchoredRes(outpath+"/distance-"+str(anch[0])+"-"+str(anch[1])+".d_fastme_tree.nwk",taxa,ach_al,sp,outpath)
 #	if p1_post_child == p1_pre_child and p2_post_child == p2_pre_child:
 #		print True
 #		print "parent of anchores have the same children"
 #	else:
 #		print False
 #		print "Parent of anchores do not have the same children"
-
+	print num_add
+	print len(ach_al)
+	print len(con_tree_tmp.leaf_nodes())
 	print res
-	#print res2
+	print res2
 

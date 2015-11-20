@@ -116,7 +116,6 @@ def getTaxaList(taxaDict):
                 v = list()
                 for t in vals1:
                         k = t.taxon.label
-			print k
                         v.append(k)
                 taxa_list[key1] = v
 	for k, v in taxa_list.iteritems():
