@@ -126,18 +126,19 @@ for anch in ac:
 	print "writing the resulting tree as: "+outpath+"/distance-"+str(anch[0])+"-"+str(anch[1])+".d_fastme_tree.nwk"
 	con_tree_tmp.write(path=outpath+"/distance-"+str(anch[0])+"-"+str(anch[1])+".d_fastme_tree.nwk",schema="newick")
 	 
-	res2 = tstt.compareAnchoredRes(outpath+"/distance-"+str(anch[0])+"-"+str(anch[1])+".d_fastme_tree.nwk",taxa,anch,sp,outpath,anch)
-	ach_al = [a.label for a in ach_a]
-	res=tstt.compareAnchoredRes(outpath+"/distance-"+str(anch[0])+"-"+str(anch[1])+".d_fastme_tree.nwk",taxa,ach_al,sp,outpath,anch)
+#	res2 = tstt.compareAnchoredRes(outpath+"/distance-"+str(anch[0])+"-"+str(anch[1])+".d_fastme_tree.nwk",taxa,anch,sp,outpath,anch)
+#	ach_al = [a.label for a in ach_a]
+#	res=tstt.compareAnchoredRes(outpath+"/distance-"+str(anch[0])+"-"+str(anch[1])+".d_fastme_tree.nwk",taxa,ach_al,sp,outpath,anch)
 #	if p1_post_child == p1_pre_child and p2_post_child == p2_pre_child:
 #		print True
 #		print "parent of anchores have the same children"
 #	else:
 #		print False
 #		print "Parent of anchores do not have the same children"
-	print num_add
-	print len(ach_al)
-	print len(con_tree_tmp.leaf_nodes())
-	print res
-	print res2
+#	print num_add
+#	print len(ach_al)
+#	print len(con_tree_tmp.leaf_nodes())
+
+#	print res
+#	print res2
 
