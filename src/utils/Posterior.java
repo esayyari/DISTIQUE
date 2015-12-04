@@ -1,6 +1,10 @@
 import cern.jet.stat.*;
 
 public class Posterior {
+	double m1;
+	double m2;
+	double n;
+	
 	public Posterior(){
 	}
 	public Posterior(double ft1, double ft2, double nt){
@@ -8,12 +12,9 @@ public class Posterior {
 		m2 = ft2;
 		n  = nt;
 	}
-	double m1;
-	double m2;
-	double n;
 	
         public static void main(String[] args) {
-		double b = Gamma.incompleteBeta(500.,1000.,1./3.);
+		double b = Gamma.incompleteBeta(17000.,50000,1./3.);
 		System.out.println("\n"+b);
         }
 }
