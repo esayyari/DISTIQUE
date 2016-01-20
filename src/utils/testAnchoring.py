@@ -131,9 +131,9 @@ for anch in ac:
 				print res
 	(num_add,ach_a)=atbs.addAnchores(con_tree_tmp,con_map)
 	tstt.prune_tree_trivial_nodes(con_tree_tmp)	
-	print "writing the resulting tree as: "+outpath+"/distance-"+str(anch[0])+"-"+str(anch[1])+".d_fastme_tree.nwk"
-	ftmp=tempfile.mkstemp(suffix='.nwk', prefix="distance-"+str(anch[0])+"-"+str(anch[1])+".d_fastme_tree.nwk", dir=outpath, text=None)
-	con_tree_tmp.write(path=ftmp[1],schema="newick",suppress_rooting=True)
+	print "writing the resulting tree as: "+outpath+"/distance-"+str(anch[0])+"-"+str(anch[1])+".d_distique_anchoring_tree.nwk"
+	ftmp=tempfile.mkstemp(suffix='.nwk', prefix="distance-"+str(anch[0])+"-"+str(anch[1])+".d_distique_anchoring_tree.nwk", dir=outpath, text=None)
+	con_tree_tmp.write(path=ftmp[1],schema="newick",suppress_rooting=True,suppress_internal_node_labels=True)
 	 
 #	res2 = tstt.compareAnchoredRes(outpath+"/distance-"+str(anch[0])+"-"+str(anch[1])+".d_fastme_tree.nwk",taxa,anch,sp,outpath,anch)
 #	ach_al = [a.label for a in ach_a]
