@@ -12,6 +12,7 @@ import subprocess
 import tableManipulationTools as tbs
 import printTools as pr
 import toolsTreeTaxa as tstt
+import tempfile
 WS_LOC_SHELL= os.environ['WS_HOME']+'/DISTIQUE/src/shell'
 WS_LOC_FM = os.environ['WS_HOME']+'/fastme-2.1.4/src'
 usage = "usage: %prog [options]"
@@ -61,7 +62,7 @@ con_tree = trees.consensus(min_freq=thr)
 
 tstt.labelNodes(con_tree)
 
-con_tree.write(path=outpath+"/consensusTree.nwk",schema="newick") 
+con_tree.write(path=outpath+"/consensusTree.nwk",schema="newick",suppress_rooting=True) 
 
 (to_resolve,maxPolyOrder) = tstt.findPolytomies(con_tree)
 taxa = list()
@@ -88,13 +89,16 @@ for e in con_tree.postorder_node_iter():
 		quartTable = tbs.findTrueAverageTable(frq,taxa_list,av)
 		if verbose:
 			print "computing distance table using the method: "+str(method)
-		tbs.distanceTable(quartTable,method,outpath+"/distancet.d")
-		subprocess.call([WS_LOC_FM+"/fastme", "-i",outpath+"/distancet.d","-w","none","-o",outpath+"/distancet.d_fastme_tree.nwk"])
+		ftmp3=tempfile.mkstemp(suffix='', prefix="distancet.d", dir=outpath, text=None)
+		tbs.distanceTable(quartTable,method,ftmp3[1])
+		ftmp4=tempfile.mkstemp(suffix='',prefix="distance.d_fastme_tree.nwk",dir=outpath,text=None)
+		subprocess.call([WS_LOC_FM+"/fastme", "-i",ftmp3[1],"-w","none","-o",ftmp4[1]])
 		if verbose:
 			print "starting to resolve polytomy"	
-		res= tstt.resolvePolytomy(outpath+"/distancet.d_fastme_tree.nwk",e,con_tree,verbose)	
+		res= tstt.resolvePolytomy(ftmp4[1],e,con_tree,verbose)	
 		if verbose:
 			print res
 if verbose:
 	print "writing the resulting tree as: "+outpath+"/distance.d_distique_tree.nwk"
-con_tree.write(path=outpath+"/distance.d_distique_tree.nwk",schema="newick")
+ftmp=tempfile.mkstemp(suffix='', prefix="distance.d_distique_tree.nwk", dir=outpath, text=None)
+con_tree.write(path=ftmp[1],schema="newick",suppress_rooting=True)

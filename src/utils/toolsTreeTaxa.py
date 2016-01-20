@@ -7,6 +7,7 @@ import itertools
 from collections import defaultdict
 import random
 import subprocess
+import tempfile
 def buildTree(setNodeLabels,tree,center):
 	inferedTree = tree.clone(2)
 	taxa = dendropy.TaxonNamespace()
@@ -52,17 +53,20 @@ def compareAnchoredRes(tree,taxa,achs,sp,outpath,trueAnch):
 	tree1 = dendropy.Tree.get_from_path(sp,"newick",taxon_namespace=tns,rooting="force-unrooted")
 	inferedTree = tree1.clone(2)
 	inferedTree.retain_taxa_with_labels(taxa, update_bipartitions=True)
-	inferedTree.deroot()		
-	inferedTree.write(path=outpath+"/sp.nwk-"+achs[0]+"-"+achs[1],schema="newick")
+	inferedTree.deroot()
+	
+	ftmp1=tempfile.mkstemp(suffix='.nwk', prefix="sp.nwk-"+str(anch[0])+"-"+str(anch[1]), dir=outpath, text=None)
+	inferedTree.write(path=ftmp1[1],schema="newick",suppress_rooting=True)
 
 	tree2 = dendropy.Tree.get_from_path(tree,"newick",taxon_namespace=tns,rooting="force-unrooted")
         inferedTree = tree2.clone(2)
         inferedTree.retain_taxa_with_labels(taxa, update_bipartitions=True)
         inferedTree.deroot()
-        inferedTree.write(path=tree+".retained",schema="newick")
+	ftmp2=tempfile.mkstemp(suffix='.nwk', prefix=tree+".retained", dir=outpath, text=None)
+        inferedTree.write(path=ftmp2[1],schema="newick",suppress_rooting=True)
 	tns = dendropy.TaxonNamespace()
-	tree1 = dendropy.Tree.get_from_path(outpath+"/sp.nwk-"+achs[0]+"-"+achs[1],"newick",taxon_namespace=tns,rooting="force-unrooted")
-	tree2 = dendropy.Tree.get_from_path(tree+".retained","newick",taxon_namespace=tns,rooting="force-unrooted")
+	tree1 = dendropy.Tree.get_from_path(ftmp1[1],taxon_namespace=tns,rooting="force-unrooted")
+	tree2 = dendropy.Tree.get_from_path(ftmp2[1],"newick",taxon_namespace=tns,rooting="force-unrooted")
 	res = dendropy.calculate.treecompare.false_positives_and_negatives(tree1,tree2)
 
 	

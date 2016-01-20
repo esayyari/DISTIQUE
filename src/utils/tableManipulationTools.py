@@ -14,6 +14,8 @@ from minDistance import minDistance
 import copy
 import toolsTreeTaxa as tstt
 import numpy as np
+import tempfile
+import random
 def averageQuartetTables( **kwargs):
 	for k,v in kwargs.iteritems():
 		if k == 'limit':
@@ -267,9 +269,10 @@ def findQuartetTable(trees,origKeys,keyType,tmpPath,verbose):
 		t = copy.deepcopy(tree)
 		t.retain_taxa_with_labels(taxa, update_bipartitions=False, suppress_unifurcations=True)
 		treeList.append(t)
-	outfile = out_path + "/partialQuartetTable.nwk"
-	treeList.write(path = outfile,schema="newick")
-	command = WS_LOC_SH+"compute.quartet.freq.sh -o "+out_path+" -w 1 -f "+outfile
+	outfile = "partialQuartetTable.nwk"
+	ftmp = out_path+"/"+outfile
+	treeList.write(path = ftmp,schema="newick",suppress_rooting=True)
+	command = WS_LOC_SH+"compute.quartet.freq.sh -o "+out_path+" -w 1 -f "+ftmp
 
 	os.system(command)
 	frq = 	readTable(out_path+'/quartet_tmp.q')

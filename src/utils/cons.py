@@ -32,10 +32,12 @@ trees = dendropy.TreeList.get_from_path(src_fpath, 'newick')
 con_tree = trees.consensus(min_freq=thr)   
 
 
-con_tree.write(path="consensusTree.nwk",schema="newick") 
 
 print "writing the resulting tree as: "+outpath+"/distance.d_cons_tree.nwk"
-con_tree.write(path=outpath+"/distance.d_cons_tree.nwk",schema="newick")
-		
+ftmp=tempfile.mkstemp(suffix='.nwk', prefix="distance.d_cons_tree", dir=outpath, text=None)
+con_tree.write(path=ftmp[1],schema="newick",suppress_rooting=True)
+
+                
+	
 
 

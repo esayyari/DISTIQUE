@@ -12,7 +12,7 @@ import toolsTreeTaxa as tstt
 import timer as tm
 from optparse import OptionParser
 import tableManipulationToolsAnchoring as tbsa
-
+import tempfile
 WS_LOC_SHELL= os.environ['WS_HOME']+'/DISTIQUE/src/shell'
 WS_LOC_FM = os.environ['WS_HOME']+'/fastme-2.1.4/src'
 
@@ -32,7 +32,7 @@ parser.add_option("-a","--achs",dest="a",type="string",
 		help="Anchors that the table will be based on")
 parser.add_option("-s","--sp",dest="sp",
 		help="species tree")
-parser.add_option("-n","--numStep",dest="num",type="int",
+parser.add_option("-n","--numStep",dest="num",
 		help="The number of anchors, default is 2",default=2)
 parser.add_option("-e","--method",dest="am",
 		help="The averaging method for finding average quartet table",default="mean")
@@ -43,6 +43,8 @@ outpath = options.out
 thr = options.thr
 sp = options.sp
 num = options.num
+if (num != "all"):
+	num = int(num)
 am = options.am
 if (options.a):
 	ac = sorted(options.a.split(','))
@@ -64,6 +66,9 @@ src_fpath = os.path.expanduser(os.path.expandvars(gt))
 tm.tic()
 print "reading trees"
 trees = dendropy.TreeList.get_from_path(src_fpath, 'newick')
+num_taxa = len(trees[0].leaf_nodes())
+if (num == "all"):
+	num = num_taxa*(num_taxa-1)/2
 tm.toc()
 
 tm.tic()
@@ -71,7 +76,8 @@ print "majority consensus"
 con_tree = trees.consensus(min_freq=thr)   
 tstt.labelNodes(con_tree)
 
-con_tree.write(path=outpath+"/consensusTree.nwk",schema="newick") 
+ftmp=tempfile.mkstemp(suffix='.nwk', prefix="consensusTree", dir=outpath, text=None)
+con_tree.write(path=ftmp[1],schema="newick",suppress_rooting=True) 
 
 taxa = list()
 for e in con_tree.leaf_nodes():
@@ -113,18 +119,21 @@ for anch in ac:
 				print "computing distance table using the method: "+str(am)
 			D=atbs.anchoredDistanceFromFrq(quartTable,anch)
 			keyDict = sorted(list(np.unique((" ".join(D.keys())).split(" "))))
-			fileDistance = outpath+"/distancet-"+str(anch[0])+"-"+str(anch[1])+".d"
-			pr.printDistanceTableToFile(D,keyDict,fileDistance)
-			subprocess.call([WS_LOC_FM+"/fastme", "-i",fileDistance,"-w","none","-o",fileDistance+"_fastme_tree.nwk"])
+			fileDistance = "distancet-"+str(anch[0])+"-"+str(anch[1])+".d"
+			ftmp3=tempfile.mkstemp(suffix='', prefix=fileDistance, dir=outpath, text=None)
+			pr.printDistanceTableToFile(D,keyDict,ftmp3[1])
+			ftmp4=tempfile.mkstemp(suffix='', prefix=fileDistance+"_fastme_tree.nwk",dir=outpath,text=None)
+			subprocess.call([WS_LOC_FM+"/fastme", "-i",ftmp3[1],"-w","none","-o",ftmp4[1]])
 			if verbose:
 				print "starting to resolve polytomy"	
-			res=atbs.resolvePolytomy(fileDistance+"_fastme_tree.nwk",e,verbose)	
+			res=atbs.resolvePolytomy(ftmp4[1],e,verbose)	
 			if verbose:
 				print res
 	(num_add,ach_a)=atbs.addAnchores(con_tree_tmp,con_map)
 	tstt.prune_tree_trivial_nodes(con_tree_tmp)	
 	print "writing the resulting tree as: "+outpath+"/distance-"+str(anch[0])+"-"+str(anch[1])+".d_fastme_tree.nwk"
-	con_tree_tmp.write(path=outpath+"/distance-"+str(anch[0])+"-"+str(anch[1])+".d_fastme_tree.nwk",schema="newick")
+	ftmp=tempfile.mkstemp(suffix='.nwk', prefix="distance-"+str(anch[0])+"-"+str(anch[1])+".d_fastme_tree.nwk", dir=outpath, text=None)
+	con_tree_tmp.write(path=ftmp[1],schema="newick",suppress_rooting=True)
 	 
 #	res2 = tstt.compareAnchoredRes(outpath+"/distance-"+str(anch[0])+"-"+str(anch[1])+".d_fastme_tree.nwk",taxa,anch,sp,outpath,anch)
 #	ach_al = [a.label for a in ach_a]
