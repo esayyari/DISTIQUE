@@ -120,10 +120,10 @@ for anch in ac:
 			D=atbs.anchoredDistanceFromFrq(quartTable,anch)
 			keyDict = sorted(list(np.unique((" ".join(D.keys())).split(" "))))
 			fileDistance = "distancet-"+str(anch[0])+"-"+str(anch[1])+".d"
-			ftmp3=tempfile.mkstemp(suffix='', prefix=fileDistance, dir=outpath, text=None)
+			ftmp3=tempfile.mkstemp(suffix='.d', prefix=fileDistance, dir=outpath, text=None)
 			pr.printDistanceTableToFile(D,keyDict,ftmp3[1])
-			ftmp4=tempfile.mkstemp(suffix='', prefix=fileDistance+"_fastme_tree.nwk",dir=outpath,text=None)
-			subprocess.call([WS_LOC_FM+"/fastme", "-i",ftmp3[1],"-w","none","-o",ftmp4[1]])
+			ftmp4=tempfile.mkstemp(suffix='.nwk', prefix=fileDistance+"_fastme_tree.nwk",dir=outpath,text=None)
+			subprocess.call([WS_LOC_FM+"/fastme", "-i",ftmp3[1],"-w","none","-o",ftmp4[1],"-I","/dev/null"])
 			if verbose:
 				print "starting to resolve polytomy"	
 			res=atbs.resolvePolytomy(ftmp4[1],e,verbose)	
