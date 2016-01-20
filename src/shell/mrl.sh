@@ -1,8 +1,8 @@
 #!/bin/bash
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-export FASTMRP=~/Documents/Research/mrpmatrix
-export raxml="raxmlHPC"
+export FASTMRP=$WS_HOME/mrpmatrix
+raxml="$WS_HOME/standard-RAxML/raxmlHPC"
 
 outdir="$(cd "$1" && pwd)"
 for x in `cat $outdir/distance-*.nwk`; do   echo $x | sed -e 's/\[&U\]//g'; done>$outdir/trees.nwk
