@@ -93,6 +93,7 @@ tm.toc()
 if verbose:
 	print "Number of taxa is: " + str(n)
 for anch in ac:
+	tm.tic()
 	anch = sorted(list(anch))
 	print anch
 	con_tree_tmp = con_tree.clone(2)
@@ -123,12 +124,12 @@ for anch in ac:
 			ftmp3=tempfile.mkstemp(suffix='.d', prefix=fileDistance, dir=outpath, text=None)
 			pr.printDistanceTableToFile(D,keyDict,ftmp3[1])
 			ftmp4=tempfile.mkstemp(suffix='.nwk', prefix=fileDistance+"_fastme_tree.nwk",dir=outpath,text=None)
-			subprocess.call([WS_LOC_FM+"/fastme", "-i",ftmp3[1],"-w","none","-o",ftmp4[1],"-I","/dev/null"])
+			FNULL = open(os.devnull, 'w')
+			subprocess.call([WS_LOC_FM+"/fastme", "-i",ftmp3[1],"-w","none","-o",ftmp4[1],"-I","/dev/null"],stdout=FNULL,stderr=subprocess.STDOUT)
 			if verbose:
 				print "starting to resolve polytomy"	
 			res=atbs.resolvePolytomy(ftmp4[1],e,verbose)	
-			if verbose:
-				print res
+	tm.toc()
 	(num_add,ach_a)=atbs.addAnchores(con_tree_tmp,con_map)
 	tstt.prune_tree_trivial_nodes(con_tree_tmp)	
 	print "writing the resulting tree as: "+outpath+"/distance-"+str(anch[0])+"-"+str(anch[1])+".d_distique_anchoring_tree.nwk"

@@ -195,10 +195,8 @@ def resolvePolytomy(pathToTree,node,verbose):
                         stack.append(e_t[1])
         if verbose:
 
-                print "done"
                 return None
         else:
-                print "done"
                 return None
 def findPolytomies(con_tree,taxa,anch):
 	to_resolve = dict()

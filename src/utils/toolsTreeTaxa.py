@@ -184,10 +184,8 @@ def resolvePolytomy(pathToTree,node,otr,verbose):
 			stack.append(e_t[1])	
 	if verbose:
 
-		print "done"	
 		return None 
 	else:
-		print "done"
 		return None 
 		
 

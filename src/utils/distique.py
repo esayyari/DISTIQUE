@@ -95,12 +95,11 @@ for e in con_tree.postorder_node_iter():
 		ftmp3=tempfile.mkstemp(suffix='.d', prefix="distancet.d", dir=outpath, text=None)
 		tbs.distanceTable(quartTable,method,ftmp3[1])
 		ftmp4=tempfile.mkstemp(suffix='.nwk',prefix="distance.d_fastme_tree.nwk",dir=outpath,text=None)
-		subprocess.call([WS_LOC_FM+"/fastme", "-i",ftmp3[1],"-w","none","-o",ftmp4[1],"-I","/dev/null"])
+		FNULL = open(os.devnull,'w')
+		subprocess.call([WS_LOC_FM+"/fastme", "-i",ftmp3[1],"-w","none","-o",ftmp4[1],"-I","/dev/null"],stdout=FNULL,stderr=subprocess.STDOUT)
 		if verbose:
 			print "starting to resolve polytomy"	
 		res= tstt.resolvePolytomy(ftmp4[1],e,con_tree,verbose)	
-		if verbose:
-			print res
 if verbose:
 	print "writing the resulting tree as: "+outpath+"/distance.d_distique_tree.nwk"
 ftmp=tempfile.mkstemp(suffix='.nwk', prefix="distance.d_distique_tree.nwk", dir=outpath, text=None)
