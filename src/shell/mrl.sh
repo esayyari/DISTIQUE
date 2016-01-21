@@ -8,7 +8,7 @@ outdir="$(cd "$1" && pwd)"
 for x in `cat $outdir/distance-*.nwk`; do   echo $x | sed -e 's/\[&U\]//g'; done>$outdir/trees.nwk
 for x in `find $outdir -name "distance-*.nwk"`; do y=$(cat $x | sed -e 's/\[&U\]//g'); echo -n $y; echo; done > $outdir/trees.nwk
 in=$outdir/trees.nwk
-out=anchored_fastme_tree.nwk
+out=anchored_mrl_tree.nwk
 
 
 if [ -s $outdir/$out ]; then
