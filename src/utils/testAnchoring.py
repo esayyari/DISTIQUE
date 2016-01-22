@@ -79,6 +79,7 @@ tstt.labelNodes(con_tree)
 ftmp=tempfile.mkstemp(suffix='.nwk', prefix="consensusTree", dir=outpath, text=None)
 con_tree.write(path=ftmp[1],schema="newick",suppress_rooting=True) 
 
+os.close(ftmp[0])
 taxa = list()
 for e in con_tree.leaf_nodes():
 	taxa.append(e.taxon.label)
@@ -123,11 +124,15 @@ for anch in ac:
 			fileDistance = "distancet-"+str(anch[0])+"-"+str(anch[1])+".d"
 			ftmp3=tempfile.mkstemp(suffix='.d', prefix=fileDistance, dir=outpath, text=None)
 			pr.printDistanceTableToFile(D,keyDict,ftmp3[1])
+			os.close(ftmp3[0])
+#			pr.printDistanceTable(D,keyDict)
 			ftmp4=tempfile.mkstemp(suffix='.nwk', prefix=fileDistance+"_fastme_tree.nwk",dir=outpath,text=None)
 			FNULL = open(os.devnull, 'w')
 			subprocess.call([WS_LOC_FM+"/fastme", "-i",ftmp3[1],"-w","none","-o",ftmp4[1],"-I","/dev/null"],stdout=FNULL,stderr=subprocess.STDOUT)
+			os.close(ftmp4[0])
 			if verbose:
 				print "starting to resolve polytomy"	
+			print ftmp4[1]
 			res=atbs.resolvePolytomy(ftmp4[1],e,verbose)	
 	tm.toc()
 	(num_add,ach_a)=atbs.addAnchores(con_tree_tmp,con_map)
@@ -135,7 +140,7 @@ for anch in ac:
 	print "writing the resulting tree as: "+outpath+"/distance-"+str(anch[0])+"-"+str(anch[1])+".d_distique_anchoring_tree.nwk"
 	ftmp=tempfile.mkstemp(suffix='.nwk', prefix="distance-"+str(anch[0])+"-"+str(anch[1])+".d_distique_anchoring_tree.nwk", dir=outpath, text=None)
 	con_tree_tmp.write(path=ftmp[1],schema="newick",suppress_rooting=True,suppress_internal_node_labels=True)
-	 
+	os.close(ftmp[0])
 #	res2 = tstt.compareAnchoredRes(outpath+"/distance-"+str(anch[0])+"-"+str(anch[1])+".d_fastme_tree.nwk",taxa,anch,sp,outpath,anch)
 #	ach_al = [a.label for a in ach_a]
 #	res=tstt.compareAnchoredRes(outpath+"/distance-"+str(anch[0])+"-"+str(anch[1])+".d_fastme_tree.nwk",taxa,ach_al,sp,outpath,anch)

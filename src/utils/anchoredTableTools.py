@@ -211,22 +211,30 @@ def findPolytomies(con_tree,taxa,anch):
 	par1 = nd1.parent_node
 	par2 = nd2.parent_node
 	isSibiling = False
+#	willRemovePar = False
 	if par1 == par2:
 		isSibiling = True
-		if par1.parent_node is not None:
-			par1 = par1.parent_node
-			par2 = par2.parent_node 
+		par1_is_Poly = True
+		par2_is_Poly = True
+	#	if par1.parent_node is not None:
+#			if (par1.child_nodes()==2):
+	#		par1 = par1.parent_node
+	#		par2 = par2.parent_node
+#				willRemovePar = True 
 	n1 = len(par1.adjacent_nodes())
 	n2 = len(par2.adjacent_nodes())
-	if n1>3:
+#	if (n1>=5 and willRemovePar ) or (n1>5 and isSibiling and not willRemovePar) or (n1>4 and not isSibiling) :
+	if ((n1>4 and not isSibiling )or (n1==4 and par1.parent_node is None and not isSibiling)):
 		par1_is_Poly = True
 	else: 
 		par1_is_Poly = False
-	if n2>3:
+	if ((n2>4 and not isSibiling )or (n2==4 and par2.parent_node is None and not isSibiling)): 
+#n2>=5 and willRemovePar ) or (n2>5 and isSibiling and not willRemovePar) or (n2>4 and  not isSibiling):
 		par2_is_Poly = True
 	else:
 		par2_is_Poly = False
 	
+	#if not willRemovePar:
 	if not isSibiling:
 		par1_child = {n.label for n in par1.leaf_iter()}
 		par2_child = {n.label for n in par2.leaf_iter()}
@@ -242,7 +250,9 @@ def findPolytomies(con_tree,taxa,anch):
 	for e in con_tree.postorder_node_iter():
 		tmp_set = set()
 		n = len(e.child_nodes())
-		if n>3 or ( n==3 and e.parent_node != None ):
+#		n = len(e.adjacent_nodes())
+	#	if n>3 or ( n==3 and e.parent_node not None and len(e.parent_node.child_nodes())>1):
+		if n>3 or (n==3 and e.parent_node is not None and len(e.parent_node.child_nodes())>1):
 			if e.parent_node != None:
 				sz = n + 1
 			else:

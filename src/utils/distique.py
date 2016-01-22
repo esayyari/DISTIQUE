@@ -66,7 +66,7 @@ tstt.labelNodes(con_tree)
 ftmp0=tempfile.mkstemp(suffix='.nwk', prefix="consensusTree.nwk", dir=outpath, text=None)
 
 con_tree.write(path=ftmp0[1],schema="newick",suppress_rooting=True) 
-
+os.close(ftmp[0])
 (to_resolve,maxPolyOrder) = tstt.findPolytomies(con_tree)
 taxa = list()
 for e in con_tree.leaf_nodes():
@@ -94,9 +94,11 @@ for e in con_tree.postorder_node_iter():
 			print "computing distance table using the method: "+str(method)
 		ftmp3=tempfile.mkstemp(suffix='.d', prefix="distancet.d", dir=outpath, text=None)
 		tbs.distanceTable(quartTable,method,ftmp3[1])
+		os.close(ftmp3[0])
 		ftmp4=tempfile.mkstemp(suffix='.nwk',prefix="distance.d_fastme_tree.nwk",dir=outpath,text=None)
 		FNULL = open(os.devnull,'w')
 		subprocess.call([WS_LOC_FM+"/fastme", "-i",ftmp3[1],"-w","none","-o",ftmp4[1],"-I","/dev/null"],stdout=FNULL,stderr=subprocess.STDOUT)
+		os.close(ftmp4[0])
 		if verbose:
 			print "starting to resolve polytomy"	
 		res= tstt.resolvePolytomy(ftmp4[1],e,con_tree,verbose)	
@@ -104,3 +106,4 @@ if verbose:
 	print "writing the resulting tree as: "+outpath+"/distance.d_distique_tree.nwk"
 ftmp=tempfile.mkstemp(suffix='.nwk', prefix="distance.d_distique_tree.nwk", dir=outpath, text=None)
 con_tree.write(path=ftmp[1],schema="newick",suppress_rooting=True,suppress_internal_node_labels=True)
+os.close(ftmp[0])
