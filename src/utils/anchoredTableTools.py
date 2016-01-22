@@ -87,7 +87,7 @@ def findAnchoredQuartets(anch,trees,taxa,out):
 						listTaxa = list(ch.leaf_nodes())
 						Q= addQuartets(ch, listTaxa,Q,Q2,anch)
 					for j in range(i+1,chs_n):
-						if (chs[i] == chs[j]):
+						if (chs[i] == chs[j]) or (chs[j]==node_pre):
 							continue
 						else:
 							listTaxatmp = [listTaxa,list(chs[j].leaf_nodes())]
