@@ -91,7 +91,7 @@ def findAnchoredQuartets(anch,trees,taxa,out):
 							continue
 						else:
 							listTaxatmp = [listTaxa,list(chs[j].leaf_nodes())]
-							Q=removeFromQuartetsLentreesh(Q,listTaxatmp,anch)
+							Q=removeFromQuartetLentreesh(Q,listTaxatmp,anch)
 			else:
 				for ch in chs:
 					if (ch==node_pre):
