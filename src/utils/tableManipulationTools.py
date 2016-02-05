@@ -42,6 +42,8 @@ def averageQuartetTables( **kwargs):
 			trees = v
 		elif k == 'KeyType':
 			keyType = v
+		elif k == "met":
+			keyType = v
 	if availTable and ('QTable' not in kwargs.keys()):
 		frq = readQuartetTable(QtablePath)
 			
@@ -126,7 +128,7 @@ def partialQuartetTable(quartTable,origKeys,inv_taxa):
 			t[inv_tmp_sorted[i]] = expandedQTable[key][inv_keys[inv_tmp_sorted[0]]+inv_keys[inv_tmp_sorted[i]]]	
 		pQuartTable[dummyKey] = t
 	return pQuartTable
-def findTrueAverageTable(frq,list_taxa,method):
+def findTrueAverageTable(frq,list_taxa,method,met):
 	n = len(list_taxa)
 	lst_taxa = list(list_taxa.keys())
 	TotalKey = dict()
@@ -165,12 +167,20 @@ def findTrueAverageTable(frq,list_taxa,method):
 									if key_inv in TotalKey:
 										vt = TotalKey[key_inv] 
 										for keyt in vt.keys():
-											vt[keyt].append(v_inv[keyt])
+											if met == "freq":
+												vt[keyt].append(v_inv[keyt])
+											elif met == "log":
+												vt[keyt].append(-np.log(v_inv[keyt]))
 									else:
 										vt = dict()
 										for q in v_inv:
-											vt[q] = list()
-											vt[q].append(v_inv[q])
+											if met == "freq":
+	
+												vt[q] = list()
+												vt[q].append(v_inv[q])
+											elif met == "log":
+												vt[q] = list()
+												vt[q].append(-np.log(v_inv[q]))
 									TotalKey[key_inv] = vt
 									
 	TotalKeyf = dict()

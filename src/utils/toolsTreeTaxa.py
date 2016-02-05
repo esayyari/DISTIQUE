@@ -141,13 +141,12 @@ def labelNodes(tree):
 def resolvePolytomy(pathToTree,node,otr,verbose):
 	src_fpath = os.path.expanduser(os.path.expandvars(pathToTree))
 	if not os.path.exists(src_fpath):
-   		 sys.stderr.write('Not found: "%s"' % src_fpath)
+			sys.stderr.write('Not found: "%s"' % src_fpath) 
 	tlist = dendropy.TreeList()
 	tlist = dendropy.TreeList.get(path=src_fpath,schema="newick")
 	sp_tree = tlist[0]
 	adjacent_list = set()
 	dict_children=dict()
-	tn = 0
 	for t in node.adjacent_nodes():		
 		dict_children[t.label] = t
 		adjacent_list.add(t.label)

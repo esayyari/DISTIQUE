@@ -6,7 +6,6 @@ import numpy as np
 import itertools
 import subprocess
 import printTools as pr
-import tableManipulationTools as tbs
 import anchoredTableTools as atbs
 import toolsTreeTaxa as tstt
 import timer as tm
@@ -36,6 +35,9 @@ parser.add_option("-n","--numStep",dest="num",
 		help="The number of anchors, default is 2",default=2)
 parser.add_option("-e","--method",dest="am",
 		help="The averaging method for finding average quartet table",default="mean")
+parser.add_option("-m",dest="met",
+		help="The method to summerize quartet results around each node, freq, or log", default="log")
+
 (options,args) = parser.parse_args()
 filename = options.filename
 gt = options.gt
@@ -43,6 +45,7 @@ outpath = options.out
 thr = options.thr
 sp = options.sp
 num = options.num
+met = options.met
 if (num != "all"):
 	num = int(num)
 am = options.am
@@ -98,7 +101,6 @@ for anch in ac:
 	anch = sorted(list(anch))
 	print anch
 	con_tree_tmp = con_tree.clone(2)
-	#(par1,par2,par1_is_Poly,par2_is_Poly,par1_child,par2_child)	
 	(to_resolve,maxPolyOrder,con_map) = atbs.findPolytomies(con_tree_tmp,taxa,anch)
 		
 	for e in to_resolve:
@@ -115,7 +117,7 @@ for anch in ac:
 			if verbose:
 				print "computing the partial quartet table"
 			
-			quartTable = tbsa.findTrueAverageTableAnchoring(frq,anch,taxa_list,am)
+			quartTable = tbsa.findTrueAverageTableAnchoring(frq,anch,taxa_list,am,met)
 
 			if verbose:
 				print "computing distance table using the method: "+str(am)
@@ -125,7 +127,6 @@ for anch in ac:
 			ftmp3=tempfile.mkstemp(suffix='.d', prefix=fileDistance, dir=outpath, text=None)
 			pr.printDistanceTableToFile(D,keyDict,ftmp3[1])
 			os.close(ftmp3[0])
-#			pr.printDistanceTable(D,keyDict)
 			ftmp4=tempfile.mkstemp(suffix='.nwk', prefix=fileDistance+"_fastme_tree.nwk",dir=outpath,text=None)
 			FNULL = open(os.devnull, 'w')
 			subprocess.call([WS_LOC_FM+"/fastme", "-i",ftmp3[1],"-w","none","-o",ftmp4[1],"-I","/dev/null"],stdout=FNULL,stderr=subprocess.STDOUT)
@@ -141,19 +142,4 @@ for anch in ac:
 	ftmp=tempfile.mkstemp(suffix='.nwk', prefix="distance-"+str(anch[0])+"-"+str(anch[1])+".d_distique_anchoring_tree.nwk", dir=outpath, text=None)
 	con_tree_tmp.write(path=ftmp[1],schema="newick",suppress_rooting=True,suppress_internal_node_labels=True)
 	os.close(ftmp[0])
-#	res2 = tstt.compareAnchoredRes(outpath+"/distance-"+str(anch[0])+"-"+str(anch[1])+".d_fastme_tree.nwk",taxa,anch,sp,outpath,anch)
-#	ach_al = [a.label for a in ach_a]
-#	res=tstt.compareAnchoredRes(outpath+"/distance-"+str(anch[0])+"-"+str(anch[1])+".d_fastme_tree.nwk",taxa,ach_al,sp,outpath,anch)
-#	if p1_post_child == p1_pre_child and p2_post_child == p2_pre_child:
-#		print True
-#		print "parent of anchores have the same children"
-#	else:
-#		print False
-#		print "Parent of anchores do not have the same children"
-#	print num_add
-#	print len(ach_al)
-#	print len(con_tree_tmp.leaf_nodes())
-
-#	print res
-#	print res2
 

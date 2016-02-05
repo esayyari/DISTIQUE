@@ -33,6 +33,8 @@ parser.add_option("-r","--readFromFile",dest="readFromFile",
 		help="Set it to 1 if you already computed the quartet table. If you want the code to compute the quartet tables set it to 0. Default is 0",default=0)
 parser.add_option("-a","--averagemethod",dest="av",
 		help="The average method to find the average quartet table. Default is mean.", default="mean")
+parser.add_option("-l",dest="met",
+		help = "The method to summerize quartet results around each node, freq, or log", default="log") 
 (options,args) = parser.parse_args()
 filename = options.filename
 gt = options.gt
@@ -40,6 +42,7 @@ outpath = options.out
 thr = options.thr
 thr=options.thr
 av = options.av
+met = options.met
 verbose=options.verbose
 if options.readFromFile == 1:
 	readFromFile = True
@@ -66,7 +69,7 @@ tstt.labelNodes(con_tree)
 ftmp0=tempfile.mkstemp(suffix='.nwk', prefix="consensusTree.nwk", dir=outpath, text=None)
 
 con_tree.write(path=ftmp0[1],schema="newick",suppress_rooting=True) 
-os.close(ftmp[0])
+os.close(ftmp0[0])
 (to_resolve,maxPolyOrder) = tstt.findPolytomies(con_tree)
 taxa = list()
 for e in con_tree.leaf_nodes():
@@ -89,7 +92,7 @@ for e in con_tree.postorder_node_iter():
 		if verbose:
 			print "computing the partial quartet table"
 		
-		quartTable = tbs.findTrueAverageTable(frq,taxa_list,av)
+		quartTable = tbs.findTrueAverageTable(frq,taxa_list,av,met)
 		if verbose:
 			print "computing distance table using the method: "+str(method)
 		ftmp3=tempfile.mkstemp(suffix='.d', prefix="distancet.d", dir=outpath, text=None)

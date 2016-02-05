@@ -14,7 +14,7 @@ from minDistance import minDistance
 import copy
 import toolsTreeTaxa as tstt
 import numpy as np
-
+import random
 	
 def generateKey(taxa_list):
 	chosen = list()
@@ -26,7 +26,7 @@ def generateKey(taxa_list):
 	return origKeys
 	
 		
-def findTrueAverageTableAnchoring(frq,anch,list_taxa,method):
+def findTrueAverageTableAnchoring(frq,anch,list_taxa,method,met):
 	anch = sorted(list(anch))
 	lst_taxa = list(list_taxa.keys())
 	TotalKey = dict()
@@ -47,11 +47,19 @@ def findTrueAverageTableAnchoring(frq,anch,list_taxa,method):
 					v = frq[key_orig]
 					v_inv = v[0]/v[1]	
 					if key_inv in TotalKey:
-						vt = TotalKey[key_inv] 
-						vt.append(v_inv)
+						if (met=="freq"):
+							vt = TotalKey[key_inv] 
+							vt.append(v_inv)
+						elif met == "log":
+							vt = TotalKey[key_inv]
+							vt.append(-np.log(v_inv))
 					else:
-						vt = list()
-						vt.append(v_inv)
+						if (met == "freq"):
+							vt = list()
+							vt.append(v_inv)
+						elif met == "log":
+							vt = list()
+							vt.append(-np.log(v_inv))
 					TotalKey[key_inv] = vt
 									
 	TotalKeyf = dict()
