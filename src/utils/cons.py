@@ -7,6 +7,7 @@ import numpy as np
 import itertools
 import random
 import subprocess
+import tempfile
 WS_LOC_SHELL= os.environ['WS_HOME']+'/DISTIQUE/src/shell'
 WS_LOC_FM = os.environ['WS_HOME']+'/fastme-2.1.4/src'
 usage = "usage: %prog [options]"

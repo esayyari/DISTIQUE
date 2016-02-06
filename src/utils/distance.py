@@ -3,7 +3,7 @@ import numpy as np
 import os
 from optparse import OptionParser
 from  prodDistance import prodDistance
-from printDistanceTable import printDistanceTable
+from printTools import printDistanceTable
 from minDistance import minDistance
 import pprint
 

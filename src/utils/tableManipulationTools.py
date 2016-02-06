@@ -45,7 +45,7 @@ def averageQuartetTables( **kwargs):
 		elif k == "met":
 			keyType = v
 	if availTable and ('QTable' not in kwargs.keys()):
-		frq = readQuartetTable(QtablePath)
+		frq = readQuartetTable(filename)
 			
 	
 	num = 0	
@@ -155,6 +155,7 @@ def findTrueAverageTable(frq,list_taxa,method,met):
 									l = sorted([lst_taxa[i],lst_taxa[j],lst_taxa[k],lst_taxa[z]])
 									key_inv = "/".join(l)
 									v = frq[key_orig]
+									sz = sum(v.values())
 									v_inv = dict()
 									for q in range(1,4):
 										q1 = sorted([tmp_dict[l[0]],tmp_dict[l[q]]])
@@ -168,19 +169,19 @@ def findTrueAverageTable(frq,list_taxa,method,met):
 										vt = TotalKey[key_inv] 
 										for keyt in vt.keys():
 											if met == "freq":
-												vt[keyt].append(v_inv[keyt])
+												vt[keyt].append(float(v_inv[keyt])/sz)
 											elif met == "log":
-												vt[keyt].append(-np.log(v_inv[keyt]))
+												vt[keyt].append(-np.log(float(v_inv[keyt])/sz))
 									else:
 										vt = dict()
 										for q in v_inv:
 											if met == "freq":
 	
 												vt[q] = list()
-												vt[q].append(v_inv[q])
+												vt[q].append(float(v_inv[q])/sz)
 											elif met == "log":
 												vt[q] = list()
-												vt[q].append(-np.log(v_inv[q]))
+												vt[q].append(-np.log(float(v_inv[q])/sz))
 									TotalKey[key_inv] = vt
 									
 	TotalKeyf = dict()
@@ -188,11 +189,11 @@ def findTrueAverageTable(frq,list_taxa,method,met):
 		vtt = dict()
 		for q2,v2 in v.iteritems():
 			if method == "gmean":
-				vtt[q2] = stats.gmean(v2)
+				vtt[q2] = np.exp(-stats.gmean(v2))
 			elif method == "mean":
-				vtt[q2] = mean(v2)
+				vtt[q2] = np.exp(-mean(v2))
 			else:
-				vtt[q2] = sqrt(mean(square(v2)))
+				vtt[q2] = np.exp(-sqrt(mean(square(v2))))
 		TotalKeyf[q] = vtt
 	return TotalKeyf
 										
@@ -200,16 +201,12 @@ def findTrueAverageTable(frq,list_taxa,method,met):
 
 
 def distanceTable(frq,method,outfile):
-	percentile = 1
 	keyDict = sorted(np.unique(("/".join(frq.keys())).split("/")));
-	mapDict = dict()
-               	
-	def computeDistance(frq, method, percentile):
-	    return{
-		'min'  : minDistance(frq),
-		'prod'  : prodDistance(frq)
-	    }[method]
-	mapDict = computeDistance(frq,method,percentile)
+	mapDict = dict()       	
+	if method == 'min':
+		mapDict =minDistance(frq)
+	elif method == 'prod':
+		mapDict =prodDistance(frq)
 	pr.printDistanceTableToFile(mapDict,keyDict,outfile)
 
 
@@ -248,17 +245,6 @@ def readTable(tmpPath):
 	   	frq[k[0]] = v
 	return frq
 
-def generateKey(taxa_list):
-	chosen = list()
-	for k, v in taxa_list.iteritems():
-		rt = random.sample(v,1)
-		chosen.append(rt[0])
-	allQuartetComb = itertools.combinations(chosen,4)
-	origKeys = ['/'.join(sorted(q)) for q in allQuartetComb ]
-#	print len(origKeys)
-	return origKeys
-		
-		
 		
 #!/usr/bin/env python
 
@@ -295,6 +281,7 @@ def findTrueAverageTableAnchoring(frq,anch,list_taxa,method):
 	anch = sorted(list(anch))
 	lst_taxa = list(list_taxa.keys())
 	TotalKey = dict()
+	s = {1,2,3}
 	for i in range(0,n):
 		for j in range(i+1,n):
 			for k in range(j+1,n):
