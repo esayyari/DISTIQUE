@@ -45,31 +45,38 @@ def findTrueAverageTableAnchoring(frq,anch,list_taxa,method,met):
 					l = sorted([lst_taxa[i],lst_taxa[j],anch[0],anch[1]])
 					key_inv = "/".join(l)
 					v = frq[key_orig]
-					v_inv = v[0]/v[1]	
+					v_inv = float(v[0])/v[1]	
 					if key_inv in TotalKey:
 						if (met=="freq"):
 							vt = TotalKey[key_inv] 
 							vt.append(v_inv)
 						elif met == "log":
 							vt = TotalKey[key_inv]
-							vt.append(-np.log(v_inv))
+							if v_inv <= 1./3:
+								vt.append(-np.log(3.*v_inv))
+							else:
+								vt.append(-np.log(3./2*(1-v_inv)))
 					else:
 						if (met == "freq"):
 							vt = list()
 							vt.append(v_inv)
 						elif met == "log":
 							vt = list()
-							vt.append(-np.log(v_inv))
+							if v_inv <= 1./3:
+                                                                vt.append(-np.log(3.*v_inv))
+                                                        else:
+                                                                vt.append(-np.log(3./2*(1-v_inv)))	
 					TotalKey[key_inv] = vt
 	TotalKeyf = dict()
         for q,v2 in TotalKey.iteritems():
 		if met == "log":
 			if method == "gmean":
-				vtt = np.exp(-stats.gmean(v2))
+				# here the definition of probability is not important. The distance code should extract these distances. (The deffinition just should be consistant)
+				vtt = 1./3*np.exp(-stats.gmean(v2))
 			elif method == "mean":
-				vtt = np.exp(-mean(v2))
+				vtt = 1./3*np.exp(-mean(v2))
 			else:
-				vtt = np.exp(-sqrt(mean(square(v2))))
+				vtt = 1./3*np.exp(-sqrt(mean(square(v2))))
 		if met == "freq":
 			if method == "gmean":
 				vtt = (stats.gmean(v2))

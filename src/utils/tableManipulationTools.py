@@ -171,7 +171,11 @@ def findTrueAverageTable(frq,list_taxa,method,met):
 											if met == "freq":
 												vt[keyt].append(float(v_inv[keyt])/sz)
 											elif met == "log":
-												vt[keyt].append(-np.log(float(v_inv[keyt])/sz))
+												prob = float(v_inv[keyt])/sz)
+												if prob <= 1./3:
+					                                                                vt[keyt].append(-np.log(3.*prob))
+                                        					                else:
+					                                                               vt[keyt].append(-np.log(3./2*(1-prob)))
 									else:
 										vt = dict()
 										for q in v_inv:
@@ -180,8 +184,13 @@ def findTrueAverageTable(frq,list_taxa,method,met):
 												vt[q] = list()
 												vt[q].append(float(v_inv[q])/sz)
 											elif met == "log":
+												prob = float(v_inv[q])/sz)
 												vt[q] = list()
-												vt[q].append(-np.log(float(v_inv[q])/sz))
+                                                                                                if prob <= 1./3:
+                                                                                                        vt[q].append(-np.log(3.*prob))
+                                                                                                else:
+                                                                                                        vt[q].append(-np.log(3./2*(1-prob)))
+ 
 									TotalKey[key_inv] = vt
 									
 	TotalKeyf = dict()
@@ -190,11 +199,11 @@ def findTrueAverageTable(frq,list_taxa,method,met):
 		for q2,v2 in v.iteritems():
 			if met == "log":
 				if method == "gmean":
-					vtt[q2] = np.exp(-stats.gmean(v2))
+					vtt[q2] = 1./3*np.exp(-stats.gmean(v2))
 				elif method == "mean":
-					vtt[q2] = np.exp(-mean(v2))
+					vtt[q2] = 1./3*np.exp(-mean(v2))
 				else:
-					vtt[q2] = np.exp(-sqrt(mean(square(v2))))
+					vtt[q2] = 1./3*np.exp(-sqrt(mean(square(v2))))
 			if met == "freq":
 				if method == "gmean":
 					vtt[q2] = (stats.gmean(v2))
