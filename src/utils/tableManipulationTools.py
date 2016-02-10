@@ -155,16 +155,18 @@ def findTrueAverageTable(frq,list_taxa,method,met):
 									l = sorted([lst_taxa[i],lst_taxa[j],lst_taxa[k],lst_taxa[z]])
 									key_inv = "/".join(l)
 									v = frq[key_orig]
-									sz = sum(v.values())
 									v_inv = dict()
+									sz = 0
 									for q in range(1,4):
 										q1 = sorted([tmp_dict[l[0]],tmp_dict[l[q]]])
 										stmp = list(s-{q})
 										q2 = sorted([tmp_dict[l[stmp[0]]],tmp_dict[l[stmp[1]]]])
 										if q1[0]<q2[0]:
 											v_inv[l[q]] = v[q1[1]]	
+											sz +=  v[q1[1]]
 										else:
 											v_inv[l[q]] = v[q2[1]]
+											sz += v[q2[1]]
 									if key_inv in TotalKey:
 										vt = TotalKey[key_inv] 
 										for keyt in vt.keys():
@@ -172,10 +174,9 @@ def findTrueAverageTable(frq,list_taxa,method,met):
 												vt[keyt].append(float(v_inv[keyt])/sz)
 											elif met == "log":
 												prob = float(v_inv[keyt])/sz
-												if prob <= 1./3:
-					                                                                vt[keyt].append(-np.log(3.*prob))
-                                        					                else:
-					                                                               vt[keyt].append(-np.log(3./2*(1-prob)))
+												if prob >=1.:
+													prob = 1. - 10.**(-10)
+											       	vt[keyt].append(-np.log(prob))
 									else:
 										vt = dict()
 										for q in v_inv:
@@ -185,11 +186,10 @@ def findTrueAverageTable(frq,list_taxa,method,met):
 												vt[q].append(float(v_inv[q])/sz)
 											elif met == "log":
 												prob = float(v_inv[q])/sz
+												if prob >= 1.:
+													prob = 1. - 10.**(-10))
 												vt[q] = list()
-                                                                                                if prob <= 1./3:
-                                                                                                        vt[q].append(-np.log(3.*prob))
-                                                                                                else:
-                                                                                                        vt[q].append(-np.log(3./2*(1-prob)))
+												vt[q].append(-np.log(prob))
  
 									TotalKey[key_inv] = vt
 									
@@ -199,11 +199,11 @@ def findTrueAverageTable(frq,list_taxa,method,met):
 		for q2,v2 in v.iteritems():
 			if met == "log":
 				if method == "gmean":
-					vtt[q2] = 1./3*np.exp(-stats.gmean(v2))
+					vtt[q2] = gmean(v2)
 				elif method == "mean":
-					vtt[q2] = 1./3*np.exp(-mean(v2))
+					vtt[q2] = (np.median(v2))
 				else:
-					vtt[q2] = 1./3*np.exp(-sqrt(mean(square(v2))))
+					vtt[q2] = sqrt(mean(square(v2)))
 			if met == "freq":
 				if method == "gmean":
 					vtt[q2] = (stats.gmean(v2))
@@ -217,13 +217,13 @@ def findTrueAverageTable(frq,list_taxa,method,met):
 									
 
 
-def distanceTable(frq,method,outfile):
+def distanceTable(frq,method,outfile,met):
 	keyDict = sorted(np.unique(("/".join(frq.keys())).split("/")));
 	mapDict = dict()       	
 	if method == 'min':
-		mapDict =minDistance(frq)
+		mapDict =minDistance(frq,met)
 	elif method == 'prod':
-		mapDict =prodDistance(frq)
+		mapDict =prodDistance(frq,met)
 	pr.printDistanceTableToFile(mapDict,keyDict,outfile)
 
 

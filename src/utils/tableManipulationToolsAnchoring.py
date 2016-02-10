@@ -52,31 +52,25 @@ def findTrueAverageTableAnchoring(frq,anch,list_taxa,method,met):
 							vt.append(v_inv)
 						elif met == "log":
 							vt = TotalKey[key_inv]
-							if v_inv <= 1./3:
-								vt.append(-np.log(3.*v_inv))
-							else:
-								vt.append(-np.log(3./2*(1-v_inv)))
+							vt.append(-np.log(1.*v_inv))
 					else:
 						if (met == "freq"):
 							vt = list()
 							vt.append(v_inv)
 						elif met == "log":
 							vt = list()
-							if v_inv <= 1./3:
-                                                                vt.append(-np.log(3.*v_inv))
-                                                        else:
-                                                                vt.append(-np.log(3./2*(1-v_inv)))	
+                                                        vt.append(-np.log(1.*v_inv))
 					TotalKey[key_inv] = vt
 	TotalKeyf = dict()
         for q,v2 in TotalKey.iteritems():
 		if met == "log":
 			if method == "gmean":
 				# here the definition of probability is not important. The distance code should extract these distances. (The deffinition just should be consistant)
-				vtt = 1./3*np.exp(-stats.gmean(v2))
+				vtt = np.exp(-stats.gmean(v2))
 			elif method == "mean":
-				vtt = 1./3*np.exp(-mean(v2))
+				vtt = np.exp(-mean(v2))
 			else:
-				vtt = 1./3*np.exp(-sqrt(mean(square(v2))))
+				vtt = np.exp(-sqrt(mean(square(v2))))
 		if met == "freq":
 			if method == "gmean":
 				vtt = (stats.gmean(v2))

@@ -96,7 +96,7 @@ for e in con_tree.postorder_node_iter():
 		if verbose:
 			print "computing distance table using the method: "+str(method)
 		ftmp3=tempfile.mkstemp(suffix='.d', prefix="distancet.d", dir=outpath, text=None)
-		tbs.distanceTable(quartTable,method,ftmp3[1])
+		tbs.distanceTable(quartTable,method,ftmp3[1],met)
 		os.close(ftmp3[0])
 		ftmp4=tempfile.mkstemp(suffix='.nwk',prefix="distance.d_fastme_tree.nwk",dir=outpath,text=None)
 		FNULL = open(os.devnull,'w')
