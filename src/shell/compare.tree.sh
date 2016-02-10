@@ -53,6 +53,7 @@ head -n 1 $g | sed -e 's/\[&U\] \|\[&R\] //'>$tmp2
 #for x in `head -n 1 $g`; do
 # echo -n "$x" | sed -e 's/:-[0-9]*\.[0-9]*\|:[0-9]*\.[0-9]*//g;s/;//g'>$tmp2
 #done
-$WS_GLB_SH/compareTrees.missingBranch $tmp1 $tmp2 -simplify $i
+$WS_GLB_SH/compareTrees.missingBranch $tmp1 $tmp2 -simplify
+
 rm $tmp1
 rm $tmp2

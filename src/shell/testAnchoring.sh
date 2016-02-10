@@ -40,7 +40,6 @@ while getopts "hg:n:o:r:" opt; do
 		;;
 	esac
 done
-
 out_final=`mktemp -d`
 END=$rt
 START=1
@@ -57,3 +56,4 @@ done
 tar czvf $out_final/results$nt.tar.gz $out_final/*
 mv $out_final/results$nt.tar.gz $o
 rm -r $out
+
