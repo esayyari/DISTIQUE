@@ -57,7 +57,7 @@ cat $out/anchored_mrl_tree.nwk >> $out/anchored_trees
 tar czvf  $out/results$nt-$c.tar.gz $out/*
 mv $out/results$nt-$c.tar.gz $out_final
 done
-tar czvf $out_final/results$nt.tar.gz $out_final/*
-mv $out_final/results$nt.tar.gz $o
+tar czvf $out_final/results$nt-$m.tar.gz $out_final/*
+mv $out_final/results$nt-$m.tar.gz $o
 rm -r $out
 
