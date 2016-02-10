@@ -47,13 +47,13 @@ START=1
 for (( c=$START; c<=$END; c++ ))
 do
 out=`mktemp -d`
-$WS_LOC_PUTIL/testAnchoring.py -g $gt -o $out -n $nt -r $rt
+$WS_LOC_PUTIL/testAnchoring.py -g $gt -o $out -n $nt
 $WS_LOC_SH/mrl.sh $out
 cat $out/distance-*.nwk > $out/anchored_trees
 cat $out/anchored_mrl_tree.nwk >> $out/anchored_trees
-tar czvf  $out/results$rt-$c.tar.gz $out/*
-mv $out/results$rt-$c.tar.gz $out_final
+tar czvf  $out/results$nt-$c.tar.gz $out/*
+mv $out/results$nt-$c.tar.gz $out_final
 done
-tar czvf $out_final/results$rt.tar.gz $out_final/*
-mv $out_final/results$rt.tar.gz $o
+tar czvf $out_final/results$nt.tar.gz $out_final/*
+mv $out_final/results$nt.tar.gz $o
 rm -r $out
