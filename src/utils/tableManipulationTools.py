@@ -184,7 +184,7 @@ def findTrueAverageTable(frq,list_taxa,method,met):
 												vt[q] = list()
 												vt[q].append(float(v_inv[q])/sz)
 											elif met == "log":
-												prob = float(v_inv[q])/sz)
+												prob = float(v_inv[q])/sz
 												vt[q] = list()
                                                                                                 if prob <= 1./3:
                                                                                                         vt[q].append(-np.log(3.*prob))
