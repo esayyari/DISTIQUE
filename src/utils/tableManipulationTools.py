@@ -188,12 +188,20 @@ def findTrueAverageTable(frq,list_taxa,method,met):
 	for q,v in TotalKey.iteritems():
 		vtt = dict()
 		for q2,v2 in v.iteritems():
-			if method == "gmean":
-				vtt[q2] = np.exp(-stats.gmean(v2))
-			elif method == "mean":
-				vtt[q2] = np.exp(-mean(v2))
-			else:
-				vtt[q2] = np.exp(-sqrt(mean(square(v2))))
+			if met == "log":
+				if method == "gmean":
+					vtt[q2] = np.exp(-stats.gmean(v2))
+				elif method == "mean":
+					vtt[q2] = np.exp(-mean(v2))
+				else:
+					vtt[q2] = np.exp(-sqrt(mean(square(v2))))
+			if met == "freq":
+				if method == "gmean":
+					vtt[q2] = (stats.gmean(v2))
+				elif method == "mean":
+					vtt[q2] = (mean(v2))
+				else:
+					vtt[q2] = (sqrt(mean(square(v2))))
 		TotalKeyf[q] = vtt
 	return TotalKeyf
 										

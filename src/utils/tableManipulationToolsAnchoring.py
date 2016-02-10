@@ -64,11 +64,19 @@ def findTrueAverageTableAnchoring(frq,anch,list_taxa,method,met):
 									
 	TotalKeyf = dict()
 	for q,v in TotalKey.iteritems():
-		if method == "gmean":
-			vtt = stats.gmean(v)
-		elif method == "mean":
-			vtt = mean(v)
-		else:
-			vtt = sqrt(mean(square(v)))
-		TotalKeyf[q] = vtt
+		if met == "log":
+			if method == "gmean":
+				vtt[q2] = np.exp(-stats.gmean(v2))
+			elif method == "mean":
+				vtt[q2] = np.exp(-mean(v2))
+			else:
+				vtt[q2] = np.exp(-sqrt(mean(square(v2))))
+		if met == "freq":
+			if method == "gmean":
+				vtt[q2] = (stats.gmean(v2))
+			elif method == "mean":
+				vtt[q2] = (mean(v2))
+			else:
+				vtt[q2] = (sqrt(mean(square(v2))))
+			TotalKeyf[q] = vtt
 	return TotalKeyf
