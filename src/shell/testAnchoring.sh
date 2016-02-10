@@ -17,11 +17,12 @@ Estimate species tree using DISTIQUE  method. GNEE TREES FILE is the file of gen
 EOF
 }
 n=10
+m=log
 if [ $# -lt 1 ]; then
 	show_help
 	exit 0;
 fi  
-while getopts "hg:n:o:r:" opt; do
+while getopts "hg:n:o:r:m:" opt; do
 	case $opt in 
 	h) 
 		show_help
@@ -38,6 +39,9 @@ while getopts "hg:n:o:r:" opt; do
 	r) 
 		rt=$OPTARG
 		;;
+	m)
+		m=$OPTARG
+		;;
 	esac
 done
 out_final=`mktemp -d`
@@ -46,7 +50,7 @@ START=1
 for (( c=$START; c<=$END; c++ ))
 do
 out=`mktemp -d`
-$WS_LOC_PUTIL/testAnchoring.py -g $gt -o $out -n $nt
+$WS_LOC_PUTIL/testAnchoring.py -g $gt -o $out -n $nt -m $m
 $WS_LOC_SH/mrl.sh $out
 cat $out/distance-*.nwk > $out/anchored_trees
 cat $out/anchored_mrl_tree.nwk >> $out/anchored_trees
