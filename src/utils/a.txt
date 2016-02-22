@@ -1,0 +1,13 @@
+Number of taxa is: 48
+the number of polytomies is: 2
+the maximum order of polytomies is: 15
+computing the total quartet table
+computing the partial quartet table
+n is: 11
+computing distance table using the method: prod
+starting to resolve polytomy
+computing the partial quartet table
+n is: 15
+computing distance table using the method: prod
+starting to resolve polytomy
+writing the resulting tree as: test/distance.d_distique_tree.nwk

@@ -13,7 +13,7 @@ def prodDistance(frq,met):
 		for i in range(1,4):
 			distKey = d[0]+' '+d[i]
 				
-			if (met == "freq"):
+			if (met == "freq" or met == "log"):
 				if distKey not in set(mapDict.keys()) and frq[k][d[i]]!=sz:
 					if frq[k][d[i]]/sz <= 0:
 							print k,frq[k],"It is zero!"
@@ -66,16 +66,4 @@ def prodDistance(frq,met):
 					elif frq[k][d[i]] == Inf:
 							print k, frq[k][d[i]],"It is infinity"
 					mapDict[distKey] -=  np.log(float(frq[k][d[i]])/sz)
-			elif met == "log":
-				if distKey not in set(mapDict.keys()):
-					mapDict[distKey] = frq[k][d[i]]
-				else:
-					mapDict[distKey] += frq[k][d[i]]
-				s= set([0,i])
-				g = sorted(list(v - s))
-                                distKey = d[g[0]]+ ' ' +d[g[1]]
-				if distKey not in set(mapDict.keys()):
-					mapDict[distKey] = frq[k][d[i]]
-				else:
-					mapDict[distKey] += frq[k][d[i]]
 	return mapDict

@@ -68,6 +68,7 @@ def findTrueAverageTableAnchoring(frq,anch,list_taxa,method,met):
 				# here the definition of probability is not important. The distance code should extract these distances. (The deffinition just should be consistant)
 				vtt = np.exp(-stats.gmean(v2))
 			elif method == "mean":
+				
 				vtt = np.exp(-mean(v2))
 			else:
 				vtt = np.exp(-sqrt(mean(square(v2))))
