@@ -1,0 +1,81 @@
+#!/bin/bash
+#set -x
+
+tmpD=`mktemp -d`
+cd $tmpD
+fn=`basename $1`
+ln -sf $1 ./$fn
+echo $fn
+
+REP=10
+test $# -gt 4 && REP=$5
+echo "$REP runs of MP-EST will be performed"
+
+if [ -s $fn.best.of.$REP.tre ]; then
+  echo "Final results file $fn.best.of.$REP.tre is already generated. Terminating without rerunning MP-EST."
+  exit 0;
+fi
+
+for x in `seq 1 $REP`; do
+  grep "tree mpest" $fn.tre.mpest.$x
+  test $? == 0 || break
+done
+
+grep "tree mpest" $fn.tre.mpest.$x
+
+if [ $? != 0 ]; then
+
+  echo "`expr $x - 1` runs are already done. Starting from run $x ..."
+
+  for x in `seq $x $REP`; do
+   echo "run $x of MPEST"
+   tmp=`mktemp "control-$fn-$x-XXXXX"`
+   echo "$fn
+0
+`expr $RANDOM$RANDOM % 10000000`
+1
+`cat $1|wc -l` `cat $2|wc -l` 
+`cat $2`
+2
+`cat $3`
+"> $tmp
+
+   $WS_HOME/mpest/src/mpest $tmp 1>$fn.$x.mpest.out
+   echo "checking the output"	
+   test $? == 0 || exit 1
+
+   mv $fn.tre $fn.tre.mpest.$x
+   grep "tree mpest" $fn.tre.mpest.$x
+   test $? == 0 || exit 1
+  done
+
+else
+  echo "All $x runs already finished. No more runs needed."
+fi
+
+bestrep=`grep -H "tree mpest" $fn.tre.mpest.*|sed -e "s/ .*\[/ /g" -e "s/\].*//g"|sort -n -k 2|tail -n1|sed -e "s/:.*//g"`
+echo $bestrep
+test -s $bestrep || exit 1
+cat  $bestrep > $fn.tre.best.mpest
+
+python -c '
+import os
+import sys
+import dendropy
+ 
+src_fpath = os.path.expanduser(os.path.expandvars("'$fn.tre.best.mpest'"))
+if not os.path.exists(src_fpath):
+    sys.stderr.write("Not found: %s" % src_fpath) 
+    sys.exit(1)     
+ 
+dest_fpath = os.path.expanduser("'$fn.best.of.$REP.tre'")
+
+trees = dendropy.TreeList.get_from_path(src_fpath, "nexus")
+trees[-1].write_to_path(dest_fpath, "newick",suppress_rooting=True)'
+test $? == 0 || exit 1
+
+cat  $fn.best.of.$REP.tre > $fn.tre
+
+tar cvfj logs.$fn.tar.bz --remove-files control-$fn-* $fn.tre.mpest.* $fn.*.mpest.out $fn.tre.best.mpest $fn.tre $fn.best.of.$REP.tre
+mv logs.$fn.tar.bz $4
+exit 0
