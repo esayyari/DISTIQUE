@@ -44,22 +44,35 @@ def findTrueAverageTableAnchoring(frq,anch,list_taxa,method,met):
 					
 					l = sorted([lst_taxa[i],lst_taxa[j],anch[0],anch[1]])
 					key_inv = "/".join(l)
-					v = frq[key_orig]
-					v_inv = float(v[0])/v[1]	
-					if key_inv in TotalKey:
-						if (met=="freq"):
-							vt = TotalKey[key_inv] 
-							vt.append(v_inv)
-						elif met == "log":
-							vt = TotalKey[key_inv]
-							vt.append(-np.log(1.*v_inv))
+					if taxon_i in set(anch) or taxon_i in set(anch):
+						if key_inv in TotalKey:
+							if (met=="freq"):
+								vt.append(1.)
+							elif met == "log":
+								vt.append(-np.log(1.))
+						else:
+							if (met == "freq"):
+								vt = list()
+								vt.append(1.)
+							elif met == "log":
+								vt = list()
+								vt.append(-np.log(1.))
 					else:
-						if (met == "freq"):
-							vt = list()
-							vt.append(v_inv)
-						elif met == "log":
-							vt = list()
-                                                        vt.append(-np.log(1.*v_inv))
+						v_inv = float(v[0])/v[1]
+						if key_inv in TotalKey:
+							if (met=="freq"):
+								vt = TotalKey[key_inv]
+								vt.append(v_inv)
+							elif met == "log":
+								vt = TotalKey[key_inv]
+								vt.append(-np.log(1.*v_inv))
+						else:
+							if (met == "freq"):
+								vt = list()
+								vt.append(v_inv)
+							elif met == "log":
+								vt = list()
+								vt.append(-np.log(1.*v_inv))
 					TotalKey[key_inv] = vt
 	TotalKeyf = dict()
         for q,v2 in TotalKey.iteritems():
