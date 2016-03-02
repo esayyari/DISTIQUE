@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -x
 tmp=`mktemp `
 #nw_reroot $1 $2 > $tmp
 cat $1 > $tmp
@@ -13,4 +13,4 @@ done > $listSpec
 echo "rerooted genetrees at $tmp will be used" 
 echo "list of species available at $listSpec"
 echo $4
-$WS_HOME/global/src/shell/mpest $tmp $listSpec $3 $4
+$WS_HOME/DISTIQUE/src/shell/mpest $tmp $listSpec $3 $4
