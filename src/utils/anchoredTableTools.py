@@ -379,10 +379,45 @@ def findPolytomies_with_name(con_tree,taxa,anch):
 
     return (to_resolve,maxPolyOrder,(list(anch_nodes),con_tree.seed_node.label,par1,par2,par1_is_Poly,par2_is_Poly,par1_child,par2_child))
 
-def findIfPolytomyAnch(con_tree_tmp,anch,e):
-    flag = 0
-    return flag
-def addDistanceAnchores(D1,D2,C1,C2):
+
+def addDistanceAnchores(D,Dtmp,C,Ctmp):
     return
-def anchoredDistanceFromFrqAddDistances(quartTable, anch,fillmethod):
-    return [D,countElem]
+def anchoredDistanceFromFrqAddDistances(frq,achs):
+    D = dict()
+    C = dict()
+    for k in frq:
+        kt = sorted(k.split("/"))
+        if ((achs[0] in kt ) and( achs[1] in kt)):
+            s = sorted(list(set(kt)-{achs[0],achs[1]}))
+            if len(s) == 1:
+                c0 = kt.count(achs[0])
+                c1 = kt.count(achs[1])
+                if c0 == 2:
+                    s[1] = achs[0]
+                elif c1 == 2:
+                    s[1] = achs[1]
+                key1 = s[0] + " "+s[1]
+                key2 = s[1] + " "+s[0]
+                D[key1] = -np.inf
+                D[key2] = D[key1]
+                C[key1] = 0
+                C[key2] = C[key1]
+            elif len(s) == 0:
+                s[0] = achs[0]
+                s[1] = achs[1]
+                key1 = s[0] + " "+s[1]
+                key2 = s[1] + " "+s[0]
+                D[key1] = -np.inf
+                D[key2] = D[key1]
+                C[key1] = 0
+                C[key2] = C[key1]
+            else:
+                key1 = s[0]+" "+s[1]
+                key2 = s[1]+" "+s[0]
+                D[key1] = -np.log(frq[k])
+                D[key2] = D[key1]
+                C[key1] = 1
+                C[key2] = C[key1]
+    return [D,C]
+def fillEmptyElementsDistanceTable(D,C,fillmethod):
+    return

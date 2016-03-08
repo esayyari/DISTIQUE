@@ -16,61 +16,61 @@ import toolsTreeTaxa as tstt
 import numpy as np
 import tempfile
 import random
-def averageQuartetTables( **kwargs):
-	for k,v in kwargs.iteritems():
-		if k == 'limit':
-			eps = v
-		elif k == 'NumToStop':
-			numToStop = v
-		elif k == 'NumMax':
-			numMax = v
-		if k == 'ListTaxa':
-			taxa_list = v
-		elif k == 'QTable':
-			frq = v
-		elif k == 'QtablePath':
-			filename = v
-		elif k == 'QtableReady':
-			availTable = v
-		elif k == 'Inv':
-			taxa_inv = v
-		elif k == 'V':
-			verbose = v
-		elif k == 'workingPath':
-			wrkPath = v
-		elif k == 'treeList':
-			trees = v
-		elif k == 'KeyType':
-			keyType = v
-		elif k == "met":
-			keyType = v
-	if availTable and ('QTable' not in kwargs.keys()):
-		frq = readQuartetTable(filename)
-			
-	
-	num = 0	
-	for a in range(0,numMax):
-		origKeys = generateKey(taxa_list)
-		if availTable:
-			partialTable1= partialQuartetTable(frq,origKeys,taxa_inv)
-		else:
-			frq = findQuartetTable(trees,origKeys,keyType,wrkPath,verbose)
-			partialTable1= partialQuartetTable(frq,origKeys,taxa_inv)
-		if a>0:
-			partialTable1=addQuartetTables(partialTable1,quartTable)
-			if convergencedQuartTable(partialTable1,quartTable,eps,verbose):
-				quartTable = partialTable1
-				if num == numToStop:
-					print "Quartet Table converged with " + str(a)+" steps"
-					return quartTable
-				else:
-					num += 1
-			else:
-				num = 0
-		quartTable = partialTable1
-	print "Warning: quit averaging Quartet Tables without convergence"
-	print "Partial quartet table computed"
-	return quartTable
+# def averageQuartetTables( **kwargs):
+# 	for k,v in kwargs.iteritems():
+# 		if k == 'limit':
+# 			eps = v
+# 		elif k == 'NumToStop':
+# 			numToStop = v
+# 		elif k == 'NumMax':
+# 			numMax = v
+# 		if k == 'ListTaxa':
+# 			taxa_list = v
+# 		elif k == 'QTable':
+# 			frq = v
+# 		elif k == 'QtablePath':
+# 			filename = v
+# 		elif k == 'QtableReady':
+# 			availTable = v
+# 		elif k == 'Inv':
+# 			taxa_inv = v
+# 		elif k == 'V':
+# 			verbose = v
+# 		elif k == 'workingPath':
+# 			wrkPath = v
+# 		elif k == 'treeList':
+# 			trees = v
+# 		elif k == 'KeyType':
+# 			keyType = v
+# 		elif k == "met":
+# 			keyType = v
+# 	if availTable and ('QTable' not in kwargs.keys()):
+# 		frq = readQuartetTable(filename)
+# 			
+# 	
+# 	num = 0	
+# 	for a in range(0,numMax):
+# 		origKeys = generateKey(taxa_list)
+# 		if availTable:
+# 			partialTable1= partialQuartetTable(frq,origKeys,taxa_inv)
+# 		else:
+# 			frq = findQuartetTable(trees,origKeys,keyType,wrkPath,verbose)
+# 			partialTable1= partialQuartetTable(frq,origKeys,taxa_inv)
+# 		if a>0:
+# 			partialTable1=addQuartetTables(partialTable1,quartTable)
+# 			if convergencedQuartTable(partialTable1,quartTable,eps,verbose):
+# 				quartTable = partialTable1
+# 				if num == numToStop:
+# 					print "Quartet Table converged with " + str(a)+" steps"
+# 					return quartTable
+# 				else:
+# 					num += 1
+# 			else:
+# 				num = 0
+# 		quartTable = partialTable1
+# 	print "Warning: quit averaging Quartet Tables without convergence"
+# 	print "Partial quartet table computed"
+# 	return quartTable
 
 
 def convergencedQuartTable(qTable1,qTable2,eps,verbose):
@@ -200,7 +200,7 @@ def findTrueAverageTable(frq,list_taxa,method,met):
 		for q2,v2 in v.iteritems():
 			if met == "log":
 				if method == "gmean":
-					vtt[q2] = np.exp(-gmean(v2))
+					vtt[q2] = np.exp(-stats.gmean(v2))
 				elif method == "mean":
 					b = np.exp(-mean(v2))
 					vtt[q2] = (b)

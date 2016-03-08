@@ -118,27 +118,22 @@ for anch in ac:
     [D, frq] = atbs.findAnchoredDistanceTable(anch, trees, taxa, outpath)
     tm.toc()
 
-    for e in con_tree_tmp.postorder_node_iter():
-        if e in to_resolve:
-            flag_is_poly_with_anch = atbs.findIfPolytomyAnch(con_tree_tmp,anch,e)
-            if not flag_is_poly_with_anch:
-                total_distance_table[e] -= 1
-                continue
-            val = to_resolve[e]
-            (taxa_list, taxa_inv) = tstt.getTaxaList(val)
-            if verbose:
-                print "computing the partial quartet table"
+    for e in to_resolve:
+        val = to_resolve[e]
+        (taxa_list, taxa_inv) = tstt.getTaxaList(val)
+        if verbose:
+            print "computing the partial quartet table"
 
-            quartTable = tbsa.findTrueAverageTableAnchoring(frq, anch, taxa_list, am, met)
-
-            if verbose:
-                print "computing distance table using the method: "+str(am)
-            [D,countElem] = atbs.anchoredDistanceFromFrqAddDistances(quartTable, anch,fillmethod)
-            if e.label in distance_tables:
-                atbs.addDistanceAnchores(distance_tables[e.label],D,count_distance_table[e.label],countElem)
-            else:
-                distance_tables[e.label] = D
-                count_distance_table[e.label] = countElem
+        quartTable = tbsa.findTrueAverageTableAnchoringAddDistances(frq,anch,taxa_list,method,met)
+        if verbose:
+            print "computing distance table using the method: "+str(am)
+        [Dtmp,Ctmp] = atbs.anchoredDistanceFromFrqAddDistances(quartTable,achs)
+        atbs.fillEmptyElementsDistanceTable(Dtmp,Ctmp,fillmethod)
+        if e in distance_tables:
+            atbs.addDistanceAnchores(distance_tables[e],Dtmp,count_distance_table[e],Ctmp)
+        else:
+            distance_tables[e] = Dtmp
+            count_distance_table[e] = countElem
 
     tm.toc()
 

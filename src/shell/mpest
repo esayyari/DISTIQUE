@@ -1,13 +1,9 @@
 #!/bin/bash
-#set -x
 
-tmpD=`mktemp -d`
-cd $tmpD
 fn=`basename $1`
-ln -sf $1 ./$fn
-echo $fn
+ln -s $1 ./$fn
 
-REP=10
+REP=1
 test $# -gt 4 && REP=$5
 echo "$REP runs of MP-EST will be performed"
 
@@ -33,7 +29,7 @@ if [ $? != 0 ]; then
    echo "$fn
 0
 `expr $RANDOM$RANDOM % 10000000`
-1
+5
 `cat $1|wc -l` `cat $2|wc -l` 
 `cat $2`
 2
@@ -42,11 +38,11 @@ if [ $? != 0 ]; then
 
    $WS_HOME/mpest/src/mpest $tmp 1>$fn.$x.mpest.out
    echo "checking the output"	
-   test $? == 0 || exit 1
+   test $? == 0 ||  exit 1
 
    mv $fn.tre $fn.tre.mpest.$x
    grep "tree mpest" $fn.tre.mpest.$x
-   test $? == 0 || exit 1
+   test $? == 0 ||  exit 1
   done
 
 else
@@ -55,7 +51,7 @@ fi
 
 bestrep=`grep -H "tree mpest" $fn.tre.mpest.*|sed -e "s/ .*\[/ /g" -e "s/\].*//g"|sort -n -k 2|tail -n1|sed -e "s/:.*//g"`
 echo $bestrep
-test -s $bestrep || exit 1
+test -s $bestrep ||  exit 1
 cat  $bestrep > $fn.tre.best.mpest
 
 python -c '
@@ -72,7 +68,7 @@ dest_fpath = os.path.expanduser("'$fn.best.of.$REP.tre'")
 
 trees = dendropy.TreeList.get_from_path(src_fpath, "nexus")
 trees[-1].write_to_path(dest_fpath, "newick",suppress_rooting=True)'
-test $? == 0 || exit 1
+test $? == 0 ||  exit 1
 
 cat  $fn.best.of.$REP.tre > $fn.tre
 

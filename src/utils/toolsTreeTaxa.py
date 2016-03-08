@@ -8,6 +8,7 @@ from collections import defaultdict
 import random
 import subprocess
 import tempfile
+from dendropy.calculate import treecompare
 def buildTree(setNodeLabels,tree,center):
     inferedTree = tree.clone(2)
     taxa = dendropy.TaxonNamespace()
@@ -40,7 +41,7 @@ def compareRes(tree,taxa,anch,sp,outpath):
     tns = dendropy.TaxonNamespace()
     tree1 = dendropy.Tree.get_from_path(sp,"newick",taxon_namespace=tns,rooting="force-unrooted")
     tree2 = dendropy.Tree.get_from_path(tree,"newick",taxon_namespace=tns,rooting="force-unrooted")
-    res = dendropy.calculate.treecompare.false_positives_and_negatives(tree1,tree2)
+    res = treecompare.false_positives_and_negatives(tree1,tree2)
 
 
     return res
@@ -64,7 +65,7 @@ def compareAnchoredRes(tree,taxa,achs,sp,outpath,trueAnch):
     tns = dendropy.TaxonNamespace()
     tree1 = dendropy.Tree.get_from_path(ftmp1[1], taxon_namespace=tns,rooting="force-unrooted")
     tree2 = dendropy.Tree.get_from_path(ftmp2[1],"newick",taxon_namespace=tns,rooting="force-unrooted")
-    res = dendropy.calculate.treecompare.false_positives_and_negatives(tree1,tree2)
+    res = treecompare.false_positives_and_negatives(tree1,tree2)
     return res
 
 def findPolytomies(con_tree):
