@@ -101,24 +101,28 @@ def findTrueAverageTableAnchoringAddDistances(frq,anch,list_taxa,method,met):
                     key_orig = "/".join(sorted([lab_taxon_i,lab_taxon_j,lab_taxon_k,lab_taxon_z]))
 
                     l = sorted([lst_taxa[i],lst_taxa[j],anch[0],anch[1]])
+                    lt = {lst_taxa[i],lst_taxa[j]}
                     key_inv = "/".join(l)
-                    if (taxon_i in set(anch) or taxon_j in set(anch)) and (anch[0] not in set(l) and anch[1] not in set(l)):
+                    if (taxon_i in set(anch) or taxon_j in set(anch)) and (l.count(anch[0])==1 and l.count(anch[1]) == 1):
                         continue
-                    elif ((taxon_i in set(anch) or taxon_j in set(anch))):
+                    elif ((taxon_i in set(anch) or taxon_j in set(anch))) and (l.count(anch[0])>1 or l.count(anch[1])>1 ):
+                        print lt
+                        print anch[0], anch[1]
                         if key_inv in TotalKey:
                             if (met=="freq"):
                                 vt = TotalKey[key_inv]
-                                vt.append(-1.)
+                                vt.append(-np.inf)
                             elif met == "log":
                                 vt = TotalKey[key_inv]
-                                vt.append(-1.)
+                                vt.append(-np.inf)
                         else:
                             if (met == "freq"):
                                 vt = list()
-                                vt.append(-1.)
+                                vt.append(-np.inf)
                             elif met == "log":
                                 vt = list()
-                                vt.append(-1.)
+                                vt.append(-np.inf)
+                        TotalKey[key_inv] = vt
                     else:
                         v = frq[key_orig]
                         v_inv = float(v[0])/v[1]
@@ -136,29 +140,50 @@ def findTrueAverageTableAnchoringAddDistances(frq,anch,list_taxa,method,met):
                             elif met == "log":
                                 vt = list()
                                 vt.append(-np.log(1.*v_inv))
-                    TotalKey[key_inv] = vt
+                        TotalKey[key_inv] = vt
     TotalKeyf = dict()
     for q,v2 in TotalKey.iteritems():
             if met == "log":
                 if method == "gmean":
-                    if (v2e<0 for v2e in v2):
+                    if (v2e== -np.inf for v2e in v2):
+                        print q
                         vtt = -1.
                     else:
-                        vtt = np.exp(-stats.gmean(v2))
+                        vttemp = [x for x in v2 if x >= 0]
+                        vtt = np.exp(-stats.gmean(vttemp))
                 elif method == "mean":
-                    if (v2e<0 for v2e in v2):
+                    if (v2e == -np.inf  for v2e in v2):
+                        print q
                         vtt = -1.
                     else:
-                        vtt = np.exp(-mean(v2))
-            else:
-                vtt = np.exp(-sqrt(mean(square(v2))))
-            if met == "freq":
-                if method == "gmean":
-                    vtt = (stats.gmean(v2))
-                elif method == "mean":
-                    vtt = (mean(v2))
+                        vttemp = [x for x in v2 if x >= 0]
+                        vtt = np.exp(-mean(vttemp))
                 else:
-                    vtt = (sqrt(mean(square(v2))))
+                    if (v2e == -np.inf for v2e in v2):
+                        print q
+                        vtt = -1.
+                    else:
+                        vttemp = [x for x in v2 if x >= 0]
+                        vtt = np.exp(-sqrt(mean(square(vttemp))))
+            elif met == "freq":
+                if method == "gmean":
+                    if (v2e == -np.inf for v2e in v2):
+                        vtt = -1.
+                    else:
+                        vttemp = [x for x in v2 if x >= 0]
+                        vtt = (stats.gmean(vttemp))
+                elif method == "mean":
+                    if (v2e == -np.inf for v2e in v2):
+                        vtt = -1.
+                    else:
+                        vttemp = [x for x in v2 if x >= 0]
+                        vtt = (mean(vttemp))
+                else:
+                    if (v2e == -np.inf for v2e in v2):
+                        vtt = -1.
+                    else:
+                        vttemp = [x for x in v2 if x >= 0]
+                        vtt = (sqrt(mean(square(vttemp))))
             TotalKeyf[q] = vtt
     return TotalKeyf
 
