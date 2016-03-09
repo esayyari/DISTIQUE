@@ -466,5 +466,6 @@ def normalizeDistanceTable(D,C):
     flag = any(C[key] == 0 or D[key]<0 for key in D)
     if not flag:
 	for key in D:
+		D[key] += 20.
 		D[key] /= C[key]
     return flag
