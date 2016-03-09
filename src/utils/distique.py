@@ -65,11 +65,11 @@ con_tree = trees.consensus(min_freq=thr)
 
 tstt.labelNodes(con_tree)
 
+ftmpt=tempfile.mkstemp(suffix='.nwk', prefix="consensusTree", dir=outpath, text=None)
+con_tree.write(path=ftmpt[1],schema="newick",suppress_rooting=True)
 
-ftmp0=tempfile.mkstemp(suffix='.nwk', prefix="consensusTree.nwk", dir=outpath, text=None)
+os.close(ftmpt[0])
 
-con_tree.write(path=ftmp0[1],schema="newick",suppress_rooting=True) 
-os.close(ftmp0[0])
 (to_resolve,maxPolyOrder) = tstt.findPolytomies(con_tree)
 taxa = list()
 for e in con_tree.leaf_nodes():

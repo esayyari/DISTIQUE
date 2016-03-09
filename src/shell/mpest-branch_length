@@ -1,5 +1,4 @@
 #!/bin/bash
-set -x
 tmp=`mktemp `
 #nw_reroot $1 $2 > $tmp
 cat $1 > $tmp
