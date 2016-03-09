@@ -383,53 +383,69 @@ def findPolytomies_with_name(con_tree,taxa,anch):
 
 
 def addDistanceAnchores(D,Dtmp,C,Ctmp):
+    keyD = set(D.keys())
+    keyDtmp = set(Dtmp.keys())
+    if keyDtmp != keyD:
+	print keyD
+	print keyDtmp
+	raise Exception("the keys are not the same")
     for key in D:
-        D[key] += Dtmp[key]
         C[key] += Ctmp[key]
-    return
+        D[key] += Dtmp[key]
+    return [D,C]
 def anchoredDistanceFromFrqAddDistances(frq,achs):
-    print achs
     D = dict()
     C = dict()
+    keyFrq = frq.keys()
+    keyFrqTmp = set()
+#    for t in keyFrq:
+#	tt = t.split("/")
+#	for ttt in tt:
+#		keyFrqTmp.add(ttt)
+#    if len(keyFrqTmp)<6:
+#	print keyFrqTmp
+#	raise Exception("This is actually not a polytomy")
+#    print keyFrqTmp
     for k in frq:
         kt = sorted(k.split("/"))
-        if ((achs[0] in kt ) and( achs[1] in kt)):
-            s = sorted(list(set(kt)-{achs[0],achs[1]}))
-            if len(s) == 1:
-                c0 = kt.count(achs[0])
-                c1 = kt.count(achs[1])
-                if c0 == 2:
-                    s.append(achs[0])
-                elif c1 == 2:
-                    s.append(achs[1])
-                key1 = s[0] + " "+s[1]
-                key2 = s[1] + " "+s[0]
-                D[key1] = -np.inf
-                D[key2] = D[key1]
-                C[key1] = 0
-                C[key2] = C[key1]
-            elif len(s) == 0:
-                s = list()
-                s.append(achs[0])
-                s.append(achs[1])
-                key1 = s[0] + " "+s[1]
-                key2 = s[1] + " "+s[0]
-                D[key1] = -np.inf
-                D[key2] = D[key1]
-                C[key1] = 0
-                C[key2] = C[key1]
-            else:
-                key1 = s[0]+" "+s[1]
-                key2 = s[1]+" "+s[0]
-                if (frq[k]<=0):
-                    print key1
-                    print key2
-                    print achs
-                    raise Exception("frq is not positive number! it is: "+str(frq[k]))
-                D[key1] = -np.log(frq[k])
-                D[key2] = D[key1]
-                C[key1] = 1
-                C[key2] = C[key1]
+        s = sorted(list(set(kt)-{achs[0],achs[1]}))
+        if len(s) == 1:
+		    c0 = kt.count(achs[0])
+		    c1 = kt.count(achs[1])
+		    if c0 == 2:
+		        s.append(achs[0])
+		    elif c1 == 2:
+		        s.append(achs[1])
+		    key1 = s[0] + " " + s[1]
+		    key2 = s[1] + " " + s[0]
+		    D[key1] = -np.inf
+		    D[key2] = D[key1]
+		    C[key1] = 0
+		    C[key2] = C[key1]
+    	elif len(s) == 0 and len(kt) > 0:
+		    s = list()
+		    s.append(achs[0])
+		    s.append(achs[1])
+		    key1 = s[0] + " "+s[1]
+		    key2 = s[1] + " "+s[0]
+		    D[key1] = -np.inf
+		    D[key2] = D[key1]
+		    C[key1] = 0
+		    C[key2] = C[key1]
+    	else:
+		    key1 = s[0]+" "+s[1]
+		    key2 = s[1]+" "+s[0]
+		    if (frq[k] == -1.):
+			print "frq[k] is negative! "
+		        D[key1] = -np.inf
+			D[key2] = D[key1]
+		        C[key1] = 0
+		        C[key2] = C[key1]
+		    else:
+		    	D[key1] = -np.log(frq[k])
+		    	D[key2] = D[key1]
+		    	C[key1] = 1
+		    	C[key2] = C[key1]
     return [D,C]
 def fillEmptyElementsDistanceTable(D,C,fillmethod):
     random.seed()
@@ -445,7 +461,10 @@ def fillEmptyElementsDistanceTable(D,C,fillmethod):
             elif fillmethod == "const":
                 D[key] = 0
                 C[key] = 0
-    return
+    return [D,C]
 def normalizeDistanceTable(D,C):
-    flag = (C[key] == 0 or D[key]<0 for key in D)
+    flag = any(C[key] == 0 or D[key]<0 for key in D)
+    if not flag:
+	for key in D:
+		D[key] /= C[key]
     return flag

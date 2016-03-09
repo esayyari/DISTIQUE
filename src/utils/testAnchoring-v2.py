@@ -91,9 +91,9 @@ os.close(ftmp[0])
 taxa = list()
 for e in con_tree.leaf_nodes():
     taxa.append(e.taxon.label)
-# notEnoughSample = True
-n = 1
-while(n == 1):
+notEnoughSample = True
+#n = 1
+while(notEnoughSample):
     if randomSample:
         ac = tstt.random_combination(itertools.combinations(taxa,2),num)
     n = len(con_tree.leaf_nodes())
@@ -107,10 +107,6 @@ while(n == 1):
     distance_tables = dict()
     con_tree_tmp = con_tree.clone(2)
     (to_resolve, maxPolyOrdert) = tstt.findPolytomies(con_tree)
-    total_distance_table = dict()
-    for e in to_resolve:
-        total_distance_table[e] = len(ac)
-    distance_tables = dict()
     count_distance_table = dict()
     for anch in ac:
         tm.tic()
@@ -121,7 +117,7 @@ while(n == 1):
         if verbose:
             print "computing the distance table, anchoring seperately"
         tm.tic()
-        [D, frq] = atbs.findAnchoredDistanceTable(anch, trees, taxa, outpath)
+        [_, frq] = atbs.findAnchoredDistanceTable(anch, trees, taxa, outpath)
         tm.toc()
     
         for e in to_resolve:
@@ -134,9 +130,9 @@ while(n == 1):
             if verbose:
                 print "computing distance table using the method: "+str(am)
             [Dtmp,Ctmp] = atbs.anchoredDistanceFromFrqAddDistances(quartTable,anch)
-            atbs.fillEmptyElementsDistanceTable(Dtmp,Ctmp,fillmethod)
+            [Dtmp,Ctmp] = atbs.fillEmptyElementsDistanceTable(Dtmp,Ctmp,fillmethod)
             if e in distance_tables:
-                atbs.addDistanceAnchores(distance_tables[e],Dtmp,count_distance_table[e],Ctmp)
+                [distance_tables[e],count_distance_table[e]]=atbs.addDistanceAnchores(distance_tables[e],Dtmp,count_distance_table[e],Ctmp)
             else:
                 distance_tables[e] = Dtmp
                 count_distance_table[e] = Ctmp
@@ -146,13 +142,12 @@ while(n == 1):
     normalizedC = count_distance_table
     for e in to_resolve:
         flag=atbs.normalizeDistanceTable(normalizedD[e],normalizedC[e])
-    n = 0
-#         if flag:
-#             warnings.warn("One of the distances has been estimated poorly! repeating sampling anchors")
-#             break
-#     if flag:
-#         continue
-#     notEnoughSample = False
+        if flag:
+             warnings.warn("One of the distances has been estimated poorly! repeating sampling anchors")
+             #break
+    #if flag:
+        #continue
+    notEnoughSample = False
         
 fileAnch = "listAnchors"
 ftmp3=tempfile.mkstemp(suffix='.txt', prefix=fileAnch, dir=outpath, text=None)
@@ -164,12 +159,13 @@ for anch in ac:
 f.close()
 os.close(ftmp3[0])
 
-for e in con_tree_tmp.postorder_node_iter():
+for e in con_tree.postorder_node_iter():
         if e in to_resolve:
             keyDict = sorted(list(np.unique((" ".join(normalizedD[e].keys())).split(" "))))
             fileDistance = "distancet-"+str(e.label)+".d"
             ftmp3=tempfile.mkstemp(suffix='.d', prefix=fileDistance, dir=outpath, text=None)
             pr.printDistanceTableToFile(normalizedD[e],keyDict,ftmp3[1])
+	    print "writing distance table to "+str(ftmp3[1])
             os.close(ftmp3[0])
             ftmp4=tempfile.mkstemp(suffix='.nwk', prefix=fileDistance+"_fastme_tree.nwk",dir=outpath,text=None)
             FNULL = open(os.devnull, 'w')
@@ -177,11 +173,10 @@ for e in con_tree_tmp.postorder_node_iter():
             os.close(ftmp4[0])
             if verbose:
                 print "starting to resolve polytomy"
-                print ftmp4[1]
-        res=atbs.resolvePolytomy(ftmp4[1],e,verbose)
-tstt.prune_tree_trivial_nodes(con_tree_tmp)
+	    res=atbs.resolvePolytomy(ftmp4[1],e,verbose)
+tstt.prune_tree_trivial_nodes(con_tree)
 print "writing the resulting tree as: "+outpath+"/distance-"+str(anch[0])+"-"+str(anch[1])+".d_distique_anchoring_tree.nwk"
 ftmp=tempfile.mkstemp(suffix='.nwk', prefix="distance-"+str(anch[0])+"-"+str(anch[1])+".d_distique_anchoring_tree.nwk", dir=outpath, text=None)
-con_tree_tmp.write(path=ftmp[1],schema="newick",suppress_rooting=True,suppress_internal_node_labels=True)
+con_tree.write(path=ftmp[1],schema="newick",suppress_rooting=True,suppress_internal_node_labels=True)
 os.close(ftmp[0])
 
