@@ -13,6 +13,7 @@ import tableManipulationTools as tbs
 import printTools as pr
 import toolsTreeTaxa as tstt
 import tempfile
+import timer as tm
 WS_LOC_SHELL= os.environ['WS_HOME']+'/DISTIQUE/src/shell'
 WS_LOC_FM = os.environ['WS_HOME']+'/fastme-2.1.4/src'
 usage = "usage: %prog [options]"
@@ -60,16 +61,18 @@ if readFromFile:
 src_fpath = os.path.expanduser(os.path.expandvars(gt))
 
 trees = dendropy.TreeList.get_from_path(src_fpath, 'newick')
-
+print "time to compute consensus is: "
+tm.tic()
 con_tree = trees.consensus(min_freq=thr)   
-
+tm.toc()
 tstt.labelNodes(con_tree)
 
+ftmpt=tempfile.mkstemp(suffix='.nwk', prefix="consensusTree", dir=outpath, text=None)
+con_tree.write(path=ftmpt[1],schema="newick",suppress_rooting=True)
 
-ftmp0=tempfile.mkstemp(suffix='.nwk', prefix="consensusTree.nwk", dir=outpath, text=None)
+os.close(ftmpt[0])
 
-con_tree.write(path=ftmp0[1],schema="newick",suppress_rooting=True) 
-os.close(ftmp0[0])
+
 (to_resolve,maxPolyOrder) = tstt.findPolytomies(con_tree)
 taxa = list()
 for e in con_tree.leaf_nodes():
@@ -84,7 +87,12 @@ if verbose:
 if readFromFile:
 	frq = tbs.readTable(filename)
 else:
+	tm.tic()
 	frq = tbs.findQuartetTable(trees,taxa,0,outpath,verbose)
+
+	print "time to find quartet lists: "
+	tm.toc()
+tm.tic()
 for e in con_tree.postorder_node_iter():
 	if e in to_resolve:
 		val = to_resolve[e]
@@ -105,6 +113,8 @@ for e in con_tree.postorder_node_iter():
 		if verbose:
 			print "starting to resolve polytomy"	
 		res= tstt.resolvePolytomy(ftmp4[1],e,con_tree,verbose)	
+print "resolving polytomies takes about: "
+tm.toc()
 if verbose:
 	print "writing the resulting tree as: "+outpath+"/distance.d_distique_tree.nwk"
 ftmp=tempfile.mkstemp(suffix='.nwk', prefix="distance.d_distique_tree.nwk", dir=outpath, text=None)

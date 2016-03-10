@@ -8,22 +8,23 @@ from collections import defaultdict
 import random
 import subprocess
 import tempfile
+from dendropy.calculate import treecompare
 def buildTree(setNodeLabels,tree,center):
     inferedTree = tree.clone(2)
     taxa = dendropy.TaxonNamespace()
     for node in inferedTree.postorder_node_iter():
-        if node.label == center.label:
+        if node.taxon.label == center.taxon.label:
             center = node
             break
     inferedTree.reroot_at_node(center,update_bipartitions=False, suppress_unifurcations=False)
     listNodes = list()
     for node in inferedTree.preorder_node_iter():
-        if node.label in setNodeLabels:
+        if node.taxon.label in setNodeLabels:
             listNodes.append(node)
     for node in listNodes:
             node.clear_child_nodes()
             if node.taxon==None:
-                vt = node.label
+                vt = node.taxon.label
                 tmp = dendropy.Taxon(label=vt)
                 inferedTree.taxon_namespace.add_taxon(tmp)
                 taxa.add_taxon(tmp)
@@ -40,7 +41,7 @@ def compareRes(tree,taxa,anch,sp,outpath):
     tns = dendropy.TaxonNamespace()
     tree1 = dendropy.Tree.get_from_path(sp,"newick",taxon_namespace=tns,rooting="force-unrooted")
     tree2 = dendropy.Tree.get_from_path(tree,"newick",taxon_namespace=tns,rooting="force-unrooted")
-    res = dendropy.calculate.treecompare.false_positives_and_negatives(tree1,tree2)
+    res = treecompare.false_positives_and_negatives(tree1,tree2)
 
 
     return res
@@ -64,7 +65,7 @@ def compareAnchoredRes(tree,taxa,achs,sp,outpath,trueAnch):
     tns = dendropy.TaxonNamespace()
     tree1 = dendropy.Tree.get_from_path(ftmp1[1], taxon_namespace=tns,rooting="force-unrooted")
     tree2 = dendropy.Tree.get_from_path(ftmp2[1],"newick",taxon_namespace=tns,rooting="force-unrooted")
-    res = dendropy.calculate.treecompare.false_positives_and_negatives(tree1,tree2)
+    res = treecompare.false_positives_and_negatives(tree1,tree2)
     return res
 
 def findPolytomies(con_tree):
@@ -86,14 +87,22 @@ def findPolytomies(con_tree):
             for c in e.child_nodes():
                 if len(tmp)>0:
                     t = tmp.pop()
-
-                    v[c.label] = node_dict[c.label]
+                    if c.taxon is not None:
+                        v[c.taxon.label] = node_dict[c.taxon.label]
+                    else:
+                        v[c.label] = node_dict[c.label]
                     tmp_set = tmp_set | t
             tmp.append(tmp_set);
-            node_dict[e.label] = tmp_set
+            if e.taxon is not None:
+                node_dict[e.taxon.label] = tmp_set
+            else:
+                node_dict[e.label] = tmp_set
             if len(taxa-tmp_set)>0:
                 t = taxa-tmp_set
-                v[e.parent_node.label] = t
+                if e.taxon is not None:
+                    v[e.parent_node.taxon.label] = t
+                else:
+                    v[e.parent_node.label] = t
             to_resolve[e] = v
         else:
             for i in range(0,n):
@@ -101,7 +110,10 @@ def findPolytomies(con_tree):
                     tmp_set = tmp_set | set(tmp.pop())
             if e.is_leaf():
                 tmp_set.add(e)
-            node_dict[e.label] = tmp_set
+            if e.taxon is not None:
+                node_dict[e.taxon.label] = tmp_set
+            else:
+                node_dict[e.label] = tmp_set
             tmp.append(tmp_set)
 
 
@@ -114,7 +126,10 @@ def getTaxaList(taxaDict):
         for key1,vals1 in taxaDict.iteritems():
                 v = list()
                 for t in vals1:
-                        k = t.taxon.label
+                        if t.taxon is not None:
+                            k = t.taxon.label
+                        else:
+                            k = t.label
                         v.append(k)
                 taxa_list[key1] = v
     	for k, v in taxa_list.iteritems():
@@ -143,10 +158,17 @@ def resolvePolytomy(pathToTree,node,otr,verbose):
     adjacent_list = set()
     dict_children=dict()
     for t in node.adjacent_nodes():
-        dict_children[t.label] = t
-        adjacent_list.add(t.label)
+	if t.taxon is not None:
+	        dict_children[t.taxon.label] = t
+		adjacent_list.add(t.taxon.label)
+	else:
+		dict_children[t.label] = t
+		adjacent_list.add(t.label)
     if node.parent_node is not None:
-        label = node.parent_node.label
+	if node.parent_node.taxon is not None:
+	        label = node.parent_node.taxon.label
+	else:
+		label = node.parent_node.label
         filter = lambda taxon: True if taxon.label==label else False
         nd = sp_tree.find_node_with_taxon(filter)
         if nd is not None:
@@ -169,7 +191,10 @@ def resolvePolytomy(pathToTree,node,otr,verbose):
                         continue
                     t.add_child(dict_children[tmp])
                     tmp_next += tmp
-            t.label = tmp_next
+	    if t.taxon is not None:
+	            t.taxon.label = tmp_next
+	    else:
+		    t.label = tmp_next
             dict_children[tmp_next] = t
             stack.append(tmp_next)
         elif e.is_leaf():
@@ -221,14 +246,23 @@ def findPolytomies_with_names(con_tree):
             for c in e.child_nodes():
                 if len(tmp)>0:
                     t = tmp.pop()
-
-                    v[c.label] = node_dict[c.label]
+		    if c.taxon is not None:
+	                    v[c.taxon.label] = node_dict[c.taxon.label]
+		    else:
+			    v[c.label] = node_dict[c.label]
                     tmp_set = tmp_set | t
             tmp.append(tmp_set);
-            node_dict[e.label] = tmp_set
+	    if e.taxon is not None:
+	            node_dict[e.taxon.label] = tmp_set
+	    else:
+		    node_dict[e.label] = tmp_set
             if len(taxa-tmp_set)>0:
                 t = taxa-tmp_set
-                v[e.parent_node.label] = t
+		if e.parent_node.taxon is not None:
+	                v[e.parent_node.taxon.label] = t
+		else:
+			v[e.parent_node.label] = t
+	    
             to_resolve[e.label] = v
         else:
             for i in range(0,n):
@@ -236,7 +270,10 @@ def findPolytomies_with_names(con_tree):
                     tmp_set = tmp_set | set(tmp.pop())
             if e.is_leaf():
                 tmp_set.add(e)
-            node_dict[e.label] = tmp_set
+	    if e.taxon is not None:
+	            node_dict[e.taxon.label] = tmp_set
+	    else:
+       		    node_dict[e.label] = tmp_set
             tmp.append(tmp_set)
 
 
