@@ -1,8 +1,9 @@
 #!/bin/bash
 set -x
+module load gnu
 tmp=`mktemp `
 #nw_reroot $1 $2 > $tmp
-cat $1 > $tmp
+nw_topology -I $1 > $tmp
 echo "rerooting genetrees has been finished"
 listS=`mktemp`
 nw_labels -I $3 > $listS

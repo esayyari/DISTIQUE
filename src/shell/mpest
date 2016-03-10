@@ -7,7 +7,7 @@ fn=`basename $1`
 ln -sf $1 ./$fn
 echo $fn
 
-REP=10
+REP=2
 test $# -gt 4 && REP=$5
 echo "$REP runs of MP-EST will be performed"
 
