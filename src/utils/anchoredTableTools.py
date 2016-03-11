@@ -35,7 +35,7 @@ def anchoredDistance(**kwargs):
     return frq
 def anchoredDistanceFromFrq(frq,achs):
     D = dict()
-    for k,v in frq.iteritems():
+    for k in frq:
         kt = sorted(k.split("/"))
         if ((achs[0] in kt ) and( achs[1] in kt)):
             s = sorted(list(set(kt)-{achs[0],achs[1]}))
@@ -174,13 +174,11 @@ def findAnchoredDistanceTable(achs,trees,taxa,out):
 def resolvePolytomy(pathToTree,node,verbose):
         src_fpath = os.path.expanduser(os.path.expandvars(pathToTree))
         if not os.path.exists(src_fpath):
-                 sys.stderr.write('Not found: "%s"' % src_fpath)
-        tlist = dendropy.TreeList()
+            sys.stderr.write('Not found: "%s"' % src_fpath)
         tlist = dendropy.TreeList.get(path=src_fpath,schema="newick")
         sp_tree = tlist[0]
         adjacent_list = set()
         dict_children=dict()
-        tn = 0
         for t in node.adjacent_nodes():
             if t.taxon is not None:
                 dict_children[t.taxon.label] = t
@@ -492,11 +490,11 @@ def fillEmptyElementsDistanceTable(D,C,fillmethod):
     for key in D:
         if D[key] == -np.inf:
             if fillmethod == "rand":
-                l = random.uniform(0,1)
+                l = np.abs(random.uniform(-1,0))
                 if l>1./3.:
-                    D[key] = np.abs(np.log(3./2.*(1-l)))
+                    D[key] = -np.log(3./2.*(1-l))
                 else:
-                    D[key] = np.abs(np.log(3.*l))
+                    D[key] = -np.log(3.*l)
                 C[key] = 1
             elif fillmethod == "const":
                 D[key] = 0
