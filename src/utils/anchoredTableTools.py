@@ -118,7 +118,7 @@ def reroot(tree,anch):
     #tstt.labelNodes(tree)
     filt = lambda node: True if node.taxon.label  in anch else False
     nodes = [x for x in tree.leaf_node_iter(filt)]
-    if tree.seed_node is not None and tree.seed_node.taxon is not None: 
+    if tree.seed_node is not None and tree.seed_node.taxon is not None:
         if tree.seed_node.taxon.label in anch:
             if nodes[0] is not tree.seed_node:
                 return [nodes[0],tree.seed_node]
@@ -128,7 +128,7 @@ def reroot(tree,anch):
     root = nodes[0]
 #     print "This is the main rerooting!"
 #     tm.tic()
-    
+
     tree.reroot_at_node(root, update_bipartitions=False, suppress_unifurcations=False)
 #     tm.toc()
     return [node,root]
@@ -188,7 +188,7 @@ def resolvePolytomy(pathToTree,node,verbose):
             else:
                 dict_children[t.label] = t
                 adjacent_list.add(t.label)
-                
+
         if node.parent_node is not None:
             if node.parent_node.taxon is not None:
                 label = node.parent_node.taxon.label
@@ -202,7 +202,7 @@ def resolvePolytomy(pathToTree,node,verbose):
                 nd = ndl[0]
             if nd is not None:
                 sp_tree.reroot_at_edge(nd.edge, update_bipartitions=False)
-                
+
         stack = list()
         for e in sp_tree.postorder_node_iter():
                 n = len(e.child_nodes())
@@ -436,10 +436,13 @@ def findPolytomies_with_name(con_tree,taxa,anch):
     return (to_resolve,maxPolyOrder,(list(anch_nodes),con_tree.seed_node.taxon.label,par1,par2,par1_is_Poly,par2_is_Poly,par1_child,par2_child))
 
 
-def addDistanceAnchores(D,Dtmp,C,Ctmp):
+def addDistanceAnchores(D,Dtmp,C,Ctmp,fillmethod):
+    Dmax = max(abs(D.values()))*1.
+    if Dmax == 0:
+        Dmax = 1.
     for key in D:
         C[key] += Ctmp[key]
-        D[key] += Dtmp[key]
+        D[key] += Dtmp[key]/Dmax
     return
 def anchoredDistanceFromFrqAddDistances(frq,achs,taxa_list):
     D = dict()
@@ -501,7 +504,7 @@ def fillEmptyElementsDistanceTable(D,C,fillmethod):
             elif fillmethod == "const":
                 D[key] = 0
                 C[key] = 0
-    return 
+    return
 def normalizeDistanceTable(D,C):
     flag = any(C[key] == 0 or D[key]<0 for key in D)
     if not flag:
@@ -509,3 +512,18 @@ def normalizeDistanceTable(D,C):
             D[key] += 10.
             D[key] /= C[key]
     return flag
+
+def check_four_point(D,listTaxa):
+    Dv = list()
+    sT = {0,1,2,3}
+    for i in range(0,len(listTaxa)):
+        l = sorted(listTaxa[i])
+        d = dict()
+        for j in range(1,4):
+            s = sorted(list(sT-{0,j}))
+            key2 = l[s[0]] + " " + l[s[1]]
+            key1 = l[0] + " " + l[j]
+            d[j] = D[key2] + D[key1]
+        Dv.append(max(d))
+    return Dv
+

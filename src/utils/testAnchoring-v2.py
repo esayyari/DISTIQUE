@@ -40,7 +40,7 @@ parser.add_option("-e","--method",dest="am",
 parser.add_option("-m",dest="met",
         help="The method to summerize quartet results around each node, freq, or log, Default is log", default="log")
 parser.add_option("-l",dest="fillmethod",
-        help="The method to fill empty cells in distance tables, const, or rand. Default is const", default="const")
+        help="The method to fill empty cells in distance tables, const, rand, or normConst. Default is const", default="const")
 (options,args) = parser.parse_args()
 filename = options.filename
 gt = options.gt
@@ -98,7 +98,7 @@ while(notEnoughSample):
     n = len(con_tree.leaf_nodes())
     if verbose:
         print "Number of taxa is: " + str(n)
-        
+
     distance_tables = dict()
     con_tree_tmp = con_tree.clone(2)
     (to_resolve, maxPolyOrdert) = tstt.findPolytomies(con_tree)
@@ -111,7 +111,7 @@ while(notEnoughSample):
     count_distance_table = dict()
     for anch in ac:
         tm.tic()
-    
+
         anch = sorted(list(anch))
         anch_temp = "/".join(anch)
         print anch
@@ -119,20 +119,27 @@ while(notEnoughSample):
         tm.tic()
         [_, frq] = atbs.findAnchoredDistanceTable(anch, trees, taxa, outpath)
         tm.toc()
-    
+
         for e in to_resolve:
             val = to_resolve[e]
             (taxa_list, taxa_inv) = tstt.getTaxaList(val)
-    
+
             quartTable = tbsa.findTrueAverageTableAnchoringAddDistances(frq,anch,taxa_list,method,met)
 
             [Dtmp,Ctmp] = atbs.anchoredDistanceFromFrqAddDistances(quartTable,anch,taxa_list)
             atbs.fillEmptyElementsDistanceTable(Dtmp,Ctmp,fillmethod)
             if e.label in distance_tables:
-                atbs.addDistanceAnchores(distance_tables[e.label],Dtmp,count_distance_table[e.label],Ctmp)
+                atbs.addDistanceAnchores(distance_tables[e.label],Dtmp,count_distance_table[e.label],Ctmp,fillmethod)
             else:
-                distance_tables[e.label] = Dtmp
-                count_distance_table[e.label] = Ctmp
+                if fillmethod == "normConst":
+                    Dmax = max(abs(Dtmp.values()))*1.
+                    if Dmax == 0:
+                        Dmax = 1.
+                    distance_tables[e.label] = Dtmp/Dmax
+                    count_distance_table[e.label] = Ctmp
+                else:
+                    distance_tables[e.label] = Dtmp
+                    count_distance_table[e.label] = Ctmp
         print "Computing distance table using anchors "+anch[0]+" and "+anch[1]+" has been finished!"
         tm.toc()
     if verbose:

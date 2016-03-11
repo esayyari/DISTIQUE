@@ -8,6 +8,7 @@ from collections import defaultdict
 import random
 import subprocess
 import tempfile
+import scipy
 from dendropy.calculate import treecompare
 def buildTree(setNodeLabels,tree,center):
     inferedTree = tree.clone(2)
@@ -209,11 +210,16 @@ def resolvePolytomy(pathToTree,node,otr,verbose):
 
 
 def random_combination(iterable, r):
+    random.seed()
     "Random selection from itertools.combinations(iterable, r)"
     pool = tuple(iterable)
     n = len(pool)
     indices = sorted(random.sample(xrange(n), r))
     return tuple(pool[i] for i in indices)
+
+
+
+
 
 def prune_tree_trivial_nodes(tree):
     tree.update_bipartitions()
@@ -262,7 +268,7 @@ def findPolytomies_with_names(con_tree):
 	                v[e.parent_node.taxon.label] = t
 		else:
 			v[e.parent_node.label] = t
-	    
+
             to_resolve[e.label] = v
         else:
             for i in range(0,n):
@@ -278,3 +284,59 @@ def findPolytomies_with_names(con_tree):
 
 
     return to_resolve, maxPolyOrder
+def remove_outliers(treeList,cons_thr,strategy,thr):
+    if strategy == "consensus10" or "consensus1.5":
+        con_tree = trees.consensus(min_freq=thr)
+        treeList.append(con_tree)
+        d = list()
+        ref_tree = treeList[len(treeList)-1]
+        for tree in treeList:
+            tree.encode_bipartitions()
+            ref_tree.encode_bipartitions()
+            res = treecompare.false_positives_and_negatives(ref_tree,tree)
+            d.append(res[1])
+        if strategy == "consensus1.5"
+            mean = np.mean(d)
+            st = np.std(d)
+            for i in range(len(d)-1,0,-1):
+                if d[i] < mean - 1.5*st or d[i] > mean + 1.5*st:
+                    del treeList[i]
+        else:
+            sortIdx = np.argsort(d,0)
+            m = int(len(sortIdx)/10.)
+            idx = sorted([x for x in sortIdx[len(sortIdx)-m:len(sortIdx)]],reverse=True)
+            for i in idx:
+                del treeList[idx[i]]
+    elif strategy == "pairwise1" or "pariwise2":
+        D = np.ndarray((len(treeList),len(treeList))
+        for i in range(0,len(treeList)):
+            D[i][i] = 0.
+            for j in range(i+1,len(treeList)):
+                key1 = str(i)+" " + str(j)
+                key2 = str(j) + " " + str(i)
+                tree1 = tree[i]
+                tree2 = tree[j]
+                tree1.encode_bipartitions()
+                tree2.encode_bipartitions()
+                res1 = treecomp.false_positives_and_negatives(tree1,tree2)
+                D[i][j] = res1[1]
+                D[j][i] = res1[0]
+        if strategy == "pairwise1":
+            d = np.mean(D,1)
+            C = np.cov(D)
+            v =[scipy.spatial.distance.mahalanobis(D[:,i],d,C) for i in range(0,len(treeList))]
+            sortIdx = np.argsort(v,0)
+            m = int(len(sortIdx)/10.)
+            idx = sorted([x for x in sortIdx[len(sortIdx)-m:len(sortIdx)]],reverse=True)
+            for i in idx:
+                del treeList[idx[i]]
+        else:
+            d = np.mean(D,0)
+            mean = np.mean(D)
+            st = np.std(d)
+            idx = list()
+            for i in range(len(d)-1,0,-1):
+                if d[i] < mean - 1.5*st or d[i] > mean+1.5*st:
+                    del treeList[i]
+
+    return treeList
