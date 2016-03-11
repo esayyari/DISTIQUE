@@ -1,9 +1,17 @@
 #!/bin/bash
+<<<<<<< HEAD
+set -x
+=======
+>>>>>>> b80edaab37c14d2fdaa83c56311c3a94697a06e9
 
 fn=`basename $1`
 ln -s $1 ./$fn
 
+<<<<<<< HEAD
+REP=2
+=======
 REP=1
+>>>>>>> b8e7bc8b14ff99f36aeb289850937cf25fdf0ce5
 test $# -gt 4 && REP=$5
 echo "$REP runs of MP-EST will be performed"
 

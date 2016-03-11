@@ -158,10 +158,17 @@ def resolvePolytomy(pathToTree,node,otr,verbose):
     adjacent_list = set()
     dict_children=dict()
     for t in node.adjacent_nodes():
-        dict_children[t.taxon.label] = t
-        adjacent_list.add(t.taxon.label)
+	if t.taxon is not None:
+	        dict_children[t.taxon.label] = t
+		adjacent_list.add(t.taxon.label)
+	else:
+		dict_children[t.label] = t
+		adjacent_list.add(t.label)
     if node.parent_node is not None:
-        label = node.parent_node.taxon.label
+	if node.parent_node.taxon is not None:
+	        label = node.parent_node.taxon.label
+	else:
+		label = node.parent_node.label
         filter = lambda taxon: True if taxon.label==label else False
         nd = sp_tree.find_node_with_taxon(filter)
         if nd is not None:
@@ -184,7 +191,10 @@ def resolvePolytomy(pathToTree,node,otr,verbose):
                         continue
                     t.add_child(dict_children[tmp])
                     tmp_next += tmp
-            t.taxon.label = tmp_next
+	    if t.taxon is not None:
+	            t.taxon.label = tmp_next
+	    else:
+		    t.label = tmp_next
             dict_children[tmp_next] = t
             stack.append(tmp_next)
         elif e.is_leaf():
@@ -236,22 +246,34 @@ def findPolytomies_with_names(con_tree):
             for c in e.child_nodes():
                 if len(tmp)>0:
                     t = tmp.pop()
-
-                    v[c.taxon.label] = node_dict[c.taxon.label]
+		    if c.taxon is not None:
+	                    v[c.taxon.label] = node_dict[c.taxon.label]
+		    else:
+			    v[c.label] = node_dict[c.label]
                     tmp_set = tmp_set | t
             tmp.append(tmp_set);
-            node_dict[e.taxon.label] = tmp_set
+	    if e.taxon is not None:
+	            node_dict[e.taxon.label] = tmp_set
+	    else:
+		    node_dict[e.label] = tmp_set
             if len(taxa-tmp_set)>0:
                 t = taxa-tmp_set
-                v[e.parent_node.taxon.label] = t
-            to_resolve[e.taxon.label] = v
+		if e.parent_node.taxon is not None:
+	                v[e.parent_node.taxon.label] = t
+		else:
+			v[e.parent_node.label] = t
+	    
+            to_resolve[e.label] = v
         else:
             for i in range(0,n):
                 if len(tmp)>0:
                     tmp_set = tmp_set | set(tmp.pop())
             if e.is_leaf():
                 tmp_set.add(e)
-            node_dict[e.taxon.label] = tmp_set
+	    if e.taxon is not None:
+	            node_dict[e.taxon.label] = tmp_set
+	    else:
+       		    node_dict[e.label] = tmp_set
             tmp.append(tmp_set)
 
 
