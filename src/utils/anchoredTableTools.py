@@ -437,7 +437,7 @@ def findPolytomies_with_name(con_tree,taxa,anch):
 
 
 def addDistanceAnchores(D,Dtmp,C,Ctmp,fillmethod):
-    Dmax = max(abs(D.values()))*1.
+    Dmax = max(np.abs(D.values()))*1.
     if Dmax == 0:
         Dmax = 1.
     for key in D:
@@ -477,13 +477,11 @@ def anchoredDistanceFromFrqAddDistances(frq,achs,taxa_list):
         else:
             key1 = s[0]+" "+s[1]
             key2 = s[1]+" "+s[0]
-            if (len(set(taxa_list[s[0]])-anch_set)==0 or len(set(taxa_list[s[1]])-anch_set)==0) and frq[k]<0:
+            if frq[k]<0:
                 D[key1] = -np.inf
                 D[key2] = D[key1]
                 C[key1] = 0
                 C[key2] = C[key1]
-            elif frq[k]<0:
-                raise Exception("Oops! frq["+k+"] was not supposed to be negative, but it is!")
             else:
                 D[key1] = -np.log(frq[k])
                 D[key2] = D[key1]
@@ -495,11 +493,11 @@ def fillEmptyElementsDistanceTable(D,C,fillmethod):
     for key in D:
         if D[key] == -np.inf:
             if fillmethod == "rand":
-                l = random.uniform(0,1)
+                l = -random.uniform(-1,0)
                 if l>1./3.:
-                    D[key] = np.abs(np.log(3./2.*(1-l)))
+                    D[key] = -np.log(3./2.*(1-l))
                 else:
-                    D[key] = np.abs(np.log(3.*l))
+                    D[key] = -np.log(3.*l)
                 C[key] = 1
             elif fillmethod == "const":
                 D[key] = 0
