@@ -87,6 +87,7 @@ def findTrueAverageTableAnchoringAddDistances(frq, anch, list_taxa, method, met)
     TotalKey = dict()
     n = len(lst_taxa)
     numG = max(v[1] for v in frq.values())
+    anchS = set(anch)
     for i in range(0, n):
         for j in range(i+1, n):
             for taxon_i in list_taxa[lst_taxa[i]]:
@@ -98,14 +99,21 @@ def findTrueAverageTableAnchoringAddDistances(frq, anch, list_taxa, method, met)
                     key_orig = "/".join(sorted([lab_taxon_i, lab_taxon_j, lab_taxon_k, lab_taxon_z]))
                     l = sorted([lst_taxa[i], lst_taxa[j], anch[0], anch[1]])
                     key_inv = "/".join(l)
-                    if (key_orig.split("/")).count(anch[0]) > 1 or (key_orig.split("/")).count(anch[1]) > 1:
-                        continue
+                    if anch[0] in key_orig.split("/") or anch[1] in key_orig.split("/"):
+                        if key_inv in TotalKey:
+                            vt = TotalKey[key_inv]
+                            vt.append(-np.inf)
+                        else:
+                            vt = list()
+                            vt.append(-np.inf)
+                        TotalKey[key_inv] = vt
                     else:
                         if key_orig in frq:
                             v = frq[key_orig]
                         else:
-                                v[0] = 0.5
-                                v[1] = numG	
+                            v = list()
+                            v.append(0.5)
+                            v.append(numG)	
                         v_inv = float(v[0])/v[1]
                         if key_inv in TotalKey:
                             if met == "freq":
@@ -123,6 +131,10 @@ def findTrueAverageTableAnchoringAddDistances(frq, anch, list_taxa, method, met)
                                 vt.append(-np.log(1.*v_inv))
                         TotalKey[key_inv] = vt
     for q, v2 in TotalKey.iteritems():
+        if any([x==-np.inf for x in v2]):
+            vtt = -1.
+            TotalKeyf[q] = vtt
+            continue
         if met == "log":
             if method == "gmean":
                 vtt = np.exp(-stats.gmean(v2))

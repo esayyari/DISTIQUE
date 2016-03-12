@@ -295,7 +295,7 @@ def remove_outliers(treeList,cons_thr,strategy,thr):
             ref_tree.encode_bipartitions()
             res = treecompare.false_positives_and_negatives(ref_tree,tree)
             d.append(res[1])
-        if strategy == "consensus1.5"
+        if strategy == "consensus1.5":
             mean = np.mean(d)
             st = np.std(d)
             for i in range(len(d)-1,0,-1):
@@ -308,7 +308,7 @@ def remove_outliers(treeList,cons_thr,strategy,thr):
             for i in idx:
                 del treeList[idx[i]]
     elif strategy == "pairwise1" or "pariwise2":
-        D = np.ndarray((len(treeList),len(treeList))
+        D = np.ndarray(len(treeList),len(treeList))
         for i in range(0,len(treeList)):
             D[i][i] = 0.
             for j in range(i+1,len(treeList)):
@@ -335,8 +335,8 @@ def remove_outliers(treeList,cons_thr,strategy,thr):
             mean = np.mean(D)
             st = np.std(d)
             idx = list()
-            for i in range(len(d)-1,0,-1):
-                if d[i] < mean - 1.5*st or d[i] > mean+1.5*st:
-                    del treeList[i]
+            for k in range(len(d)-1,0,-1):
+                if d[k] < mean - 1.5*st or d[k] > mean+1.5*st:
+                    del treeList[k]
 
     return treeList
