@@ -94,12 +94,13 @@ def findTrueAverageTableAnchoringAddDistances(frq, anch, list_taxa, method, met)
                 for taxon_j in list_taxa[lst_taxa[j]]:
                     lab_taxon_i = taxon_i
                     lab_taxon_j = taxon_j
+                    oS = {taxon_i,taxon_j}
                     lab_taxon_k = anch[0]
                     lab_taxon_z = anch[1]
                     key_orig = "/".join(sorted([lab_taxon_i, lab_taxon_j, lab_taxon_k, lab_taxon_z]))
                     l = sorted([lst_taxa[i], lst_taxa[j], anch[0], anch[1]])
                     key_inv = "/".join(l)
-                    if anch[0] in key_orig.split("/") or anch[1] in key_orig.split("/"):
+                    if anch[0] in oS or anch[1] in oS:
                         if key_inv in TotalKey:
                             vt = TotalKey[key_inv]
                             vt.append(-np.inf)
