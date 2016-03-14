@@ -22,6 +22,8 @@ def findTrueAverageTableAnchoring(frq,anch,list_taxa,method,met):
     TotalKey = dict()
     n = len(lst_taxa)
     numG = max(v[1] for v in frq.values())
+    print list_taxa
+    print anch
     for k_inv,v in list_taxa.iteritems():
         if anch[0] in v:
             N1 = k_inv
