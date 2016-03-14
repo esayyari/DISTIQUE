@@ -115,8 +115,9 @@ for e in con_tree.postorder_node_iter():
 		res= tstt.resolvePolytomy(ftmp4[1],e,con_tree,verbose)	
 print "resolving polytomies takes about: "
 tm.toc()
-if verbose:
-	print "writing the resulting tree as: "+outpath+"/distance.d_distique_tree.nwk"
 ftmp=tempfile.mkstemp(suffix='.nwk', prefix="distance.d_distique_tree.nwk", dir=outpath, text=None)
 con_tree.write(path=ftmp[1],schema="newick",suppress_rooting=True,suppress_internal_node_labels=True)
+if verbose:
+	print "writing the resulting tree as: "+outpath+"/distance.d_distique_tree.nwk"
+
 os.close(ftmp[0])

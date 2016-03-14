@@ -12,10 +12,13 @@ import timer as tm
 from optparse import OptionParser
 import tableManipulationToolsAnchoring as tbsa
 import tempfile
+import testDependencies as tD
 import warnings
+# WS_HOME="/Users/Erfan/Documents/Research"
 WS_LOC_SHELL= os.environ['WS_HOME']+'/DISTIQUE/src/shell'
 WS_LOC_FM = os.environ['WS_HOME']+'/fastme-2.1.4/src'
-
+# WS_LOC_SHELL = "/Users/Erfan/Documents/Research//DISTIQUE/src/shell"
+# WS_LOC_FM = "/Users/Erfan/Documents/Research//DISTIQUE/fastme-2.1.4/src"
 
 usage = "usage: %prog [options]"
 parser = OptionParser(usage)
@@ -26,7 +29,7 @@ parser.add_option("-g","--gene",dest="gt",type="string",
 parser.add_option("-o","--output",dest="out",type="string",
         help="the PATH to write the generated files")
 parser.add_option("-t","--threshold",dest="thr",type=float,
-        help="the minimum frequency that consensus will use. Default is 0.5",default=0.5)
+        help="the minimum frequency that consensus will use. Default is 0.33",default=1./3.)
 parser.add_option("-v","--verbose",dest="verbose",
         help="Verbose",default=1)
 parser.add_option("-a","--achs",dest="a",type="string",
@@ -41,15 +44,18 @@ parser.add_option("-m",dest="met",
         help="The method to summerize quartet results around each node, freq, or log, Default is log", default="log")
 parser.add_option("-l",dest="fillmethod",
         help="The method to fill empty cells in distance tables, const, rand, or normConst. Default is const", default="const")
+parser.add_option("-d",dest="debug",
+        help = "The flag for indicating that this run is for debugging!", default = False)
 (options,args) = parser.parse_args()
 filename = options.filename
 gt = options.gt
 outpath = options.out
 fillmethod = options.fillmethod
-thr = options.thr
+thr = float(options.thr)
 sp = options.sp
 num = options.num
 met = options.met
+debugFlag = (options.debug == "1")
 if (num != "all"):
     num = int(num)
 method = options.am
@@ -62,6 +68,7 @@ else:
     randomSample=True
 if options.filename:
     readFromFile = True
+    frqT=tbsa.readTable(filename)
 else:
     readFromFile = False
 print readFromFile
@@ -117,7 +124,10 @@ while(notEnoughSample):
         print anch
         print "time elapsing  for counting number of quartets for this anchors is: "
         tm.tic()
-        [_, frq] = atbs.findAnchoredDistanceTable(anch, trees, taxa, outpath)
+        if not readFromFile:
+            [_, frq] = atbs.findAnchoredDistanceTable(anch, trees, taxa, outpath)
+        else:
+            frq = atbs.findAnchoredDistanceTableFromFile(anch,frqT,taxa,outpath)
         tm.toc()
 
         for e in to_resolve:
@@ -125,17 +135,33 @@ while(notEnoughSample):
             (taxa_list, taxa_inv) = tstt.getTaxaList(val)
 
             quartTable = tbsa.findTrueAverageTableAnchoringAddDistances(frq,anch,taxa_list,method,met)
-
+            if debugFlag:
+                outpath1 = outpath + "/quartTable_Main-"+anch[0]+"-"+anch[1]+"-"+e.label+".qt"
+                tD.printQuartTable(frq,outpath1)
+                outpath2 = outpath + "/quartTable_Main_Processed-"+anch[0]+"-"+anch[1]+"-"+e.label+".qt"
+                tD.printQuartetTableAveraged(quartTable,outpath2)
+                outpath2 = outpath + "/listTaxa-"+e.label+".lt"
+                tD.printTaxaList(taxa_list,outpath2)
             [Dtmp,Ctmp] = atbs.anchoredDistanceFromFrqAddDistances(quartTable,anch,taxa_list)
+            if debugFlag:
+                outpath2 = outpath +"/DistanceTable-"+anch[0]+"-"+anch[1]+"-"+e.label+".dt"
+                outpath3 = outpath +"/CountTable-"+anch[0]+"-"+anch[1]+"-"+e.label+".ct"
+                tD.printDistanceTable(Dtmp,Ctmp,outpath2,outpath3)
             atbs.fillEmptyElementsDistanceTable(Dtmp,Ctmp,fillmethod)
+            if debugFlag:
+                outpath3 = outpath +"/FilledCountTable-"+anch[0]+"-"+anch[1]+"-"+e.label+".fct"
+                outpath2 = outpath+"/FilledDistanceTable-"+anch[0]+"-"+anch[1]+"-"+e.label+".fdt"
+                tD.printDistanceTable(Dtmp,Ctmp,outpath2,outpath3)
             if e.label in distance_tables:
                 atbs.addDistanceAnchores(distance_tables[e.label],Dtmp,count_distance_table[e.label],Ctmp,fillmethod)
             else:
                 if fillmethod == "normConst":
-                    Dmax = max(abs(Dtmp.values()))*1.
+                    Dmax = max(np.abs(Dtmp.values()))*1.
                     if Dmax == 0:
                         Dmax = 1.
-                    distance_tables[e.label] = Dtmp/Dmax
+                    for kttDtmp in Dtmp:
+                        Dtmp[kttDtmp] = Dtmp[kttDtmp]/Dmax
+                    distance_tables[e.label] = Dtmp
                     count_distance_table[e.label] = Ctmp
                 else:
                     distance_tables[e.label] = Dtmp
@@ -178,10 +204,10 @@ for e in con_tree.postorder_node_iter():
             os.close(ftmp4[0])
             if verbose:
                 print "starting to resolve polytomy"
-	    res=atbs.resolvePolytomy(ftmp4[1],e,verbose)
+	        res=atbs.resolvePolytomy(ftmp4[1],e,verbose)
 tstt.prune_tree_trivial_nodes(con_tree)
-print "writing the resulting tree as: "+outpath+"/distance-"+str(anch[0])+"-"+str(anch[1])+".d_distique_anchoring_tree.nwk"
-ftmp=tempfile.mkstemp(suffix='.nwk', prefix="distance-"+str(anch[0])+"-"+str(anch[1])+".d_distique_anchoring_tree.nwk", dir=outpath, text=None)
+print "writing the resulting tree as: "+outpath+"/distance.d_distique_anchoring_tree.nwk"
+ftmp=tempfile.mkstemp(suffix='.nwk', prefix="distance.d_distique_anchoring_tree.nwk", dir=outpath, text=None)
 con_tree.write(path=ftmp[1],schema="newick",suppress_rooting=True,suppress_internal_node_labels=True)
 os.close(ftmp[0])
 
