@@ -22,14 +22,6 @@ def findTrueAverageTableAnchoring(frq,anch,list_taxa,method,met):
     TotalKey = dict()
     n = len(lst_taxa)
     numG = max(v[1] for v in frq.values())
-    print list_taxa
-    print anch
-    for k_inv,v in list_taxa.iteritems():
-        if anch[0] in v:
-            N1 = k_inv
-        if anch[1] in v:
-            N2 = k_inv
-    skipClades = {N1,N2}
     for i in range(0,n):
         for j in range(i+1,n):
             for taxon_i in list_taxa[lst_taxa[i]]:
@@ -42,37 +34,32 @@ def findTrueAverageTableAnchoring(frq,anch,list_taxa,method,met):
 
                     l = sorted([lst_taxa[i],lst_taxa[j],anch[0],anch[1]])
                     key_inv = "/".join(l)
-                    if lst_taxa[i] in skipClades or lst_taxa[j] in skipClades:
-                        continue
+                    if key_orig in frq:
+                        v = frq[key_orig]
                     else:
-                        if key_orig in frq:
-                            v = frq[key_orig]
-                        else:
-                            v[0] = 0.5
-                            v[1] = numG
-                        v_inv = float(v[0])/v[1]
-                        if key_inv in TotalKey:
-                            if (met=="freq"):
-                                vt = TotalKey[key_inv]
-                                vt.append(v_inv)
-                            elif met == "log":
-                                vt = TotalKey[key_inv]
-                                vt.append(-np.log(1.*v_inv))
-                        else:
-                            if (met == "freq"):
+                        v[0] = 0.5
+                        v[1] = numG
+                    v_inv = float(v[0])/v[1]
+                    if key_inv in TotalKey:
+                        if (met=="freq"):
+                            vt = TotalKey[key_inv]
+                            vt.append(v_inv)
+                        elif met == "log":
+                            vt = TotalKey[key_inv]
+                            vt.append(-np.log(1.*v_inv))
+                    else:
+                        if (met == "freq"):
 
-                                vt = list()
-                                vt.append(v_inv)
-                            elif met == "log":
-                                vt = list()
-                                vt.append(-np.log(1.*v_inv))
+                            vt = list()
+                            vt.append(v_inv)
+                        elif met == "log":
+                            vt = list()
+                            vt.append(-np.log(1.*v_inv))
                     TotalKey[key_inv] = vt
     TotalKeyf = dict()
     for q,v2 in TotalKey.iteritems():
         l = set(q.split("/"))
         l = list(l - set(anch))
-        if len(l) == 0 or len(l) == 1 or l[0] in skipClades or l[1] in skipClades: 
-            continue
         if met == "log":
             if method == "gmean":
                 vtt = np.exp(-stats.gmean(v2))
