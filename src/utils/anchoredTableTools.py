@@ -9,6 +9,8 @@ import numpy as np
 import random
 import warnings
 import timer as tm
+from scipy import stats
+from numpy import mean, sqrt, square
 def anchoredDistance(**kwargs):
     readFromTable=False
     for k,v in kwargs.iteritems():
@@ -170,7 +172,26 @@ def findAnchoredDistanceTable(achs,trees,taxa,out):
             D[key1]=-np.log(frq[k][0]/float(frq[k][1]))
             D[key2]=D[key1]
         return [D,frq]
-
+def findAnchoredDistanceTableFromFile(anch,frqT,taxa,outpath):
+    frq=findAnchoredQuartetsFromFile(anch,frqT,taxa,outpath)
+    return frq
+def findAnchoredQuartetsFromFile(anch,frqT,taxa,out):
+    anch = sorted(anch)
+    anchS = set(anch)
+    a=frqT.keys()
+    b=frqT[a[0]].keys()
+    n = frqT[a[0]][b[0]][1]
+    Q = buildEmptyQuartets(anch,taxa,n)
+    for key in Q:
+        l = key.split("/")
+        anchComp = sorted(list(set(l) - anchS))
+        if l[0] in anchS:
+            tq = anch[1]
+        else:
+            tq = anchComp[1]
+        Q[key][0] = frqT[key][tq][0]
+        Q[key][1] = frqT[key][tq][1]
+    return Q
 def resolvePolytomy(pathToTree,node,verbose):
         src_fpath = os.path.expanduser(os.path.expandvars(pathToTree))
         if not os.path.exists(src_fpath):
@@ -435,12 +456,15 @@ def findPolytomies_with_name(con_tree,taxa,anch):
 
 
 def addDistanceAnchores(D,Dtmp,C,Ctmp,fillmethod):
-    Dmax = max(np.abs(D.values()))*1.
-    if Dmax == 0:
-        Dmax = 1.
+    if fillmethod == "normConst":
+        Dmax = max(np.abs(Dtmp.values()))*1.
+        if Dmax == 0:
+            Dmax = 1.
+        for kttDtmp in Dtmp:
+            Dtmp[kttDtmp] /= Dmax
     for key in D:
         C[key] += Ctmp[key]
-        D[key] += Dtmp[key]/Dmax
+        D[key] += Dtmp[key]
     return
 def anchoredDistanceFromFrqAddDistances(frq,achs,taxa_list):
     D = dict()
@@ -497,7 +521,7 @@ def fillEmptyElementsDistanceTable(D,C,fillmethod):
                 else:
                     D[key] = -np.log(3.*l)
                 C[key] = 1
-            elif fillmethod == "const":
+            else:
                 D[key] = 0
                 C[key] = 0
     return
@@ -522,4 +546,42 @@ def check_four_point(D,listTaxa):
             d[j] = D[key2] + D[key1]
         Dv.append(max(d))
     return Dv
-
+def findDistanceTable(Q,method,met):
+    D = dict()
+    for q, v2 in Q.iteritems():
+        if met == "log":
+            if method == "gmean":
+                vtt = -np.log(np.exp(-stats.gmean(v2)))
+            elif method == "mean":
+                vtt = -np.log(np.exp(-mean(v2)))
+            else:
+                vtt = -np.log(np.exp(-sqrt(mean(square(v2)))))
+        elif met == "freq":
+            if method == "gmean":
+                vtt = -np.log(stats.gmean(v2))
+            elif method == "mean":
+                vtt = -np.log(mean(v2))
+            else:
+                vtt = -np.log(sqrt(mean(square(v2))))
+        D[q] = vtt        
+    return D
+def sumofLogsDistanceTable(D):
+    D_Final = dict()
+    for k in D:
+        l = k.split("|")
+        k1 = l[0].split(" ")
+        k2 = l[1].split(" ")
+        
+        if l[0] in D_Final:
+            D_Final[k1[0]+" "+k1[1]] += D[k]
+            D_Final[k1[1]+" "+k1[0]] += D[k]
+        else:
+            D_Final[k1[0]+" "+k1[1]] = D[k]
+            D_Final[k1[1]+" "+k1[0]] = D[k]
+        if l[1] in D_Final:
+            D_Final[k2[0]+" "+k2[1]] += D[k]
+            D_Final[k2[1]+" "+k2[0]] += D[k]
+        else:
+            D_Final[k2[0]+" "+k2[1]] = D[k]
+            D_Final[k2[1]+" "+k2[0]] = D[k]
+    return D_Final

@@ -340,3 +340,53 @@ def remove_outliers(treeList,cons_thr,strategy,thr):
                     del treeList[k]
 
     return treeList
+def findPolytomiesNames(con_tree):
+    to_resolve = dict()
+    maxPolyOrder = 0
+    tmp = list()
+    node_dict = dict()
+    taxa = set(con_tree.leaf_nodes())
+    for e in con_tree.postorder_node_iter():
+        tmp_set = set()
+        n = len(e.child_nodes())
+        if n>3 or ( n==3 and e.parent_node != None ):
+            if e.parent_node != None:
+                sz = n + 1
+            else:
+                sz = n
+            maxPolyOrder = max(maxPolyOrder,sz)
+            v = dict()
+            for c in e.child_nodes():
+                if len(tmp)>0:
+                    t = tmp.pop()
+                    if c.taxon is not None:
+                        v[c.taxon.label] = node_dict[c.taxon.label]
+                    else:
+                        v[c.label] = node_dict[c.label]
+                    tmp_set = tmp_set | t
+            tmp.append(tmp_set);
+            if e.taxon is not None:
+                node_dict[e.taxon.label] = tmp_set
+            else:
+                node_dict[e.label] = tmp_set
+            if len(taxa-tmp_set)>0:
+                t = taxa-tmp_set
+                if e.taxon is not None:
+                    v[e.parent_node.taxon.label] = t
+                else:
+                    v[e.parent_node.label] = t
+            to_resolve[e.label] = v
+        else:
+            for i in range(0,n):
+                if len(tmp)>0:
+                    tmp_set = tmp_set | set(tmp.pop())
+            if e.is_leaf():
+                tmp_set.add(e)
+            if e.taxon is not None:
+                node_dict[e.taxon.label] = tmp_set
+            else:
+                node_dict[e.label] = tmp_set
+            tmp.append(tmp_set)
+
+
+    return (to_resolve,maxPolyOrder)
