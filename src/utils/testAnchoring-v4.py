@@ -135,7 +135,7 @@ for anch in ac:
             tree_tmp = dendropy.Tree.get(path=ftmp4[1],schema='newick')
             TreeList[e.label].append(tree_tmp)              
     tm.toc()
-(to_resolve,maxPolyOrder)=findPolytomies(con_tree)
+(to_resolve,maxPolyOrder)=tstt.findPolytomies(con_tree)
 for e in con_tree.postorder_node_iter():
     if e in to_resolve:
         ftmp3=tempfile.mkstemp(suffix='.nwk', prefix=fileDistance+"allTreesAroundPoly-"+e.label+".nwk", dir=outpath, text=None)
