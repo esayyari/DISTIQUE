@@ -164,7 +164,7 @@ for e in con_tree.postorder_node_iter():
         ftmp3=tempfile.mkstemp(suffix='.nwk', prefix="distancet-allTreesAroundPoly-"+e.label+".nwk", dir=outpath, text=None)
         TreeList[e.label].write(path=ftmp3[1],schema="newick",suppress_rooting=True,suppress_internal_node_labels=True)
         os.close(ftmp3[0])
-        ftmp4=tempfile.mkstemp(suffix='.nwk', prefix=fileDistance+"_MRL_tree"+e.label+".nwk",dir=outpath,text=None)
+        ftmp4=tempfile.mkstemp(suffix='.nwk', prefix="distancet-allTreesAroundPoly_MRL_tree"+e.label+".nwk",dir=outpath,text=None)
         FNULL = open(os.devnull, 'w')
         subprocess.call([WS_LOC_SHELL+"/MRL_AroundPoly.sh", "-i",ftmp3[1],"-o",ftmp4[1]],stdout=FNULL,stderr=subprocess.STDOUT)
         os.close(ftmp4[0])
