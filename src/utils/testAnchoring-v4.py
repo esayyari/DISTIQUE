@@ -119,6 +119,7 @@ for anch in ac:
         tm.tic()
         [D,frq]=atbs.findAnchoredDistanceTable(anch,trees,taxa,outpath)
         tm.toc()
+    skippedPoly = set()
     for e in to_resolve:
         val = to_resolve[e]
         (taxa_list,taxa_inv) =  tstt.getTaxaList(val)
@@ -139,6 +140,7 @@ for anch in ac:
             if anch[1] in taxa_list[node]:
                 N2 = node
         if N1 == N2 or len(taxa_list.keys())-2<4:
+            skippedPoly.add(e)
             continue
         D=atbs.anchoredDistanceFromFrq(quartTable,anch)
         keyDict = sorted(list(np.unique((" ".join(D.keys())).split(" "))))
@@ -156,7 +158,7 @@ for anch in ac:
 
 for e in con_tree.postorder_node_iter():
     if e in to_resolve_t:
-        print e.label
+        fileDistance="distancet-"
         ftmp3=tempfile.mkstemp(suffix='.nwk', prefix=fileDistance+"allTreesAroundPoly-"+e.label+".nwk", dir=outpath, text=None)
         TreeList[e.label].write(path=ftmp3[1],schema="newick",suppress_rooting=True,suppress_internal_node_labels=True)
         os.close(ftmp3[0])
