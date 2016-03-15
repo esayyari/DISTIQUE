@@ -104,7 +104,7 @@ if randomSample:
 
 exit 
 tm.toc()
-
+(to_resolve,_)= tstt.findPolytomies_with_names(con_tree)
 if verbose:
     print "Number of taxa is: " + str(n)
 TreeList = dict()
@@ -119,40 +119,39 @@ for anch in ac:
         tm.tic()
         [D,frq]=atbs.findAnchoredDistanceTable(anch,trees,taxa,outpath)
         tm.toc()
-    for e in con_tree_tmp.postorder_node_iter():
-        if e in to_resolve:
-            val = to_resolve[e]
-            (taxa_list,taxa_inv) =  tstt.getTaxaList(val)
-            if e.label not in TreeList:
-                TreeList[e.label] = dendropy.TreeList()
-            if verbose:
-                print "computing the partial quartet table"
-            
-            quartTable = tbsa.findTrueAverageTableAnchoring(frq,anch,taxa_list,am,met)
+    for e in to_resolve:
+        val = to_resolve[e]
+        (taxa_list,taxa_inv) =  tstt.getTaxaList(val)
+        if e not in TreeList:
+            TreeList[e] = dendropy.TreeList()
+        if verbose:
+            print "computing the partial quartet table"
+        
+        quartTable = tbsa.findTrueAverageTableAnchoring(frq,anch,taxa_list,am,met)
 
-            if verbose:
-                print "computing distance table using the method: "+str(am)
-            for node in taxa_list:
-                print node
-                print taxa_list[node]
-                if anch[0] in taxa_list[node]:
-                    N1 = node
-                if anch[1] in taxa_list[node]:
-                    N2 = node
-            if N1 == N2 or len(taxa_list.keys())-2<4:
-                continue
-            D=atbs.anchoredDistanceFromFrq(quartTable,anch)
-            keyDict = sorted(list(np.unique((" ".join(D.keys())).split(" "))))
-            fileDistance = "distancet-"+str(anch[0])+"-"+str(anch[1])+".d"
-            ftmp3=tempfile.mkstemp(suffix='.d', prefix=fileDistance, dir=outpath, text=None)
-            pr.printDistanceTableToFile(D,keyDict,ftmp3[1])
-            os.close(ftmp3[0])
-            ftmp4=tempfile.mkstemp(suffix='.nwk', prefix=fileDistance+"_fastme_tree.nwk",dir=outpath,text=None)
-            FNULL = open(os.devnull, 'w')
-            subprocess.call([WS_LOC_FM+"/fastme", "-i",ftmp3[1],"-w","none","-o",ftmp4[1],"-I","/dev/null"],stdout=FNULL,stderr=subprocess.STDOUT)
-            os.close(ftmp4[0])
-            tree_tmp = dendropy.Tree.get(path=ftmp4[1],schema='newick')
-            TreeList[e.label].append(tree_tmp)              
+        if verbose:
+            print "computing distance table using the method: "+str(am)
+        for node in taxa_list:
+            print node
+            print taxa_list[node]
+            if anch[0] in taxa_list[node]:
+                N1 = node
+            if anch[1] in taxa_list[node]:
+                N2 = node
+        if N1 == N2 or len(taxa_list.keys())-2<4:
+            continue
+        D=atbs.anchoredDistanceFromFrq(quartTable,anch)
+        keyDict = sorted(list(np.unique((" ".join(D.keys())).split(" "))))
+        fileDistance = "distancet-"+str(anch[0])+"-"+str(anch[1])+".d"
+        ftmp3=tempfile.mkstemp(suffix='.d', prefix=fileDistance, dir=outpath, text=None)
+        pr.printDistanceTableToFile(D,keyDict,ftmp3[1])
+        os.close(ftmp3[0])
+        ftmp4=tempfile.mkstemp(suffix='.nwk', prefix=fileDistance+"_fastme_tree.nwk",dir=outpath,text=None)
+        FNULL = open(os.devnull, 'w')
+        subprocess.call([WS_LOC_FM+"/fastme", "-i",ftmp3[1],"-w","none","-o",ftmp4[1],"-I","/dev/null"],stdout=FNULL,stderr=subprocess.STDOUT)
+        os.close(ftmp4[0])
+        tree_tmp = dendropy.Tree.get(path=ftmp4[1],schema='newick')
+        TreeList[e].append(tree_tmp)              
     tm.toc()
 
 for e in con_tree.postorder_node_iter():
