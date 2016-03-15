@@ -132,6 +132,13 @@ for anch in ac:
 
             if verbose:
                 print "computing distance table using the method: "+str(am)
+            for node in taxa_list:
+                if anch[0] in taxa_list[node]:
+                    N1 = node
+                if anch[1] in taxa_list[node]:
+                    N2 = node
+            if N1 == N2 or len(taxa_list.keys())-2<4:
+                continue
             D=atbs.anchoredDistanceFromFrq(quartTable,anch)
             keyDict = sorted(list(np.unique((" ".join(D.keys())).split(" "))))
             fileDistance = "distancet-"+str(anch[0])+"-"+str(anch[1])+".d"
