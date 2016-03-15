@@ -604,3 +604,6 @@ def mapTaxaAroundPoly(to_resolve,debugFlag):
             print key+" of lenght: "+str(len(mapPolyNodesToTaxa[key]))+" maps to: ",mapPolyNodesToTaxa[key]
     return [mapTaxaToPolyNodes,mapPolyNodesToTaxa]
             
+def anchoredDistanceFromFrqSmallPolytomies(quartTable,achList):
+    D = dict()
+    return D

@@ -89,12 +89,9 @@ taxa = list()
 for e in con_tree.leaf_nodes():
     taxa.append(e.taxon.label)
 n = len(con_tree.leaf_nodes())
-if verbose:
-    print "Number of taxa is: " + str(n)
 (to_resolve_t,maxPolyOrder)=tstt.findPolytomies(con_tree)
 [mapTaxaToPolyNodes,mapPolyNodesToTaxa]= atbs.mapTaxaAroundPoly(to_resolve_t,debugFlag)
-if verbose:
-    print "Maximum Polytomy size is: "+str(maxPolyOrder)
+
     
 
 if randomSample:
@@ -104,11 +101,27 @@ if randomSample:
 exit 
 tm.toc()
 (to_resolve,_)= tstt.findPolytomies_with_names(con_tree)
-if verbose:
-    print "Number of taxa is: " + str(n)
+acSmall = dict()
+for e in to_resolve:
+    if len(to_resolve[e].keys())<6:
+        acSmall[e] = tstt.chooseAnchoresAll(to_resolve[e],num,debugFlag) 
+
 TreeList = dict()
+
+
+if verbose:
+        print "hello!"
+        print "Number of taxa is: " + str(n)
+        print "Number of polytomies is: " + str(len(to_resolve))
+        for k in to_resolve:
+            print "The size of polytomy around node "+k+" is: "+str(len(to_resolve[k].keys()))
+        print "Distance method is: "+ am
+        print "Averaging distances around polytomies using method: "+ met
+        print "The number of anchores are: "+str(len(ac))
+exit 
 for anch in ac:
-    tm.tic()
+    if verbose:
+        tm.tic()
     anch = sorted(list(anch))
     print anch
     con_tree_tmp = con_tree.clone(2)
@@ -116,7 +129,8 @@ for anch in ac:
     if verbose:
         print "computing the distance table, anchoring seperately"
         tm.tic()
-        [D,frq]=atbs.findAnchoredDistanceTable(anch,trees,taxa,outpath)
+    [_,frq]=atbs.findAnchoredDistanceTable(anch,trees,taxa,outpath)
+    if verbose:
         tm.toc()
     skippedPoly = set()
     for e in to_resolve:
@@ -156,13 +170,48 @@ for anch in ac:
         subprocess.call([WS_LOC_FM+"/fastme", "-i",ftmp3[1],"-w","none","-o",ftmp4[1],"-I","/dev/null"],stdout=FNULL,stderr=subprocess.STDOUT)
         os.close(ftmp4[0])
         tree_tmp = dendropy.Tree.get(path=ftmp4[1],schema='newick')
-        TreeList[e].append(tree_tmp)              
-    tm.toc()
-
+        TreeList[e].append(tree_tmp)
+    if verbose:             
+        tm.toc()
+if verbose:
+    print "Start finding resolution for polytomies with degree smaller than 6"
+for e in skippedPoly:
+    i = 0
+    val = to_resolve[e]
+    (taxa_list,taxa_inv) =  tstt.getTaxaList(val)
+    for achList in acSmall[e]:
+        quartTable = dict()
+        if verbose:
+            tm.tic()
+        for anch in achList:
+            if verbose:
+                print "computing the distance table, anchoring seperately"
+            if verbose:
+                tm.tic()
+            [_,frq]=atbs.findAnchoredDistanceTable(anch,trees,taxa,outpath)
+            if verbose:
+                tm.toc()
+            tbsa.findTrueAverageTableAnchoringOnDifferentSidesSmallPolytomies(frq,quartTable,anch,taxa_list,am,met)
+        if verbose:
+            print "computing distance table using the method: "+str(am)
+        D=atbs.anchoredDistanceFromFrqSmallPolytomies(quartTable,achList)
+        keyDict = sorted(list(np.unique((" ".join(D.keys())).split(" "))))
+        fileDistance = "distancet-anchList-"+str(i)+".d"
+        ftmp3=tempfile.mkstemp(suffix='.d', prefix=fileDistance, dir=outpath, text=None)
+        pr.printDistanceTableToFile(D,keyDict,ftmp3[1])
+        os.close(ftmp3[0])
+        ftmp4=tempfile.mkstemp(suffix='.nwk', prefix=fileDistance+"_fastme_tree.nwk",dir=outpath,text=None)
+        FNULL = open(os.devnull, 'w')
+        subprocess.call([WS_LOC_FM+"/fastme", "-i",ftmp3[1],"-w","none","-o",ftmp4[1],"-I","/dev/null"],stdout=FNULL,stderr=subprocess.STDOUT)
+        os.close(ftmp4[0])
+        tree_tmp = dendropy.Tree.get(path=ftmp4[1],schema='newick')
+        TreeList[e].append(tree_tmp)
+        i += 1
+        if verbose:
+            tm.toc()
+           
 for e in con_tree.postorder_node_iter():
     if e in to_resolve_t:
-        if e.label in skippedPoly:
-            continue
         ftmp3=tempfile.mkstemp(suffix='.nwk', prefix="distancet-allTreesAroundPoly-"+e.label+".nwk", dir=outpath, text=None)
         TreeList[e.label].write(path=ftmp3[1],schema="newick",suppress_rooting=True,suppress_internal_node_labels=True)
         os.close(ftmp3[0])

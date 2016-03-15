@@ -7,6 +7,7 @@ import random
 import tempfile
 from scipy.spatial import distance
 from dendropy.calculate import treecompare
+import itertools
 def buildTree(setNodeLabels,tree,center):
     inferedTree = tree.clone(2)
     taxa = dendropy.TaxonNamespace()
@@ -408,3 +409,19 @@ def pickAnchors(taxa,to_resolve,num,debugFlag):
                 N = N - set(nodes)
                 
     return anchs
+def chooseAnchoresAll(list_taxa,num,debugFlag):
+    ac = list()
+    taxa = set(list_taxa.keys())
+    N=itertools.combinations(taxa,2)
+    for _ in range(0,num):
+        actmp = list()
+        for nodeAnchs in N:
+            a1 = random.sample(list_taxa[nodeAnchs[0]],1)
+            a2 = random.sample(list_taxa[nodeAnchs[1]],1)
+            actmp.append((a1.taxon.label,a2.taxon.label))
+        ac.append(actmp)
+    if debugFlag:
+            for actmp in ac:
+                for a in actmp:
+                    print a[0],a[1] 
+    return ac
