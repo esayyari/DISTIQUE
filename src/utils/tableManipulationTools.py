@@ -1,76 +1,16 @@
 #! /usr/bin/env python
-import sys
-import csv
-import numpy as np
-from optparse import OptionParser
 import dendropy
 import itertools
 import os
 import printTools as pr
 from scipy import stats
-from numpy import mean, sqrt, square, arange
+from numpy import mean, sqrt, square
 from  prodDistance import prodDistance
 from minDistance import minDistance
 import copy
-import toolsTreeTaxa as tstt
 import numpy as np
 import tempfile
 import random
-# def averageQuartetTables( **kwargs):
-# 	for k,v in kwargs.iteritems():
-# 		if k == 'limit':
-# 			eps = v
-# 		elif k == 'NumToStop':
-# 			numToStop = v
-# 		elif k == 'NumMax':
-# 			numMax = v
-# 		if k == 'ListTaxa':
-# 			taxa_list = v
-# 		elif k == 'QTable':
-# 			frq = v
-# 		elif k == 'QtablePath':
-# 			filename = v
-# 		elif k == 'QtableReady':
-# 			availTable = v
-# 		elif k == 'Inv':
-# 			taxa_inv = v
-# 		elif k == 'V':
-# 			verbose = v
-# 		elif k == 'workingPath':
-# 			wrkPath = v
-# 		elif k == 'treeList':
-# 			trees = v
-# 		elif k == 'KeyType':
-# 			keyType = v
-# 		elif k == "met":
-# 			keyType = v
-# 	if availTable and ('QTable' not in kwargs.keys()):
-# 		frq = readQuartetTable(filename)
-# 			
-# 	
-# 	num = 0	
-# 	for a in range(0,numMax):
-# 		origKeys = generateKey(taxa_list)
-# 		if availTable:
-# 			partialTable1= partialQuartetTable(frq,origKeys,taxa_inv)
-# 		else:
-# 			frq = findQuartetTable(trees,origKeys,keyType,wrkPath,verbose)
-# 			partialTable1= partialQuartetTable(frq,origKeys,taxa_inv)
-# 		if a>0:
-# 			partialTable1=addQuartetTables(partialTable1,quartTable)
-# 			if convergencedQuartTable(partialTable1,quartTable,eps,verbose):
-# 				quartTable = partialTable1
-# 				if num == numToStop:
-# 					print "Quartet Table converged with " + str(a)+" steps"
-# 					return quartTable
-# 				else:
-# 					num += 1
-# 			else:
-# 				num = 0
-# 		quartTable = partialTable1
-# 	print "Warning: quit averaging Quartet Tables without convergence"
-# 	print "Partial quartet table computed"
-# 	return quartTable
 
 
 def convergencedQuartTable(qTable1,qTable2,eps,verbose):
@@ -130,7 +70,7 @@ def partialQuartetTable(quartTable,origKeys,inv_taxa):
 	return pQuartTable
 def findTrueAverageTable(frq,list_taxa,method,met):
 	n = len(list_taxa)
-	print "n is: " + str(n)
+# 	print "n is: " + str(n)
 	lst_taxa = list(list_taxa.keys())
 	TotalKey = dict()
 	s = {1,2,3}
@@ -177,7 +117,7 @@ def findTrueAverageTable(frq,list_taxa,method,met):
 												prob = float(v_inv[keyt])/sz
 												if prob >=1.:
 													prob = 1. - 10.**(-10)
-											       	vt[keyt].append(-np.log(prob))
+													vt[keyt].append(-np.log(prob))
 									else:
 										vt = dict()
 										for q in v_inv:
@@ -191,7 +131,6 @@ def findTrueAverageTable(frq,list_taxa,method,met):
 													prob = 1. - 10.**(-10)
 												vt[q] = list()
 												vt[q].append(-np.log(prob))
- 
 									TotalKey[key_inv] = vt
 									
 	TotalKeyf = dict()
@@ -232,7 +171,7 @@ def distanceTable(frq,method,outfile,met):
 	
 def generateKey(taxa_list):
 	chosen = list()
-	for k, v in taxa_list.iteritems():
+	for v in taxa_list.values():
 		rt = random.sample(v,1)
 		chosen.append(rt[0])
 	allQuartetComb = itertools.combinations(chosen,4)
@@ -250,8 +189,7 @@ def readQuartetTable(gt):
 			frq[k][k2] /= sz
 	return frq
 def readTable(tmpPath):
-	frq = dict()
-	out_path = src_fpath = os.path.expanduser(os.path.expandvars(tmpPath))
+	out_path  = os.path.expanduser(os.path.expandvars(tmpPath))
 	f = open(out_path, 'r')
 	frq = dict()
 	for line in f:
@@ -270,7 +208,7 @@ def readTable(tmpPath):
 def findQuartetTable(trees,origKeys,keyType,tmpPath,verbose):
 	
 	WS_LOC_SH = os.environ['WS_HOME']+'/DISTIQUE/src/shell/'
-	out_path = src_fpath = os.path.expanduser(os.path.expandvars(tmpPath))
+	out_path  = os.path.expanduser(os.path.expandvars(tmpPath))
 	taxa = set()
 	if keyType==1:
 		for key in origKeys:	
@@ -278,7 +216,6 @@ def findQuartetTable(trees,origKeys,keyType,tmpPath,verbose):
 			taxa = taxa | set(l)
 	else:
 		taxa = origKeys
-	i = 0	
 	treeList = dendropy.TreeList()
 	for tree in trees:
 		t = copy.deepcopy(tree)
@@ -295,7 +232,6 @@ def findQuartetTable(trees,origKeys,keyType,tmpPath,verbose):
 		print "The quartet table has been computed"
 	return frq
 def findTrueAverageTableAnchoring(frq,anch,list_taxa,method):
-	n = len(list_taxa)
 	n = len(set(list_taxa)-set(anch))	
 	anch = sorted(list(anch))
 	lst_taxa = list(list_taxa.keys())

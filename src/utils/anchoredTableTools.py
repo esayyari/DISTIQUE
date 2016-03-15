@@ -4,10 +4,8 @@ import sys
 import os
 import tableManipulationTools as tbs
 import printTools as pr
-import toolsTreeTaxa as tstt
 import numpy as np
 import random
-import warnings
 import timer as tm
 from scipy import stats
 from numpy import mean, sqrt, square
@@ -37,20 +35,22 @@ def anchoredDistance(**kwargs):
     return frq
 def anchoredDistanceFromFrq(frq,achs):
     D = dict()
+    anchSet = {achs[0],achs[1]}
     for k in frq:
         kt = sorted(k.split("/"))
         if ((achs[0] in kt ) and( achs[1] in kt)):
-            s = sorted(list(set(kt)-{achs[0],achs[1]}))
+            s = sorted(list(set(kt)-anchSet))
             if len(s) == 1:
-                c0 = kt.count(achs[0])
-                c1 = kt.count(achs[1])
-                if c0 == 2:
-                    s[1] = achs[0]
-                elif c1 == 2:
-                    s[1] = achs[1]
-            elif len(s) == 0:
-                s[0] = achs[0]
-                s[1] = achs[1]
+                raise Exception(" Anchos shouldn't be in inverse keys more than onece!")
+#                 c0 = kt.count(achs[0])
+#                 c1 = kt.count(achs[1])
+#                 if c0 == 2:
+#                     s.append(achs[0])
+#                 elif c1 == 2:
+#                     s.append(achs[1])
+#             elif len(s) == 0:
+#                 s.append(achs[0])
+#                 s.append(achs[1])
             key1 = s[0]+" "+s[1]
             key2 = s[1]+" "+s[0]
             D[key1] = -np.log(frq[k])

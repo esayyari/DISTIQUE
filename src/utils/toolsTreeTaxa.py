@@ -3,12 +3,8 @@ import dendropy
 import sys
 import os
 import numpy as np
-import itertools
-from collections import defaultdict
 import random
-import subprocess
 import tempfile
-import scipy
 from scipy.spatial import distance
 from dendropy.calculate import treecompare
 def buildTree(setNodeLabels,tree,center):
@@ -39,7 +35,6 @@ def buildTree(setNodeLabels,tree,center):
     inferedTree.deroot()
     return inferedTree
 def compareRes(tree,taxa,anch,sp,outpath):
-    tns = dendropy.TaxonNamespace()
     tns = dendropy.TaxonNamespace()
     tree1 = dendropy.Tree.get_from_path(sp,"newick",taxon_namespace=tns,rooting="force-unrooted")
     tree2 = dendropy.Tree.get_from_path(tree,"newick",taxon_namespace=tns,rooting="force-unrooted")
@@ -107,7 +102,7 @@ def findPolytomies(con_tree):
                     v[e.parent_node.label] = t
             to_resolve[e] = v
         else:
-            for i in range(0,n):
+            for _ in range(0,n):
                 if len(tmp)>0:
                     tmp_set = tmp_set | set(tmp.pop())
             if e.is_leaf():
@@ -121,10 +116,8 @@ def findPolytomies(con_tree):
 
     return (to_resolve,maxPolyOrder)
 def getTaxaList(taxaDict):
-        taxa = dict()
         inv_taxa=dict()
         taxa_list=dict()
-        n = len(taxaDict)
         for key1,vals1 in taxaDict.iteritems():
                 v = list()
                 for t in vals1:
@@ -134,10 +127,10 @@ def getTaxaList(taxaDict):
                             k = t.label
                         v.append(k)
                 taxa_list[key1] = v
-    	for k, v in taxa_list.iteritems():
+        for k, v in taxa_list.iteritems():
                 for v2 in v:
                         inv_taxa[v2] = k
-		return (taxa_list,inv_taxa)
+        return (taxa_list,inv_taxa)
 def labelNodes(tree):
     i = 0
     name = list()
@@ -154,25 +147,24 @@ def resolvePolytomy(pathToTree,node,otr,verbose):
     src_fpath = os.path.expanduser(os.path.expandvars(pathToTree))
     if not os.path.exists(src_fpath):
             sys.stderr.write('Not found: "%s"' % src_fpath)
-    tlist = dendropy.TreeList()
     tlist = dendropy.TreeList.get(path=src_fpath,schema="newick")
     sp_tree = tlist[0]
     adjacent_list = set()
     dict_children=dict()
     for t in node.adjacent_nodes():
-	if t.taxon is not None:
-	        dict_children[t.taxon.label] = t
-		adjacent_list.add(t.taxon.label)
-	else:
-		dict_children[t.label] = t
-		adjacent_list.add(t.label)
+        if t.taxon is not None:
+            dict_children[t.taxon.label] = t
+            adjacent_list.add(t.taxon.label)
+        else:
+            dict_children[t.label] = t
+            adjacent_list.add(t.label)
     if node.parent_node is not None:
-	if node.parent_node.taxon is not None:
-	        label = node.parent_node.taxon.label
-	else:
-		label = node.parent_node.label
-        filter = lambda taxon: True if taxon.label==label else False
-        nd = sp_tree.find_node_with_taxon(filter)
+        if node.parent_node.taxon is not None:
+            label = node.parent_node.taxon.label
+        else:
+            label = node.parent_node.label
+        filt = lambda taxon: True if taxon.label==label else False
+        nd = sp_tree.find_node_with_taxon(filt)
         if nd is not None:
             sp_tree.reroot_at_edge(nd.edge, update_bipartitions=False)
     stack = list()
@@ -184,7 +176,7 @@ def resolvePolytomy(pathToTree,node,otr,verbose):
             tmp_next = str()
             t = node.insert_new_child(n+1)
             children = set(node.child_nodes())
-            for i in range(0,n):
+            for _ in range(0,n):
                 if len(stack)>0:
                     tmp = stack.pop()
                     if dict_children[tmp]  in children:
@@ -193,10 +185,10 @@ def resolvePolytomy(pathToTree,node,otr,verbose):
                         continue
                     t.add_child(dict_children[tmp])
                     tmp_next += tmp
-	    if t.taxon is not None:
-	            t.taxon.label = tmp_next
-	    else:
-		    t.label = tmp_next
+            if t.taxon is not None:
+                t.taxon.label = tmp_next
+            else:
+                t.label = tmp_next
             dict_children[tmp_next] = t
             stack.append(tmp_next)
         elif e.is_leaf():
@@ -253,34 +245,34 @@ def findPolytomies_with_names(con_tree):
             for c in e.child_nodes():
                 if len(tmp)>0:
                     t = tmp.pop()
-		    if c.taxon is not None:
-	                    v[c.taxon.label] = node_dict[c.taxon.label]
-		    else:
-			    v[c.label] = node_dict[c.label]
+                    if c.taxon is not None:
+                        v[c.taxon.label] = node_dict[c.taxon.label]
+                    else:
+                        v[c.label] = node_dict[c.label]
                     tmp_set = tmp_set | t
             tmp.append(tmp_set);
-	    if e.taxon is not None:
-	            node_dict[e.taxon.label] = tmp_set
-	    else:
-		    node_dict[e.label] = tmp_set
+            if e.taxon is not None:
+                node_dict[e.taxon.label] = tmp_set
+            else:
+                node_dict[e.label] = tmp_set
             if len(taxa-tmp_set)>0:
                 t = taxa-tmp_set
-		if e.parent_node.taxon is not None:
-	                v[e.parent_node.taxon.label] = t
-		else:
-			v[e.parent_node.label] = t
+                if e.parent_node.taxon is not None:
+                    v[e.parent_node.taxon.label] = t
+                else:
+                    v[e.parent_node.label] = t
 
             to_resolve[e.label] = v
         else:
-            for i in range(0,n):
+            for _ in range(0,n):
                 if len(tmp)>0:
                     tmp_set = tmp_set | set(tmp.pop())
             if e.is_leaf():
                 tmp_set.add(e)
-	    if e.taxon is not None:
-	            node_dict[e.taxon.label] = tmp_set
-	    else:
-       		    node_dict[e.label] = tmp_set
+            if e.taxon is not None:
+                node_dict[e.taxon.label] = tmp_set
+            else:
+                node_dict[e.label] = tmp_set
             tmp.append(tmp_set)
 
 
@@ -313,8 +305,6 @@ def remove_outliers(treeList,cons_thr,strategy,thr):
         for i in range(0,len(treeList)):
             D[i][i] = 0.
             for j in range(i+1,len(treeList)):
-                key1 = str(i)+" " + str(j)
-                key2 = str(j) + " " + str(i)
                 tree1 = tree[i]
                 tree2 = tree[j]
                 tree1.encode_bipartitions()
@@ -408,7 +398,7 @@ def pickAnchors(taxa,to_resolve,num,debugFlag):
                     ntmp = random.sample(S,1)
                     nodes=[Ntmp[0],ntmp[0]]
                 if debugFlag:
-                    print "the nodes we picked around polytomy "+e.label+" are: "+nodes[0]+" " +nodes[1]
+                    "the nodes we picked around polytomy "+e.label+" are: "+nodes[0]+" " +nodes[1]
                 a1 = random.sample(v[nodes[0]],1)
                 a2 = random.sample(v[nodes[1]],1)
 

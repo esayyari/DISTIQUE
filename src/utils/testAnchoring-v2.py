@@ -29,7 +29,7 @@ parser.add_option("-g","--gene",dest="gt",type="string",
 parser.add_option("-o","--output",dest="out",type="string",
         help="the PATH to write the generated files")
 parser.add_option("-t","--threshold",dest="thr",type=float,
-        help="the minimum frequency that consensus will use. Default is 0.33",default=1./3.)
+        help="the minimum frequency that consensus will use. Default is 0.5",default=0.5)
 parser.add_option("-v","--verbose",dest="verbose",
         help="Verbose",default=1)
 parser.add_option("-a","--achs",dest="a",type="string",

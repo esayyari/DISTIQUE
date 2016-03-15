@@ -56,7 +56,7 @@ if [ -s $outdir/$out ]; then
   exit 0;
 fi
 cd $outdir
-tmp=`mktemp -p $outdir mrpmaptrix.$out.XXXXX`
+tmp=`mktemp $outdir/mrpmaptrix.$out.XXXXX`
 java -jar $FASTMRP/mrp.jar $in $tmp  PHYLIP -randomize > $I 2>&1
 
 #rm -f RAxML_*$out*

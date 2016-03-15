@@ -37,7 +37,7 @@ parser.add_option("-n","--numStep",dest="num",
 parser.add_option("-e","--method",dest="am",
         help="The averaging method for finding average quartet table",default="mean")
 parser.add_option("-m",dest="met",
-        help="The method to summerize quartet results around each node, freq, or log", default="log")
+        help="The method to summerize quartet results around each node, freq, or log. Default is freq", default="freq")
 parser.add_option("-d",dest="debug",
         help = "The debug flag",default = False)
 (options,args) = parser.parse_args()
@@ -62,7 +62,6 @@ if options.filename:
     readFromFile = True
 else:
     readFromFile = False
-print readFromFile
 verbose=options.verbose
 if ( not options.gt  or not options.out):
     sys.exit("Please enter genetrees file, and output folder location")
@@ -127,22 +126,25 @@ for anch in ac:
             TreeList[e] = dendropy.TreeList()
         if verbose:
             print "computing the partial quartet table"
-        
-        quartTable = tbsa.findTrueAverageTableAnchoring(frq,anch,taxa_list,am,met)
+        for nd in taxa_list:
+            if anch[0] in taxa_list[nd]:
+                N1 = nd
+            if anch[1] in taxa_list[nd]:
+                N2 = nd
+        if N1 == N2 or len(taxa_list.keys())<6:
+            
+            if len(taxa_list.keys())<6:
+                if verbose:
+                    print "The size of polytomy around: "+e+" was less than 6, resolving it with another method!"
+                skippedPoly.add(e)
+            else:
+                if verbose:
+                    print "The anchors are not in two different clades around the polytomy "+e
+            continue
+        quartTable = tbsa.findTrueAverageTableAnchoringOnDifferentSides(frq,anch,taxa_list,N1,N2,am,met)
 
         if verbose:
             print "computing distance table using the method: "+str(am)
-        for node in taxa_list:
-            print node
-            print taxa_list[node]
-            if anch[0] in taxa_list[node]:
-                N1 = node
-            if anch[1] in taxa_list[node]:
-                N2 = node
-        if N1 == N2 or len(taxa_list.keys())-2<4:
-            if len(taxa_list.keys())-2<4:
-                skippedPoly.add(e)
-            continue
         D=atbs.anchoredDistanceFromFrq(quartTable,anch)
         keyDict = sorted(list(np.unique((" ".join(D.keys())).split(" "))))
         fileDistance = "distancet-"+str(anch[0])+"-"+str(anch[1])+".d"
@@ -163,7 +165,6 @@ for e in con_tree.postorder_node_iter():
             continue
         ftmp3=tempfile.mkstemp(suffix='.nwk', prefix="distancet-allTreesAroundPoly-"+e.label+".nwk", dir=outpath, text=None)
         TreeList[e.label].write(path=ftmp3[1],schema="newick",suppress_rooting=True,suppress_internal_node_labels=True)
-        print TreeList[e.label]
         os.close(ftmp3[0])
         ftmp4=tempfile.mkstemp(suffix='.nwk', prefix="distancet-allTreesAroundPoly_MRL_tree"+e.label+".nwk",dir=outpath,text=None)
         FNULL = open(os.devnull, 'w')
