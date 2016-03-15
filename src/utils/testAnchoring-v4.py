@@ -161,8 +161,7 @@ for e in con_tree.postorder_node_iter():
     if e in to_resolve_t:
         if e.label in skippedPoly:
             continue
-        fileDistance="distancet-"
-        ftmp3=tempfile.mkstemp(suffix='.nwk', prefix=fileDistance+"allTreesAroundPoly-"+e.label+".nwk", dir=outpath, text=None)
+        ftmp3=tempfile.mkstemp(suffix='.nwk', prefix="distancet-allTreesAroundPoly-"+e.label+".nwk", dir=outpath, text=None)
         TreeList[e.label].write(path=ftmp3[1],schema="newick",suppress_rooting=True,suppress_internal_node_labels=True)
         os.close(ftmp3[0])
         ftmp4=tempfile.mkstemp(suffix='.nwk', prefix=fileDistance+"_MRL_tree"+e.label+".nwk",dir=outpath,text=None)
