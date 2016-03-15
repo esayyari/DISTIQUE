@@ -12,6 +12,7 @@ import timer as tm
 from optparse import OptionParser
 import tableManipulationToolsAnchoring as tbsa
 import tempfile
+from compiler.ast import Node
 WS_LOC_SHELL= os.environ['WS_HOME']+'/DISTIQUE/src/shell'
 WS_LOC_FM = os.environ['WS_HOME']+'/fastme-2.1.4/src'
 
@@ -133,6 +134,8 @@ for anch in ac:
             if verbose:
                 print "computing distance table using the method: "+str(am)
             for node in taxa_list:
+                print node
+                print taxa_list[node]
                 if anch[0] in taxa_list[node]:
                     N1 = node
                 if anch[1] in taxa_list[node]:
