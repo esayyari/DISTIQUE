@@ -9,6 +9,7 @@ import random
 import subprocess
 import tempfile
 import scipy
+from scipy.spatial import distance
 from dendropy.calculate import treecompare
 def buildTree(setNodeLabels,tree,center):
     inferedTree = tree.clone(2)
@@ -214,8 +215,8 @@ def random_combination(iterable, r):
     "Random selection from itertools.combinations(iterable, r)"
     pool = tuple(iterable)
     n = len(pool)
-    indices = sorted(random.sample(xrange(n), r))
-    return tuple(pool[i] for i in indices)
+    indices = (random.sample(xrange(n), r))
+    return [pool[i] for i in indices]
 
 
 
@@ -286,7 +287,7 @@ def findPolytomies_with_names(con_tree):
     return to_resolve, maxPolyOrder
 def remove_outliers(treeList,cons_thr,strategy,thr):
     if strategy == "consensus10" or "consensus1.5":
-        con_tree = trees.consensus(min_freq=thr)
+        con_tree = treeList.consensus(min_freq=thr)
         treeList.append(con_tree)
         d = list()
         ref_tree = treeList[len(treeList)-1]
@@ -318,13 +319,13 @@ def remove_outliers(treeList,cons_thr,strategy,thr):
                 tree2 = tree[j]
                 tree1.encode_bipartitions()
                 tree2.encode_bipartitions()
-                res1 = treecomp.false_positives_and_negatives(tree1,tree2)
+                res1 = treecompare.false_positives_and_negatives(tree1,tree2)
                 D[i][j] = res1[1]
                 D[j][i] = res1[0]
         if strategy == "pairwise1":
             d = np.mean(D,1)
             C = np.cov(D)
-            v =[scipy.spatial.distance.mahalanobis(D[:,i],d,C) for i in range(0,len(treeList))]
+            v =[distance.mahalanobis(D[:,i],d,C) for i in range(0,len(treeList))]
             sortIdx = np.argsort(v,0)
             m = int(len(sortIdx)/10.)
             idx = sorted([x for x in sortIdx[len(sortIdx)-m:len(sortIdx)]],reverse=True)
@@ -377,7 +378,7 @@ def findPolytomiesNames(con_tree):
                     v[e.parent_node.label] = t
             to_resolve[e.label] = v
         else:
-            for i in range(0,n):
+            for _ in range(0,n):
                 if len(tmp)>0:
                     tmp_set = tmp_set | set(tmp.pop())
             if e.is_leaf():
@@ -390,3 +391,30 @@ def findPolytomiesNames(con_tree):
 
 
     return (to_resolve,maxPolyOrder)
+def pickAnchors(taxa,to_resolve,num,debugFlag):
+    c = num
+    anchs = list()
+    taxa = set(taxa)
+    for _ in range(0,c):
+        for e,v in to_resolve.iteritems():
+            S = set(v.keys())
+            N = set(v.keys())
+            while len(N)>0:
+                if len(N)>1:
+                    nodes=random.sample(N,2)
+                else:
+                    Ntmp = list(N)
+                    S = S - N
+                    ntmp = random.sample(S,1)
+                    nodes=[Ntmp[0],ntmp[0]]
+                if debugFlag:
+                    print "the nodes we picked around polytomy "+e.label+" are: "+nodes[0]+" " +nodes[1]
+                a1 = random.sample(v[nodes[0]],1)
+                a2 = random.sample(v[nodes[1]],1)
+
+                if debugFlag:
+                    print "the anchors for these choice of nodes are: "+a1[0].taxon.label+", and "+a2[0].taxon.label
+                anchs.append((a1[0].taxon.label,a2[0].taxon.label))
+                N = N - set(nodes)
+                
+    return anchs

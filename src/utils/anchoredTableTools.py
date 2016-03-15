@@ -163,7 +163,7 @@ def removeFromQuartetLentreesh(Q,listTaxa,anch):
 def findAnchoredDistanceTable(achs,trees,taxa,out):
     frq=findAnchoredQuartets(achs,trees,taxa,out)
     D = dict()
-    for k,v in frq.iteritems():
+    for k in frq:
         kt = sorted(k.split("/"))
         if ((achs[0] in kt ) and( achs[1] in kt)):
             s = sorted(list(set(kt)-{achs[0],achs[1]}))
@@ -229,7 +229,7 @@ def resolvePolytomy(pathToTree,node,verbose):
                         tmp_next = str()
                         t = node.insert_new_child(n+1)
                         children = set(node.child_nodes())
-                        for i in range(0,n):
+                        for _ in range(0,n):
                                 if len(stack)>0:
                                         tmp = stack.pop()
                                         if dict_children[tmp]  in children:
@@ -327,7 +327,7 @@ def findPolytomies(con_tree,taxa,anch):
                     v[e.parent_node.label] = t
             to_resolve[e] = v
         else:
-            for i in range(0,n):
+            for _ in range(0,n):
                 if len(tmp)>0:
                     tmp_set = tmp_set | set(tmp.pop())
             if e.is_leaf():
@@ -350,7 +350,6 @@ def addAnchores(con_tree,con_map):
     else:
         con_tree.seed_node.label = seedLabel
     p1 = False
-    p2 = False
     isSibiling = (par1_child == par2_child)
     nu = 0
     ach_a = set(anch)
@@ -365,7 +364,6 @@ def addAnchores(con_tree,con_map):
         p1 = True
     if (len(par2.adjacent_nodes())>0) and (not par2_is_Poly) and (not isSibiling):
         par2.insert_child(0,anch[1])
-        p2 = True
         ach_a -=  {anch[1]}
         nu += 1
         if p1 or par1_is_Poly:
@@ -387,10 +385,10 @@ def findPolytomies_with_name(con_tree,taxa,anch):
     tmp = list()
     node_dict = dict()
     anch = sorted(anch)
-    filter = lambda taxon: True if taxon.label==anch[0] else False
-    nd1 = con_tree.find_node_with_taxon(filter)
-    filter = lambda taxon: True if taxon.label==anch[1] else False
-    nd2 = con_tree.find_node_with_taxon(filter)
+    filt = lambda taxon: True if taxon.label==anch[0] else False
+    nd1 = con_tree.find_node_with_taxon(filt)
+    filt = lambda taxon: True if taxon.label==anch[1] else False
+    nd2 = con_tree.find_node_with_taxon(filt)
     par1 = nd1.parent_node
     par2 = nd2.parent_node
     isSibiling = False
@@ -443,7 +441,7 @@ def findPolytomies_with_name(con_tree,taxa,anch):
                 v[e.parent_node.taxon.label] = t
             to_resolve[e.taxon.label] = v
         else:
-            for i in range(0,n):
+            for _ in range(0,n):
                 if len(tmp)>0:
                     tmp_set = tmp_set | set(tmp.pop())
             if e.is_leaf():
@@ -585,3 +583,24 @@ def sumofLogsDistanceTable(D):
             D_Final[k2[0]+" "+k2[1]] = D[k]
             D_Final[k2[1]+" "+k2[0]] = D[k]
     return D_Final
+def mapTaxaAroundPoly(to_resolve,debugFlag):
+    mapTaxaToPolyNodes = dict()
+    mapPolyNodesToTaxa = dict()
+    for key in to_resolve:
+        v = to_resolve[key]
+        for nodes in v:
+            for taxon in v[nodes]:
+                if taxon.taxon.label in mapTaxaToPolyNodes:
+                    mapTaxaToPolyNodes[taxon.taxon.label].add(nodes)
+                else:
+                    mapTaxaToPolyNodes[taxon.taxon.label] = {nodes}
+            mapPolyNodesToTaxa[nodes] = {x.taxon.label for x in v[nodes]}
+    if debugFlag:
+        print "the mapping from taxa to Poly nodes"
+        for key in mapTaxaToPolyNodes:
+            print key+" of length: "+str(len(mapTaxaToPolyNodes[key]))+" maps to: ",mapTaxaToPolyNodes[key]
+        print "the mapping from Poly nodes to taxa"
+        for key in mapPolyNodesToTaxa:
+            print key+" of lenght: "+str(len(mapPolyNodesToTaxa[key]))+" maps to: ",mapPolyNodesToTaxa[key]
+    return [mapTaxaToPolyNodes,mapPolyNodesToTaxa]
+            

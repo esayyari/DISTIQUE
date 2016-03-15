@@ -37,10 +37,12 @@ parser.add_option("-e","--method",dest="am",
         help="The averaging method for finding average quartet table",default="mean")
 parser.add_option("-m",dest="met",
         help="The method to summerize quartet results around each node, freq, or log", default="log")
-
+parser.add_option("-d",dest="debug",
+        help = "The debug flag",default = False)
 (options,args) = parser.parse_args()
 filename = options.filename
 gt = options.gt
+debugFlag = (options.debug == "1")
 outpath = options.out
 thr = options.thr
 sp = options.sp
@@ -50,7 +52,7 @@ if (num != "all"):
     num = int(num)
 am = options.am
 if (options.a):
-    ac = sorted(options.a.split(','))
+    ac = options.a.split(',')
     ac = [(ac[i],ac[i+1])for i in range(0,len(ac)/2)]
     randomSample=False
 else:
@@ -86,12 +88,20 @@ os.close(ftmp[0])
 taxa = list()
 for e in con_tree.leaf_nodes():
     taxa.append(e.taxon.label)
-if randomSample:
-    ac = tstt.random_combination(itertools.combinations(taxa,2),num)    
 n = len(con_tree.leaf_nodes())
 if verbose:
     print "Number of taxa is: " + str(n)
+(to_resolve_t,maxPolyOrder)=tstt.findPolytomies(con_tree)
+[mapTaxaToPolyNodes,mapPolyNodesToTaxa]= atbs.mapTaxaAroundPoly(to_resolve_t,debugFlag)
+if verbose:
+    print "Maximum Polytomy size is: "+str(maxPolyOrder)
+    
 
+if randomSample:
+    ac = tstt.random_combination(itertools.combinations(taxa,2),num)
+    ac = tstt.pickAnchors(taxa,to_resolve_t,num,debugFlag)    
+
+exit 
 tm.toc()
 
 if verbose:
@@ -135,9 +145,9 @@ for anch in ac:
             tree_tmp = dendropy.Tree.get(path=ftmp4[1],schema='newick')
             TreeList[e.label].append(tree_tmp)              
     tm.toc()
-(to_resolve,maxPolyOrder)=tstt.findPolytomies(con_tree)
+
 for e in con_tree.postorder_node_iter():
-    if e in to_resolve:
+    if e in to_resolve_t:
         ftmp3=tempfile.mkstemp(suffix='.nwk', prefix=fileDistance+"allTreesAroundPoly-"+e.label+".nwk", dir=outpath, text=None)
         TreeList[e.label].write(path=ftmp3[1],schema="newick",suppress_rooting=True,suppress_internal_node_labels=True)
         os.close(ftmp3[0])
