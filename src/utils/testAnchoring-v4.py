@@ -113,7 +113,6 @@ for anch in ac:
     anch = sorted(list(anch))
     print anch
     con_tree_tmp = con_tree.clone(2)
-    (to_resolve,maxPolyOrder,con_map) = atbs.findPolytomies(con_tree_tmp,taxa,anch)
         
     if verbose:
         print "computing the distance table, anchoring seperately"
