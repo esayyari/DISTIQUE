@@ -282,7 +282,7 @@ def findTrueAverageTableAnchoringOnDifferentSides(frq,anch,list_taxa,N1,N2,metho
                 vtt = (sqrt(mean(square(v2))))
         TotalKeyf[q] = vtt
     return TotalKeyf
-def findTrueAverageTableAnchoringOnDifferentSidesSmallPolytomies(frq,quartTable,anch,list_taxa,am,met):
+def findTrueAverageTableAnchoringOnDifferentSidesSmallPolytomies(frq,quartTable,anch,list_taxa,method,met):
     anch = sorted(list(anch))
     lst_taxa = list(list_taxa.keys())
     TotalKey = dict()
