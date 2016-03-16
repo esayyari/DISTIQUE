@@ -604,6 +604,30 @@ def mapTaxaAroundPoly(to_resolve,debugFlag):
             print key+" of lenght: "+str(len(mapPolyNodesToTaxa[key]))+" maps to: ",mapPolyNodesToTaxa[key]
     return [mapTaxaToPolyNodes,mapPolyNodesToTaxa]
             
-def anchoredDistanceFromFrqSmallPolytomies(quartTable,achList):
-    D = dict()
-    return D
+def anchoredDistanceFromFrqSmallPolytomies(quartTable,method,met):
+    frq = dict()
+    for key,val in quartTable.iteritems():
+        for key2,val2 in val.iteritems():
+            if met == "log":
+                if method == "gmean":
+                    vtt = np.exp(-stats.gmean(val2))
+                elif method == "mean":
+                    vtt = np.exp(-mean(val2))
+                else:
+                    vtt = np.exp(-sqrt(mean(square(val2))))
+            elif met == "freq":
+                if method == "gmean":
+                    vtt = (stats.gmean(val2))
+                elif method == "mean":
+                    vtt = (mean(val2))
+                else:
+                    vtt = (sqrt(mean(square(val2))))
+            if key in frq:
+                v = frq[key]
+                v[key2] = vtt
+                frq[key] = v
+            else:
+                v = dict()
+                v[key2] = vtt
+                frq[key] = v
+    return frq

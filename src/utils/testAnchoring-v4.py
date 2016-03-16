@@ -13,6 +13,7 @@ from optparse import OptionParser
 import tableManipulationToolsAnchoring as tbsa
 import tempfile
 from compiler.ast import Node
+import prodDistance as pd
 WS_LOC_SHELL= os.environ['WS_HOME']+'/DISTIQUE/src/shell'
 WS_LOC_FM = os.environ['WS_HOME']+'/fastme-2.1.4/src'
 
@@ -194,7 +195,8 @@ for e in skippedPoly:
             tbsa.findTrueAverageTableAnchoringOnDifferentSidesSmallPolytomies(frq,quartTable,anch,taxa_list,am,met)
         if verbose:
             print "computing distance table using the method: "+str(am)
-        D=atbs.anchoredDistanceFromFrqSmallPolytomies(quartTable,achList)
+        Frq=atbs.anchoredDistanceFromFrqSmallPolytomies(quartTable,am,met)
+        D=pd.prodDistance(Frq,met)
         keyDict = sorted(list(np.unique((" ".join(D.keys())).split(" "))))
         fileDistance = "distancet-anchList-"+str(i)+".d"
         ftmp3=tempfile.mkstemp(suffix='.d', prefix=fileDistance, dir=outpath, text=None)

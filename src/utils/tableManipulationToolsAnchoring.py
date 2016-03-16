@@ -294,6 +294,7 @@ def findTrueAverageTableAnchoringOnDifferentSidesSmallPolytomies(frq,TotalKeyf,a
         if anch[1] in v:
             N2 = k_inv
     N = {N1,N2}
+    NL = sorted(list(N))
     for i in range(0,n):
         if lst_taxa[i] in N:
             continue
@@ -332,31 +333,23 @@ def findTrueAverageTableAnchoringOnDifferentSidesSmallPolytomies(frq,TotalKeyf,a
                     TotalKey[key_inv] = vt
     for q,v2 in TotalKey.iteritems():
         l = sorted(list(q.split("/")))
-        if met == "log":
-            if method == "gmean":
-                vtt = np.exp(-stats.gmean(v2))
-            elif method == "mean":
-                vtt = np.exp(-mean(v2))
-        else:
-            vtt = np.exp(-sqrt(mean(square(v2))))
-        if met == "freq":
-            if method == "gmean":
-                vtt = (stats.gmean(v2))
-            elif method == "mean":
-                vtt = (mean(v2))
-            else:
-                vtt = (sqrt(mean(square(v2))))
+        O = sorted(list(set(l)-N))
+        if l[0] == NL[0]:
+            key = NL[1]
+        elif l[0] == O[0]:
+            key = O[1]
         if q in TotalKeyf:
             vtmp=TotalKeyf[q]
-            if l[2] in vtmp:
-                vtmp[l[2]].append(vtt)
+            if key in vtmp:
+                for x in v2:
+                    vtmp[key].append(x)
             else:
-                vtmp[l[2]] = list(vtt)
+                vtmp[key] = v2
         else:
             vtmp = dict()
-                TotalKeyf[q] = vtt
+            vtmp[key] = v2 
+            TotalKeyf[q] = vtmp
     return TotalKeyf
-    return
 def readTable(tmpPath):
     out_path  = os.path.expanduser(os.path.expandvars(tmpPath))
     f = open(out_path, 'r')

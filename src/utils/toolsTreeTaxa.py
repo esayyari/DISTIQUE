@@ -418,7 +418,7 @@ def chooseAnchoresAll(list_taxa,num,debugFlag):
         for nodeAnchs in N:
             a1 = random.sample(list_taxa[nodeAnchs[0]],1)
             a2 = random.sample(list_taxa[nodeAnchs[1]],1)
-            actmp.append((a1.taxon.label,a2.taxon.label))
+            actmp.append((a1[0].taxon.label,a2[0].taxon.label))
         ac.append(actmp)
     if debugFlag:
             for actmp in ac:
