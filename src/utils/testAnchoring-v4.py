@@ -61,6 +61,7 @@ else:
     randomSample=True
 if options.filename:
     readFromFile = True
+    frqT=tbsa.readTable(filename)
 else:
     readFromFile = False
 verbose=options.verbose
@@ -99,14 +100,14 @@ if randomSample:
     ac = tstt.random_combination(itertools.combinations(taxa,2),num)
     ac = tstt.pickAnchors(taxa,to_resolve_t,num,debugFlag)    
 
-exit 
 tm.toc()
 (to_resolve,_)= tstt.findPolytomies_with_names(con_tree)
 acSmall = dict()
 for e in to_resolve:
     if len(to_resolve[e].keys())<6:
-        acSmall[e] = tstt.chooseAnchoresAll(to_resolve[e],num,debugFlag) 
-
+        val = to_resolve[e]
+        (taxa_list,taxa_inv) =  tstt.getTaxaList(val)
+        acSmall[e] = tstt.chooseAnchoresAll(taxa_list,num,debugFlag) 
 TreeList = dict()
 
 
@@ -119,7 +120,7 @@ if verbose:
         print "Distance method is: "+ am
         print "Averaging distances around polytomies using method: "+ met
         print "The number of anchores are: "+str(len(ac))
-exit 
+ 
 for anch in ac:
     if verbose:
         tm.tic()
@@ -130,7 +131,10 @@ for anch in ac:
     if verbose:
         print "computing the distance table, anchoring seperately"
         tm.tic()
-    [_,frq]=atbs.findAnchoredDistanceTable(anch,trees,taxa,outpath)
+    if not readFromFile:
+        [_, frq] = atbs.findAnchoredDistanceTable(anch, trees, taxa, outpath)
+    else:
+        frq = atbs.findAnchoredDistanceTableFromFile(anch,frqT,taxa,outpath)
     if verbose:
         tm.toc()
     skippedPoly = set()
@@ -177,11 +181,15 @@ for anch in ac:
 if verbose:
     print "Start finding resolution for polytomies with degree smaller than 6"
 for e in skippedPoly:
+    print "changing polytomy!"
+    print e
     i = 0
     val = to_resolve[e]
     (taxa_list,taxa_inv) =  tstt.getTaxaList(val)
     for achList in acSmall[e]:
         quartTable = dict()
+        D = dict()
+        Frq = dict()
         if verbose:
             tm.tic()
         for anch in achList:
@@ -189,7 +197,10 @@ for e in skippedPoly:
                 print "computing the distance table, anchoring seperately"
             if verbose:
                 tm.tic()
-            [_,frq]=atbs.findAnchoredDistanceTable(anch,trees,taxa,outpath)
+            if not readFromFile:
+                [_, frq] = atbs.findAnchoredDistanceTable(anch, trees, taxa, outpath)
+            else:
+                frq = atbs.findAnchoredDistanceTableFromFile(anch,frqT,taxa,outpath)
             if verbose:
                 tm.toc()
             tbsa.findTrueAverageTableAnchoringOnDifferentSidesSmallPolytomies(frq,quartTable,anch,taxa_list,am,met)
@@ -209,9 +220,10 @@ for e in skippedPoly:
         tree_tmp = dendropy.Tree.get(path=ftmp4[1],schema='newick')
         TreeList[e].append(tree_tmp)
         i += 1
+        print i
+        print "going to next round!"
         if verbose:
             tm.toc()
-           
 for e in con_tree.postorder_node_iter():
     if e in to_resolve_t:
         ftmp3=tempfile.mkstemp(suffix='.nwk', prefix="distancet-allTreesAroundPoly-"+e.label+".nwk", dir=outpath, text=None)

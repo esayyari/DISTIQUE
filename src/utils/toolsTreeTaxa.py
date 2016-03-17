@@ -412,16 +412,24 @@ def pickAnchors(taxa,to_resolve,num,debugFlag):
 def chooseAnchoresAll(list_taxa,num,debugFlag):
     ac = list()
     taxa = set(list_taxa.keys())
-    N=itertools.combinations(taxa,2)
     for _ in range(0,num):
         actmp = list()
+        N=itertools.combinations(taxa,2)
         for nodeAnchs in N:
-            a1 = random.sample(list_taxa[nodeAnchs[0]],1)
-            a2 = random.sample(list_taxa[nodeAnchs[1]],1)
-            actmp.append((a1[0].taxon.label,a2[0].taxon.label))
+            if len(list_taxa[nodeAnchs[0]]) == 1:
+                a1 = list(list_taxa[nodeAnchs[0]])
+            else:
+                a1 = random.sample(list_taxa[nodeAnchs[0]],1)
+            if len(list_taxa[nodeAnchs[1]]) == 1:
+                a2 = list(list_taxa[nodeAnchs[1]])
+            else:
+                a2 = random.sample(list_taxa[nodeAnchs[1]],1)
+            actmp.append((a1[0],a2[0]))
         ac.append(actmp)
     if debugFlag:
-            for actmp in ac:
-                for a in actmp:
-                    print a[0],a[1] 
+        for actmp in ac:
+            print "printing another list!"
+            for a in actmp:
+                print "printing taxa in list"
+                print a 
     return ac
