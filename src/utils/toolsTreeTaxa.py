@@ -306,7 +306,7 @@ def remove_outliers(treeList,strategy,thr):
             sortIdx = np.argsort(d,0)
             print len(sortIdx)
             print sortIdx
-            m = int(len(sortIdx)/10.)
+            m = int(len(sortIdx)/5.)
             print "deleting "+str(m)+" of the trees"
             idx = sorted([x for x in sortIdx[len(sortIdx)-m:len(sortIdx)]],reverse=True)
             print idx
