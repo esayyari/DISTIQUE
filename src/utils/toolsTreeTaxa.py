@@ -278,29 +278,42 @@ def findPolytomies_with_names(con_tree):
 
 
     return to_resolve, maxPolyOrder
-def remove_outliers(treeList,cons_thr,strategy,thr):
-    if strategy == "consensus10" or "consensus1.5":
-        con_tree = treeList.consensus(min_freq=thr)
-        treeList.append(con_tree)
+def remove_outliers(treeList,strategy,thr):
+    if len(treeList)<10:
+        print "number of trees is "+str(len(treeList))+". This is not enough for outlier removal!"
+        return treeList
+    if strategy == "consensus10" or "consensus3":
+        ref_tree = treeList.consensus(min_freq=thr)
+        treeList.append(ref_tree)
         d = list()
-        ref_tree = treeList[len(treeList)-1]
+        
         for tree in treeList:
             tree.encode_bipartitions()
             ref_tree.encode_bipartitions()
             res = treecompare.false_positives_and_negatives(ref_tree,tree)
             d.append(res[1])
-        if strategy == "consensus1.5":
+        if strategy == "consensus3":
             mean = np.mean(d)
+            print "the mean distance to consensus tree was: "+str(mean)
             st = np.std(d)
+            print "the std of distances to consensus tree was: "+str(st)
             for i in range(len(d)-1,0,-1):
-                if d[i] < mean - 1.5*st or d[i] > mean + 1.5*st:
+                if d[i] > mean + 2*st:
+                    print "deleting "+str(i)+"th tree!"
+                    print "d[i] to delete: "+str(d[i])
                     del treeList[i]
         else:
             sortIdx = np.argsort(d,0)
+            print len(sortIdx)
+            print sortIdx
             m = int(len(sortIdx)/10.)
+            print "deleting "+str(m)+" of the trees"
             idx = sorted([x for x in sortIdx[len(sortIdx)-m:len(sortIdx)]],reverse=True)
+            print idx
+            print d
             for i in idx:
-                del treeList[idx[i]]
+                print "deleting the tree "+str(i)+"the. The distance to consensus tree was: "+str(d[i])
+                del treeList[i]
     elif strategy == "pairwise1" or "pariwise2":
         D = np.ndarray(len(treeList),len(treeList))
         for i in range(0,len(treeList)):

@@ -41,15 +41,22 @@ parser.add_option("-m",dest="met",
         help="The method to summerize quartet results around each node, freq, or log. Default is freq", default="freq")
 parser.add_option("-d",dest="debug",
         help = "The debug flag",default = False)
+parser.add_option("-r",dest="outlier",
+        help = "The strategy for outlier removal, consensus10, or consensus3", default="consensus3")
 (options,args) = parser.parse_args()
 filename = options.filename
 gt = options.gt
 debugFlag = (options.debug == "1")
 outpath = options.out
-thr = options.thr
+thr = float(options.thr)
 sp = options.sp
 num = options.num
 met = options.met
+strategy = options.outlier
+if strategy is not None:
+    removeOutliers = True
+else:
+    removeOutliers = False
 if (num != "all"):
     num = int(num)
 am = options.am
@@ -94,7 +101,6 @@ n = len(con_tree.leaf_nodes())
 (to_resolve_t,maxPolyOrder)=tstt.findPolytomies(con_tree)
 [mapTaxaToPolyNodes,mapPolyNodesToTaxa]= atbs.mapTaxaAroundPoly(to_resolve_t,debugFlag)
 
-    
 
 if randomSample:
     ac = tstt.random_combination(itertools.combinations(taxa,2),num)
@@ -161,7 +167,6 @@ for anch in ac:
                     print "The anchors are not in two different clades around the polytomy "+e
             continue
         quartTable = tbsa.findTrueAverageTableAnchoringOnDifferentSides(frq,anch,taxa_list,N1,N2,am,met)
-
         if verbose:
             print "computing distance table using the method: "+str(am)
         D=atbs.anchoredDistanceFromFrq(quartTable,anch)
@@ -174,10 +179,11 @@ for anch in ac:
         FNULL = open(os.devnull, 'w')
         subprocess.call([WS_LOC_FM+"/fastme", "-i",ftmp3[1],"-w","none","-o",ftmp4[1],"-I","/dev/null"],stdout=FNULL,stderr=subprocess.STDOUT)
         os.close(ftmp4[0])
-        tree_tmp = dendropy.Tree.get(path=ftmp4[1],schema='newick')
+        tree_tmp = dendropy.Tree.get(path=ftmp4[1],schema='newick',rooting="force-unrooted")
         TreeList[e].append(tree_tmp)
     if verbose:             
         tm.toc()
+
 if verbose:
     print "Start finding resolution for polytomies with degree smaller than 6"
 for e in skippedPoly:
@@ -224,6 +230,10 @@ for e in skippedPoly:
         print "going to next round!"
         if verbose:
             tm.toc()
+for e in TreeList:
+    print "removeing outliers"
+    if removeOutliers:
+        tstt.remove_outliers(TreeList[e],strategy,0.1)
 for e in con_tree.postorder_node_iter():
     if e in to_resolve_t:
         ftmp3=tempfile.mkstemp(suffix='.nwk', prefix="distancet-allTreesAroundPoly-"+e.label+".nwk", dir=outpath, text=None)

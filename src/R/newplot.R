@@ -5,7 +5,7 @@ c<-d$V4 %in% c("0.2X")
 b<-d$V1 %in% c("mammalian")
 g<-d$V5 %in% c(200)
 h<-d$V6 %in% c("500bp","True gene trees")
-e<-d$V2 %in% c("distique-2-prod","mrl-all","anchores-all","anchores-mrl-5-freq","anchores-mrl-10-freq","anchores-mrl-20-freq","anchores-mrl-40-freq","anchores-mrl-100-freq","anchores-mrl-5-log","anchores-mrl-10-log","anchores-mrl-20-log","anchores-mrl-40-log","anchores-mrl-100-log")
+e<-d$V2 %in% c("distique-2-prod","distique-anchoring-log","distique-anchoring-freq")
 #e<-d$V2 %in% c("distique-2-prod","distique-2-log","astral")
 
 f<-d$V2 %in% c("distique-2-prod","distique-2-min","prod_fm-fastme")
@@ -14,47 +14,35 @@ j<-d$V4 %in% c("1X")
 l<-d$V2 %in% c("distique-2-prod","distique-2-min","prod_fm-fastme","distique-cons-prod","distique-cons-min")
 m<-d$V5 %in% c(1000)
 n<-d$V6 %in% c("500bp","True gene trees")
-o<-d$V2 %in% c("distique-2-prod","mrl-all","anchores-all","anchores-mrl-5-log","anchores-mrl-10-log","anchores-mrl-20-log","anchores-mrl-40-log","anchores-mrl-100-log","anchores-mrl-5-freq","anchores-mrl-10-freq","anchores-mrl-20-freq","anchores-mrl-40-freq","anchores-mrl-100-freq")
+o<-d$V2 %in% c("distique-2-prod","distique-anchoring-log","distique-anchoring-freq")
 #o<-d$V2 %in% c("distique-2-prod","distique-2-log","astral")
 
 p<-d$V2 %in% c("distique-2-prod","distique-2-min","prod_fm-fastme")
 
-qplot(V4,V8,data=d[e & b & g & h & d$V2 %in% 
-                     c("anchores-mrl-20-log","anchores-mrl-20-freq","anchores-mrl-100-log","anchores-mrl-100-freq"
-                       ,"distique-2-prod"),],color=V2,group = V2,geom=c("line"),fun.y=mean,stat='summary')+
-  facet_grid(.~V6)+theme_bw()+theme(legend.position="right")+xlab("Number of genes")+ylab("FN rates")+
+qplot(V4,V8,data=d[e & b & g & h ,],color=V2,group = V2,geom=c("line"),fun.y=mean,stat='summary')+
+  facet_grid(.~V6)+theme_bw()+theme(legend.position="bottom")+xlab("Number of genes")+ylab("FN rates")+
   stat_summary(geom="errorbar",fun.ymin=function(x) {mean(x)-sd(x)/sqrt(length(x))},
                fun.ymax = function(x) {mean(x)+sd(x)/sqrt(length(x))},width=0.05)+
-  scale_color_brewer(name="",palette = "Set2",
-                     labels=c("anchors (100 Samp.) MRL log of sum","anchors (100 Samp.) MRL sum of log",
-                              "anchors (20 Samp.) MRL log of sum","anchors (20 Samp.) MRL sum of log",
-                              "DISTIQUE (O(n^4) sum of distance matrices)"))
+  scale_color_brewer(name="",palette = "Set2",labels=c("DISTIQUE (O(n^4) sum of distance matrices)","DISTIQUE-anchoring (log of sums)","DISTIQUE-anchoring (sum of logs)"))
 
-ggsave('Mammalian-200-genes-ILS-Vs-FNrate-Distique-Vs-Other-reg-vs-log-anchors-20-100.pdf',width=9.5,height=4)
+ggsave('Mammalian-200-genes-ILS-Vs-FNrate-Distique-Vs-Other-reg-vs-log1.pdf',width=9.5,height=5.5)
 
-qplot(V5,V8,data=d[e & b & c & d$V2 %in% c("anchores-mrl-20-log",
-                                           "anchores-mrl-20-freq","anchores-mrl-100-log",
-                                           "anchores-mrl-100-freq","distique-2-prod"),],
+qplot(V5,V8,data=d[e & b & c,],
       color=V2,group = V2,geom=c("point","line"),fun.y=mean,stat='summary')+facet_grid(.~V6)+
-  theme_bw()+theme(legend.position="right")+xlab("Number of genes")+ylab("FN rates")+
+  theme_bw()+theme(legend.position="bottom")+xlab("Number of genes")+ylab("FN rates")+
   stat_summary(geom="errorbar",fun.ymin=function(x) {mean(x)-sd(x)/sqrt(length(x))},
                fun.ymax = function(x) {mean(x)+sd(x)/sqrt(length(x))},width=10)+
   scale_color_brewer(name="",palette = "Set2",
-                     labels=c("anchors (100 Samp.) MRL log of sum","anchors (100 Samp.) MRL sum of log",
-                              "anchors (20 Samp.) MRL log of sum","anchors (20 Samp.) MRL sum of log",
-                              "DISTIQUE (O(n^4) sum of distance matrices)"))
+                     labels=c("DISTIQUE (O(n^4) sum of distance matrices)","DISTIQUE-anchoring (log of sums)","DISTIQUE-anchoring (sum of logs)"))
 
-ggsave('Mammalian-0.2ILS-genetreesVSFNrates-Distique-Vs-others-reg-vs-log-20-100.pdf',width=9.5,height=4)
+ggsave('Mammalian-0.2ILS-genetreesVSFNrates-Distique-Vs-others-reg-vs-log1.pdf',width=9.5,height=5.5)
 
-qplot(V4,V8,data=d[e & b & g & h & d$V2 %in% 
-                     c("anchores-all","anchores-mrl-20-log","anchores-mrl-20-freq"
-                       ,"distique-2-prod"),],color=V2,group = V2,geom=c("line"),fun.y=mean,stat='summary')+
+qplot(V4,V8,data=d[e & b & g & h ,],color=V2,group = V2,geom=c("line"),fun.y=mean,stat='summary')+
   facet_grid(.~V6)+theme_bw()+theme(legend.position="bottom")+xlab("Number of genes")+ylab("FN rates")+
   stat_summary(geom="errorbar",fun.ymin=function(x) {mean(x)-sd(x)/sqrt(length(x))},
                fun.ymax = function(x) {mean(x)+sd(x)/sqrt(length(x))},width=0.05)+
   scale_color_brewer(name="",palette = "Set2",
-                     labels=c("anchors (O(n^2) of samples), sum of log","anchors (20 Samp.) MRL log of sum","anchors (20 Samp.) MRL sum of log",
-                              "DISTIQUE (O(n^4) sum of distance matrices)"))
+                     labels=c("DISTIQUE (O(n^4) sum of distance matrices)","DISTIQUE-anchoring (log of sums)","DISTIQUE-anchoring (sum of logs)"))
 
 ggsave('Mammalian-200-genes-ILS-Vs-FNrate-Distique-Vs-Other-reg-vs-log-anchors-20.pdf',height=8)
 
@@ -73,35 +61,26 @@ ggsave('Mammalian-0.2ILS-genetreesVSFNrates-Distique-Vs-others-reg-vs-log-20.pdf
 
 
 
-qplot(V5,V8,data=d[j & i & o & n & d$V2 %in% c("anchores-mrl-100-log","anchores-mrl-100-freq",
-                                               "anchores-mrl-20-log","anchores-mrl-20-freq",
-                                               "distique-2-prod"),],color=V2,group = V2,
+qplot(V5,V8,data=d[j & i & o & n ,],color=V2,group = V2,
       geom=c("point","line"),fun.y=mean,stat='summary')+facet_grid(.~V6)+theme_bw()+
-  theme(legend.position="right")+xlab("Number of genes")+ylab("FN rates")+
+  theme(legend.position="bottom")+xlab("Number of genes")+ylab("FN rates")+
   stat_summary(geom="errorbar",fun.ymin=function(x) 
     {mean(x)-sd(x)/sqrt(length(x))},fun.ymax = function(x) {mean(x)+sd(x)/sqrt(length(x))},width=10)+
 scale_color_brewer(name="",palette = "Set2",
-                   labels=c("anchors (100 Samp.) MRL log of sum","anchors (100 Samp.) MRL sum of log",
-                            "anchors (20 Samp.) MRL log of sum","anchors (20 Samp.) MRL sum of log",
-                            "DISTIQUE (O(n^4) sum of distance matrices)"))
+                   labels=c("DISTIQUE (O(n^4) sum of distance matrices)","DISTIQUE-anchoring (log of sums)","DISTIQUE-anchoring (sum of logs)"))
 
-ggsave('Avian-1ILS-genes-ILSVsFNrate-Distique-Vs-Other-reg-vs-log-100-20.pdf',width=9.5,height=4.)
+ggsave('Avian-1ILS-genes-ILSVsFNrate-Distique-Vs-Other-reg-vs-log1.pdf',width=9.5,height=5.5)
 
 
-qplot(V4,V8,data=d[o & m & i & n & d$V2 %in% 
-                     c("anchores-mrl-100-log","anchores-mrl-100-freq",
-                       "anchores-mrl-20-log","anchores-mrl-20-freq",
-                       "distique-2-prod"),],
+qplot(V4,V8,data=d[o & m & i & n,],
       color=V2,group = V2,geom=c("line"),fun.y=mean,stat='summary')+facet_grid(.~V6)+theme_bw()+
-  theme(legend.position="right")+xlab("Number of genes")+ylab("FN rates")+
+  theme(legend.position="bottom")+xlab("Number of genes")+ylab("FN rates")+
   stat_summary(geom="errorbar",fun.ymin=function(x) {mean(x)-sd(x)/sqrt(length(x))},
                fun.ymax = function(x) {mean(x)+sd(x)/sqrt(length(x))},width=0.05)+
 scale_color_brewer(name="",palette = "Set2",
-                   labels=c("anchors (100 Samp.) MRL log of sum","anchors (100 Samp.) MRL sum of log",
-                            "anchors (20 Samp.) MRL log of sum","anchors (20 Samp.) MRL sum of log",
-                            "DISTIQUE (O(n^4) sum of distance matrices)"))
+                   labels=c("DISTIQUE (O(n^4) sum of distance matrices)","DISTIQUE-anchoring (log of sums)","DISTIQUE-anchoring (sum of logs)"))
 
-ggsave('Avian-1000-genetreesVSFNrates-Distique-Vs-Other-reg-vs-log-20-100.pdf',width=9.5,height=4)
+ggsave('Avian-1000-genetreesVSFNrates-Distique-Vs-Other-reg-vs-log1.pdf',width=9.5,height=5.5)
 
 
 
