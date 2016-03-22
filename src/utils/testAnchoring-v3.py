@@ -101,58 +101,133 @@ for e in con_tree.leaf_nodes():
 notEnoughSample = True
 skippedPoly = set()
 (to_resolve, _) = tstt.findPolytomies(con_tree)
-while(notEnoughSample):
-    if randomSample:
-        ac = tstt.random_combination(itertools.combinations(taxa,2),num)
-        ac = tstt.pickAnchors(taxa,to_resolve,num,debugFlag)
-    n = len(con_tree.leaf_nodes())
-    
 
-    distance_tables = dict()            
-    if verbose:
-        print "hello!"
-        print "Number of taxa is: " + str(n)
-        print "Number of polytomies is: " + str(len(to_resolve))
-        for k in to_resolve:
-            print "The size of polytomy around node "+k.label+" is: "+str(len(to_resolve[k].keys()))
-        print "Filling method is: " + fillmethod
-        print "Distance method is: "+ method
-        print "Averaging distances around polytomies using method: "+ met
-        print "The number of anchores are: "+str(len(ac))
-    count_distance_table = dict()
-    for anch in ac:
-        tm.tic()
+acSmall = dict()
+(to_resolvettt,_)= tstt.findPolytomies_with_names(con_tree)
 
-        anch = sorted(list(anch))
-        anch_temp = "/".join(anch)
-        print anch
-        print "time elapsing  for counting number of quartets for this anchors is: "
-        tm.tic()
-        if not readFromFile:
-            [_, frq] = atbs.findAnchoredDistanceTable(anch, trees, taxa, outpath)
+for e in to_resolvettt:
+    if len(to_resolvettt[e].keys())<6:
+        val = to_resolvettt[e]
+        (taxa_list,taxa_inv) =  tstt.getTaxaList(val)
+        acSmall[e] = tstt.chooseAnchoresAll(taxa_list,num,debugFlag) 
+        print acSmall[e]
+if randomSample:
+    ac = tstt.random_combination(itertools.combinations(taxa,2),num)
+    ac = tstt.pickAnchors(taxa,to_resolve,num,debugFlag)
+n = len(con_tree.leaf_nodes())
+
+
+distance_tables = dict()            
+if verbose:
+    print "hello!"
+    print "Number of taxa is: " + str(n)
+    print "Number of polytomies is: " + str(len(to_resolve))
+    for k in to_resolve:
+        print "The size of polytomy around node "+k.label+" is: "+str(len(to_resolve[k].keys()))
+    print "Filling method is: " + fillmethod
+    print "Distance method is: "+ method
+    print "Averaging distances around polytomies using method: "+ met
+    print "The number of anchores are: "+str(len(ac))
+count_distance_table = dict()
+ToSkippN = dict()
+for anch in ac:
+    tm.tic()
+
+    anch = sorted(list(anch))
+    anch_temp = "/".join(anch)
+    print anch
+    print "time elapsing  for counting number of quartets for this anchors is: "
+    tm.tic()
+    if not readFromFile:
+        [_, frq] = atbs.findAnchoredDistanceTable(anch, trees, taxa, outpath)
+    else:
+        frq = atbs.findAnchoredDistanceTableFromFile(anch,frqT,taxa,outpath)
+    tm.toc()
+
+    for e in to_resolve:
+        val = to_resolve[e]
+        
+        
+        (taxa_list, taxa_inv) = tstt.getTaxaList(val)
+        for nd in taxa_list:
+            if anch[0] in taxa_list[nd]:
+                N1 = nd
+            if anch[1] in taxa_list[nd]:
+                N2 = nd
+        if N1 == N2 or len(taxa_list.keys())<6:
+            if len(taxa_list.keys())<6:
+                if verbose:
+                    print "The size of polytomy around: "+e.label+" was less than 6, resolving it with another method!"
+                    skippedPoly.add(e)
+                    N = {N1,N2}
+                    ToSkippN[e.label]=N
+            else:
+                if verbose:
+                    print "The anchors are not in two different clades around the polytomy "+e.label
+            continue
+        N = {N1,N2}
+        quartTable = tbsa.findTrueAverageTableAnchoringAddDistances(frq,anch,taxa_list,N,method,met)
+        if debugFlag:
+            outpath1 = outpath + "/quartTable_Main-"+anch[0]+"-"+anch[1]+"-"+e.label+".qt"
+            tD.printQuartTable(frq,outpath1)
+            outpath2 = outpath + "/quartTable_Main_Processed-"+anch[0]+"-"+anch[1]+"-"+e.label+".qt"
+            tD.printQuartetTableAveraged(quartTable,outpath2)
+            outpath2 = outpath + "/listTaxa-"+e.label+".lt"
+            tD.printTaxaList(taxa_list,outpath2)
+        [Dtmp,Ctmp] = atbs.anchoredDistanceFromFrqAddDistances(quartTable,anch,taxa_list)
+        if debugFlag:
+            outpath2 = outpath +"/DistanceTable-"+anch[0]+"-"+anch[1]+"-"+e.label+".dt"
+            outpath3 = outpath +"/CountTable-"+anch[0]+"-"+anch[1]+"-"+e.label+".ct"
+            tD.printDistanceTable(Dtmp,Ctmp,outpath2,outpath3)
+        atbs.fillEmptyElementsDistanceTable(Dtmp,Ctmp,fillmethod)
+        if debugFlag:
+            outpath3 = outpath +"/FilledCountTable-"+anch[0]+"-"+anch[1]+"-"+e.label+".fct"
+            outpath2 = outpath+"/FilledDistanceTable-"+anch[0]+"-"+anch[1]+"-"+e.label+".fdt"
+            tD.printDistanceTable(Dtmp,Ctmp,outpath2,outpath3)
+        if e.label in distance_tables:
+            atbs.addDistanceAnchores(distance_tables[e.label],Dtmp,count_distance_table[e.label],Ctmp,fillmethod)
         else:
-            frq = atbs.findAnchoredDistanceTableFromFile(anch,frqT,taxa,outpath)
-        tm.toc()
+            if fillmethod == "normConst":
+                Dmax = max(np.abs(Dtmp.values()))*1.
+                if Dmax == 0:
+                    Dmax = 1.
+                for kttDtmp in Dtmp:
+                    Dtmp[kttDtmp] = Dtmp[kttDtmp]/Dmax
+                distance_tables[e.label] = Dtmp
+                count_distance_table[e.label] = Ctmp
+            else:
+                distance_tables[e.label] = Dtmp
+                count_distance_table[e.label] = Ctmp
+    print "Computing distance table using anchors "+anch[0]+" and "+anch[1]+" has been finished!"
+    tm.toc()
 
-        for e in to_resolve:
-            val = to_resolve[e]
-            
-            
-            (taxa_list, taxa_inv) = tstt.getTaxaList(val)
+for e in skippedPoly:
+    print "changing polytomy!"
+    print e
+    i = 0
+    val = to_resolve[e]
+    (taxa_list,taxa_inv) =  tstt.getTaxaList(val)
+    for achList in acSmall[e.label]:
+        if verbose:
+            tm.tic()
+        for anch in achList:
+            anch = sorted(list(anch))
+            anch_temp = "/".join(anch)
+            if verbose:
+                print anch
+                print "time elapsing  for counting number of quartets for this anchors is: "
+                tm.tic()
+            if not readFromFile:
+                [_, frq] = atbs.findAnchoredDistanceTable(anch, trees, taxa, outpath)
+            else:
+                frq = atbs.findAnchoredDistanceTableFromFile(anch,frqT,taxa,outpath)
+            if verbose:
+                tm.toc()
             for nd in taxa_list:
                 if anch[0] in taxa_list[nd]:
                     N1 = nd
                 if anch[1] in taxa_list[nd]:
-                    N2 = nd
-            if N1 == N2 or len(taxa_list.keys())<6:
-                if len(taxa_list.keys())<6:
-                    if verbose:
-                        print "The size of polytomy around: "+e.label+" was less than 6, resolving it with another method!"
-                        skippedPoly.add(e)
-                else:
-                    if verbose:
-                        print "The anchors are not in two different clades around the polytomy "+e.label
-                continue
+                    N2 = nd    
             N = {N1,N2}
             quartTable = tbsa.findTrueAverageTableAnchoringAddDistances(frq,anch,taxa_list,N,method,met)
             if debugFlag:
@@ -187,21 +262,16 @@ while(notEnoughSample):
                     distance_tables[e.label] = Dtmp
                     count_distance_table[e.label] = Ctmp
         print "Computing distance table using anchors "+anch[0]+" and "+anch[1]+" has been finished!"
-        tm.toc()
-    if verbose:
-        print "Number of anchors is: "+str(len(ac))
-    normalizedD = distance_tables
-    normalizedC = count_distance_table
-    for e in to_resolve:
-        if e in skippedPoly:
-            continue
-        flag=atbs.normalizeDistanceTable(normalizedD[e.label],normalizedC[e.label])
-        if flag:
-             warnings.warn("One of the distances has been estimated poorly! repeating sampling anchors")
-#              break
-#     if flag:
-#         continue
-    notEnoughSample = False
+        if verbose:
+            tm.toc()
+
+if verbose:
+    print "Number of anchors is: "+str(len(ac))
+normalizedD = distance_tables
+normalizedC = count_distance_table
+for e in to_resolve:
+    flag=atbs.normalizeDistanceTable(normalizedD[e.label],normalizedC[e.label])   
+    
 fileAnch = "listAnchors"
 ftmp3=tempfile.mkstemp(suffix='.txt', prefix=fileAnch, dir=outpath, text=None)
 f = open(ftmp3[1], 'w')
@@ -209,13 +279,16 @@ for anch in ac:
     anch = sorted(list(anch))
     anch_temp = "|".join(anch)
     print >> f, anch_temp
+for achList in acSmall:
+    for anch in achList:
+        anch = sorted(list(anch))
+        anch_temp = "|".join(anch)
+        print >> f, anch_temp
 f.close()
 os.close(ftmp3[0])
 
 for e in con_tree.postorder_node_iter():
         if e in to_resolve:
-            if e in skippedPoly:
-                continue
             keyDict = sorted(list(np.unique((" ".join(normalizedD[e.label].keys())).split(" "))))
             fileDistance = "distancet-"+str(e.label)+".d"
             ftmp3=tempfile.mkstemp(suffix='.d', prefix=fileDistance, dir=outpath, text=None)

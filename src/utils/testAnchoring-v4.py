@@ -42,7 +42,7 @@ parser.add_option("-m",dest="met",
 parser.add_option("-d",dest="debug",
         help = "The debug flag",default = False)
 parser.add_option("-r",dest="outlier",
-        help = "The strategy for outlier removal, consensus10, or consensus3", default="consensus3")
+        help = "The strategy for outlier removal. The options are pairwise1, pairwise2, consensus10, or consensus3. Default is None", default = None)
 (options,args) = parser.parse_args()
 filename = options.filename
 gt = options.gt
@@ -53,6 +53,7 @@ sp = options.sp
 num = options.num
 met = options.met
 strategy = options.outlier
+print strategy
 if strategy is not None:
     removeOutliers = True
 else:
@@ -115,7 +116,7 @@ for e in to_resolve:
         (taxa_list,taxa_inv) =  tstt.getTaxaList(val)
         acSmall[e] = tstt.chooseAnchoresAll(taxa_list,num,debugFlag) 
 TreeList = dict()
-
+TreeListName = dict()
 
 if verbose:
         print "hello!"
@@ -230,23 +231,19 @@ for e in skippedPoly:
         print "going to next round!"
         if verbose:
             tm.toc()
-for e in TreeList:
+if removeOutliers and verbose:
     print "removeing outliers"
+
+for e in TreeList:
     if removeOutliers:
-        tstt.remove_outliers(TreeList[e],strategy,0.1)
+        tstt.remove_outliers(TreeList[e],strategy,outpath,e)
 for e in con_tree.postorder_node_iter():
     if e in to_resolve_t:
-        ftmp3=tempfile.mkstemp(suffix='.nwk', prefix="distancet-allTreesAroundPoly-"+e.label+".nwk", dir=outpath, text=None)
-        TreeList[e.label].write(path=ftmp3[1],schema="newick",suppress_rooting=True,suppress_internal_node_labels=True)
-        os.close(ftmp3[0])
-        ftmp4=tempfile.mkstemp(suffix='.nwk', prefix="distancet-allTreesAroundPoly_MRL_tree"+e.label+".nwk",dir=outpath,text=None)
-        FNULL = open(os.devnull, 'w')
-        subprocess.call([WS_LOC_SHELL+"/MRL_AroundPoly.sh", "-i",ftmp3[1],"-o",ftmp4[1]],stdout=FNULL,stderr=subprocess.STDOUT)
-        os.close(ftmp4[0])
+        ftmp4=tstt.findMRL(TreeList[e.label],e.label,outpath)
         if verbose:
             print "starting to resolve polytomy"    
             
-        res=atbs.resolvePolytomy(ftmp4[1],e,verbose)  
+        res=atbs.resolvePolytomy(ftmp4,e,verbose)  
 tstt.prune_tree_trivial_nodes(con_tree)
 
 ftmp=tempfile.mkstemp(suffix='.nwk', prefix="distique_anchoring_tree.nwk", dir=outpath, text=None)

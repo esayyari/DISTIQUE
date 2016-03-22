@@ -5,7 +5,10 @@ c<-d$V4 %in% c("0.2X")
 b<-d$V1 %in% c("mammalian")
 g<-d$V5 %in% c(200)
 h<-d$V6 %in% c("500bp","True gene trees")
-e<-d$V2 %in% c("distique-2-prod","distique-anchoring-log","distique-anchoring-freq","distique-anchoring-freq2")
+e<-d$V2 %in% c("distique-2-prod","distique-anchoring-log","distique-anchoring-freq","distique-anchoring-freq-2",
+               "distique-anchoring-freq-4","distique-anchoring-freq-8",
+               "distique-anchoring-log-2","distique-anchoring-log-4",
+               "distique-anchoring-log-8")
 #e<-d$V2 %in% c("distique-2-prod","distique-2-log","astral")
 
 f<-d$V2 %in% c("distique-2-prod","distique-2-min","prod_fm-fastme")
@@ -14,7 +17,10 @@ j<-d$V4 %in% c("1X")
 l<-d$V2 %in% c("distique-2-prod","distique-2-min","prod_fm-fastme","distique-cons-prod","distique-cons-min")
 m<-d$V5 %in% c(1000)
 n<-d$V6 %in% c("500bp","True gene trees")
-o<-d$V2 %in% c("distique-2-prod","distique-anchoring-log","distique-anchoring-freq","distique-anchoring-freq2")
+o<-d$V2 %in% c("distique-2-prod","distique-anchoring-log","distique-anchoring-freq","distique-anchoring-freq-2",
+               "distique-anchoring-freq-4","distique-anchoring-freq-8",
+               "distique-anchoring-log-2","distique-anchoring-log-4",
+               "distique-anchoring-log-8")
 #o<-d$V2 %in% c("distique-2-prod","distique-2-log","astral")
 
 p<-d$V2 %in% c("distique-2-prod","distique-2-min","prod_fm-fastme")
@@ -28,7 +34,7 @@ qplot(V4,V8,data=d[e & b & g & h ,],color=V2,group = V2,geom=c("line"),fun.y=mea
 
 ggsave('Mammalian-200-genes-ILS-Vs-FNrate-Distique-Vs-Other-reg-vs-log2.pdf',width=14.5,height=7.5)
 
-qplot(V5,V8,data=d[e & b & c,],
+qplot(V5,V8,data=d[e & b & c & d$V2 %in% c("distique-2-prod","distique-anchoring-log","distique-anchoring-log-2","distique-anchoring-log-4","distique-anchoring-log-8"),],
       color=V2,group = V2,geom=c("point","line"),fun.y=mean,stat='summary')+facet_grid(.~V6)+
   theme_bw()+theme(legend.position="bottom")+xlab("Number of genes")+ylab("FN rates")+
   stat_summary(geom="errorbar",fun.ymin=function(x) {mean(x)-sd(x)/sqrt(length(x))},
@@ -38,7 +44,7 @@ qplot(V5,V8,data=d[e & b & c,],
 
 ggsave('Mammalian-0.2ILS-genetreesVSFNrates-Distique-Vs-others-reg-vs-log2.pdf',width=14.5,height=7.5)
 
-qplot(V4,V8,data=d[e & b & g & h ,],color=V2,group = V2,geom=c("line"),fun.y=mean,stat='summary')+
+qplot(V4,V8,data=d[e & b & g & h & d$V2 %in% c("distique-2-prod","distique-anchoring-log","distique-anchoring-log-2","distique-anchoring-log-4","distique-anchoring-log-8") ,],color=V2,group = V2,geom=c("line"),fun.y=mean,stat='summary')+
   facet_grid(.~V6)+theme_bw()+theme(legend.position="bottom")+xlab("Number of genes")+ylab("FN rates")+
   stat_summary(geom="errorbar",fun.ymin=function(x) {mean(x)-sd(x)/sqrt(length(x))},
                fun.ymax = function(x) {mean(x)+sd(x)/sqrt(length(x))},width=0.05)+

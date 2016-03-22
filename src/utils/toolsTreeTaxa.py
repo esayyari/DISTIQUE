@@ -8,6 +8,10 @@ import tempfile
 from scipy.spatial import distance
 from dendropy.calculate import treecompare
 import itertools
+from scipy.stats import mstats
+import subprocess
+WS_LOC_SHELL= os.environ['WS_HOME']+'/DISTIQUE/src/shell'
+WS_LOC_FM = os.environ['WS_HOME']+'/fastme-2.1.4/src'
 def buildTree(setNodeLabels,tree,center):
     inferedTree = tree.clone(2)
     taxa = dendropy.TaxonNamespace()
@@ -278,12 +282,14 @@ def findPolytomies_with_names(con_tree):
 
 
     return to_resolve, maxPolyOrder
-def remove_outliers(treeList,strategy,thr):
+def remove_outliers(treeList,strategy,outpath,e):
+    print "the strategy is: "+strategy
     if len(treeList)<10:
         print "number of trees is "+str(len(treeList))+". This is not enough for outlier removal!"
         return treeList
-    if strategy == "consensus10" or "consensus3":
-        ref_tree = treeList.consensus(min_freq=thr)
+    if strategy == "consensus10" or strategy == "consensus3":
+        ftmp=findMRL(treeList,e,outpath)
+        ref_tree = dendropy.Tree.get(path=ftmp,schema="newick")
         treeList.append(ref_tree)
         d = list()
         
@@ -294,11 +300,14 @@ def remove_outliers(treeList,strategy,thr):
             d.append(res[1])
         if strategy == "consensus3":
             mean = np.mean(d)
+#             mean = mstats.mode(d)
+#             mean = mean[0]
             print "the mean distance to consensus tree was: "+str(mean)
             st = np.std(d)
             print "the std of distances to consensus tree was: "+str(st)
             for i in range(len(d)-1,0,-1):
-                if d[i] > mean + 2*st:
+                k = (d[i] -mean)/st
+                if d[i] > mean + 2.*st:
                     print "deleting "+str(i)+"th tree!"
                     print "d[i] to delete: "+str(d[i])
                     del treeList[i]
@@ -314,13 +323,13 @@ def remove_outliers(treeList,strategy,thr):
             for i in idx:
                 print "deleting the tree "+str(i)+"the. The distance to consensus tree was: "+str(d[i])
                 del treeList[i]
-    elif strategy == "pairwise1" or "pariwise2":
-        D = np.ndarray(len(treeList),len(treeList))
+    elif strategy == "pairwise1" or strategy == "pairwise2" or strategy == "pairwise3":
+        D = np.ndarray(shape=(len(treeList),len(treeList)),dtype=float)
         for i in range(0,len(treeList)):
             D[i][i] = 0.
             for j in range(i+1,len(treeList)):
-                tree1 = tree[i]
-                tree2 = tree[j]
+                tree1 = treeList[i]
+                tree2 = treeList[j]
                 tree1.encode_bipartitions()
                 tree2.encode_bipartitions()
                 res1 = treecompare.false_positives_and_negatives(tree1,tree2)
@@ -328,20 +337,39 @@ def remove_outliers(treeList,strategy,thr):
                 D[j][i] = res1[0]
         if strategy == "pairwise1":
             d = np.mean(D,1)
+            
             C = np.cov(D)
             v =[distance.mahalanobis(D[:,i],d,C) for i in range(0,len(treeList))]
+            print v
             sortIdx = np.argsort(v,0)
-            m = int(len(sortIdx)/10.)
+            m = int(len(sortIdx)*0.15)
             idx = sorted([x for x in sortIdx[len(sortIdx)-m:len(sortIdx)]],reverse=True)
             for i in idx:
-                del treeList[idx[i]]
+                print "deleting the tree "+str(i)+"the. The distance to consensus tree was: "+str(v[i])
+                del treeList[i]
+        elif strategy == "pairwise3":
+            d = np.mean(D,0)
+            
+            sortIdx = np.argsort(d,0)
+            print len(sortIdx)
+            print sortIdx
+            m = int(len(sortIdx)/5.)
+            print "deleting "+str(m)+" of the trees"
+            idx = sorted([x for x in sortIdx[len(sortIdx)-m:len(sortIdx)]],reverse=True)
+            print idx
+            print d
+            for i in idx:
+                print "deleting the tree "+str(i)+"the. The distance to consensus tree was: "+str(d[i])
+                del treeList[i]
         else:
             d = np.mean(D,0)
-            mean = np.mean(D)
+            print d
+            mean = np.mean(d)
             st = np.std(d)
             idx = list()
             for k in range(len(d)-1,0,-1):
-                if d[k] < mean - 1.5*st or d[k] > mean+1.5*st:
+                if d[k] > mean+1.5*st:
+                    print "deleting the tree "+str(k)+"the. The distance to consensus tree was: "+str(d[k])
                     del treeList[k]
 
     return treeList
@@ -446,3 +474,12 @@ def chooseAnchoresAll(list_taxa,num,debugFlag):
                 print "printing taxa in list"
                 print a 
     return ac
+def findMRL(treeList,e,outpath):
+    ftmp3=tempfile.mkstemp(suffix='.nwk', prefix="distancet-allTreesAroundPoly-"+e+".nwk", dir=outpath, text=None)
+    treeList.write(path=ftmp3[1],schema="newick",suppress_rooting=True,suppress_internal_node_labels=True)
+    os.close(ftmp3[0])
+    ftmp4=tempfile.mkstemp(suffix='.nwk', prefix="distancet-allTreesAroundPoly_MRL_tree"+e+".nwk",dir=outpath,text=None)
+    FNULL = open(os.devnull, 'w')
+    subprocess.call([WS_LOC_SHELL+"/MRL_AroundPoly.sh", "-i",ftmp3[1],"-o",ftmp4[1]],stdout=FNULL,stderr=subprocess.STDOUT)
+    os.close(ftmp4[0])
+    return ftmp4[1]
