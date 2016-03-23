@@ -429,6 +429,8 @@ def pickAnchors(taxa,to_resolve,num,debugFlag):
     taxa = set(taxa)
     for _ in range(0,c):
         for e,v in to_resolve.iteritems():
+            if len(v.keys())<6:
+                continue
             S = set(v.keys())
             N = set(v.keys())
             while len(N)>0:

@@ -104,18 +104,21 @@ skippedPoly = set()
 
 acSmall = dict()
 (to_resolvettt,_)= tstt.findPolytomies_with_names(con_tree)
-
+numAnchors = 0
+ac = list()
 for e in to_resolvettt:
     if len(to_resolvettt[e].keys())<6:
         val = to_resolvettt[e]
         (taxa_list,taxa_inv) =  tstt.getTaxaList(val)
-        acSmall[e] = tstt.chooseAnchoresAll(taxa_list,num,debugFlag) 
-        print acSmall[e]
+        acSmall[e] = tstt.chooseAnchoresAll(taxa_list,num,debugFlag)
+        for acList in acSmall[e]:
+            for anch in acList:
+                ac.append(anch)
 if randomSample:
-    ac = tstt.random_combination(itertools.combinations(taxa,2),num)
     ac = tstt.pickAnchors(taxa,to_resolve,num,debugFlag)
 n = len(con_tree.leaf_nodes())
-
+ac = set(ac)
+numAnchors = len(ac)
 
 distance_tables = dict()            
 if verbose:
@@ -127,7 +130,7 @@ if verbose:
     print "Filling method is: " + fillmethod
     print "Distance method is: "+ method
     print "Averaging distances around polytomies using method: "+ met
-    print "The number of anchores are: "+str(len(ac))
+    print "The number of anchores are: "+str(numAnchors)
 count_distance_table = dict()
 ToSkippN = dict()
 for anch in ac:
