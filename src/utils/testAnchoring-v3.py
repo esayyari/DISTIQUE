@@ -105,7 +105,8 @@ skippedPoly = set()
 acSmall = dict()
 (to_resolvettt,_)= tstt.findPolytomies_with_names(con_tree)
 numAnchors = 0
-ac = list()
+if randomSample:
+    ac = tstt.pickAnchors(taxa,to_resolve,num,debugFlag)
 for e in to_resolvettt:
     if len(to_resolvettt[e].keys())<6:
         val = to_resolvettt[e]
@@ -113,44 +114,56 @@ for e in to_resolvettt:
         acSmall[e] = tstt.chooseAnchoresAll(taxa_list,num,debugFlag)
         for acList in acSmall[e]:
             for anch in acList:
+                if len(ac) == 0:
+                    continue
                 ac.append(anch)
-if randomSample:
-    act = tstt.pickAnchors(taxa,to_resolve,num,debugFlag)
-    for actt in act:
-        ac.append(actt)
+
 n = len(con_tree.leaf_nodes())
 ac = set(ac)
-numAnchors = len(ac)
+if len(ac) == 0:
+    for e in acSmall:
+        numAnchors += len(acSmall[e][0])*num 
+else:        
+    numAnchors = len(ac)
 
 distance_tables = dict()            
 if verbose:
-    print "hello!"
     print "Number of taxa is: " + str(n)
     print "Number of polytomies is: " + str(len(to_resolve))
     for k in to_resolve:
         print "The size of polytomy around node "+k.label+" is: "+str(len(to_resolve[k].keys()))
+        if len(to_resolve[k].keys())<6:
+            skippedPoly.add(k)
     print "Filling method is: " + fillmethod
     print "Distance method is: "+ method
     print "Averaging distances around polytomies using method: "+ met
     print "The number of anchores are: "+str(numAnchors)
 count_distance_table = dict()
-ToSkippN = dict()
+computedAnchors = dict()
+
 if ac is not None:
     for anch in ac:
-        tm.tic()
+        
     
         anch = sorted(list(anch))
         anch_temp = "/".join(anch)
         print anch
-        print "time elapsing  for counting number of quartets for this anchors is: "
+        print "time elapsing time for counting number of quartets for this anchors is: "
         tm.tic()
         if not readFromFile:
-            [_, frq] = atbs.findAnchoredDistanceTable(anch, trees, taxa, outpath)
+            [_, frq] = atbs.findAnchoredDistanceTable(anch, trees, taxa, outpath,debugFlag)
+            fileFrq = "frequency-"+anch[0]+"-"+anch[1]
+            ftmp1 = tempfile.mkstemp(suffix='.frq', prefix=fileFrq, dir=outpath, text=None)
+            atbs.writeFrqAnchoredOnFile(frq,ftmp1[1])
+            computedAnchors[anch_temp] = ftmp1[1]
+            os.close(ftmp1[0])
         else:
             frq = atbs.findAnchoredDistanceTableFromFile(anch,frqT,taxa,outpath)
         tm.toc()
-    
+        tm.tic()
         for e in to_resolve:
+            if e in skippedPoly:
+                continue
             val = to_resolve[e]
             
             
@@ -160,15 +173,8 @@ if ac is not None:
                     N1 = nd
                 if anch[1] in taxa_list[nd]:
                     N2 = nd
-            if N1 == N2 or len(taxa_list.keys())<6:
-                if len(taxa_list.keys())<6:
-                    if verbose:
-                        print "The size of polytomy around: "+e.label+" was less than 6, resolving it with another method!"
-                        skippedPoly.add(e)
-                        N = {N1,N2}
-                        ToSkippN[e.label]=N
-                else:
-                    if verbose:
+            if N1 == N2 :
+                if debugFlag:
                         print "The anchors are not in two different clades around the polytomy "+e.label
                 continue
             N = {N1,N2}
@@ -206,10 +212,7 @@ if ac is not None:
                     count_distance_table[e.label] = Ctmp
         print "Computing distance table using anchors "+anch[0]+" and "+anch[1]+" has been finished!"
         tm.toc()
-
 for e in skippedPoly:
-    print "changing polytomy!"
-    print e
     i = 0
     val = to_resolve[e]
     (taxa_list,taxa_inv) =  tstt.getTaxaList(val)
@@ -217,6 +220,7 @@ for e in skippedPoly:
         if verbose:
             tm.tic()
         for anch in achList:
+            
             anch = sorted(list(anch))
             anch_temp = "/".join(anch)
             if verbose:
@@ -224,7 +228,12 @@ for e in skippedPoly:
                 print "time elapsing  for counting number of quartets for this anchors is: "
                 tm.tic()
             if not readFromFile:
-                [_, frq] = atbs.findAnchoredDistanceTable(anch, trees, taxa, outpath)
+                if anch_temp in computedAnchors:
+                    print "using precomputed quartet table"
+                    fname = computedAnchors[anch_temp]
+                    frq = atbs.readFrqAnchoredOnFile(fname)
+                else:
+                    [_, frq] = atbs.findAnchoredDistanceTable(anch, trees, taxa, outpath,debugFlag)
             else:
                 frq = atbs.findAnchoredDistanceTableFromFile(anch,frqT,taxa,outpath)
             if verbose:
@@ -267,9 +276,8 @@ for e in skippedPoly:
                 else:
                     distance_tables[e.label] = Dtmp
                     count_distance_table[e.label] = Ctmp
-        print "Computing distance table using anchors "+anch[0]+" and "+anch[1]+" has been finished!"
-        if verbose:
-            tm.toc()
+        print "Computing distance table using anchors "+anch[0]+" and "+anch[1]+" has been finished! Here!"
+        tm.toc()
 
 if verbose:
     print "Number of anchors is: "+str(len(ac))

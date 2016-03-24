@@ -98,120 +98,131 @@ os.close(ftmp[0])
 taxa = list()
 for e in con_tree.leaf_nodes():
     taxa.append(e.taxon.label)
-n = len(con_tree.leaf_nodes())
-(to_resolve_t,maxPolyOrder)=tstt.findPolytomies(con_tree)
-[mapTaxaToPolyNodes,mapPolyNodesToTaxa]= atbs.mapTaxaAroundPoly(to_resolve_t,debugFlag)
+notEnoughSample = True
+skippedPoly = set()
+(to_resolve, _) = tstt.findPolytomies(con_tree)
 
-
-if randomSample:
-    ac = tstt.pickAnchors(taxa,to_resolve_t,num,debugFlag)    
-
-tm.toc()
-(to_resolve,_)= tstt.findPolytomies_with_names(con_tree)
 acSmall = dict()
-for e in to_resolve:
-    if len(to_resolve[e].keys())<6:
-        val = to_resolve[e]
+(to_resolvettt,_)= tstt.findPolytomies_with_names(con_tree)
+numAnchors = 0
+if randomSample:
+    ac = tstt.pickAnchors(taxa,to_resolve,num,debugFlag)
+for e in to_resolvettt:
+    if len(to_resolvettt[e].keys())<6:
+        val = to_resolvettt[e]
         (taxa_list,taxa_inv) =  tstt.getTaxaList(val)
         acSmall[e] = tstt.chooseAnchoresAll(taxa_list,num,debugFlag)
         for acList in acSmall[e]:
             for anch in acList:
+                if len(ac) == 0:
+                    continue
                 ac.append(anch)
-TreeList = dict()
-TreeListName = dict()
+
+n = len(con_tree.leaf_nodes())
 ac = set(ac)
+if len(ac) == 0:
+    for e in acSmall:
+        numAnchors += len(acSmall[e][0])*num 
+else:        
+    numAnchors = len(ac)
+
+distance_tables = dict()            
 if verbose:
-        print "hello!"
-        print "Number of taxa is: " + str(n)
-        print "Number of polytomies is: " + str(len(to_resolve))
-        for k in to_resolve:
-            print "The size of polytomy around node "+k+" is: "+str(len(to_resolve[k].keys()))
-        print "Distance method is: "+ am
-        print "Averaging distances around polytomies using method: "+ met
-        print "The number of anchores are: "+str(len(ac))
- 
-for anch in ac:
-    if verbose:
-        tm.tic()
-    anch = sorted(list(anch))
-    print anch
-    con_tree_tmp = con_tree.clone(2)
-        
-    if verbose:
-        print "computing the distance table, anchoring seperately"
-        tm.tic()
-    if not readFromFile:
-        [_, frq] = atbs.findAnchoredDistanceTable(anch, trees, taxa, outpath)
-    else:
-        frq = atbs.findAnchoredDistanceTableFromFile(anch,frqT,taxa,outpath)
-    if verbose:
-        tm.toc()
-    skippedPoly = set()
-    for e in to_resolve:
-        val = to_resolve[e]
-        (taxa_list,taxa_inv) =  tstt.getTaxaList(val)
-        if e not in TreeList:
-            TreeList[e] = dendropy.TreeList()
+    print "Number of taxa is: " + str(n)
+    print "Number of polytomies is: " + str(len(to_resolve))
+    for k in to_resolve:
+        print "The size of polytomy around node "+k.label+" is: "+str(len(to_resolve[k].keys()))
+        if len(to_resolve[k].keys())<6:
+            skippedPoly.add(k)
+
+    print "Averaging distances around polytomies using method: "+ met
+    print "The number of anchores are: "+str(numAnchors)
+count_distance_table = dict()
+TreeList = dict()
+computedAnchors = dict()
+if ac is not None:
+    for anch in ac:
         if verbose:
-            print "computing the partial quartet table"
-        for nd in taxa_list:
-            if anch[0] in taxa_list[nd]:
-                N1 = nd
-            if anch[1] in taxa_list[nd]:
-                N2 = nd
-        if N1 == N2 or len(taxa_list.keys())<6:
-            
-            if len(taxa_list.keys())<6:
-                if verbose:
-                    print "The size of polytomy around: "+e+" was less than 6, resolving it with another method!"
-                skippedPoly.add(e)
-            else:
-                if verbose:
-                    print "The anchors are not in two different clades around the polytomy "+e
-            continue
-        quartTable = tbsa.findTrueAverageTableAnchoringOnDifferentSides(frq,anch,taxa_list,N1,N2,am,met)
-        if verbose:
-            print "computing distance table using the method: "+str(am)
-        D=atbs.anchoredDistanceFromFrq(quartTable,anch)
-        keyDict = sorted(list(np.unique((" ".join(D.keys())).split(" "))))
-        fileDistance = "distancet-"+str(anch[0])+"-"+str(anch[1])+".d"
-        ftmp3=tempfile.mkstemp(suffix='.d', prefix=fileDistance, dir=outpath, text=None)
-        pr.printDistanceTableToFile(D,keyDict,ftmp3[1])
-        os.close(ftmp3[0])
-        ftmp4=tempfile.mkstemp(suffix='.nwk', prefix=fileDistance+"_fastme_tree.nwk",dir=outpath,text=None)
-        FNULL = open(os.devnull, 'w')
-        subprocess.call([WS_LOC_FM+"/fastme", "-i",ftmp3[1],"-w","none","-o",ftmp4[1],"-I","/dev/null"],stdout=FNULL,stderr=subprocess.STDOUT)
-        os.close(ftmp4[0])
-        tree_tmp = dendropy.Tree.get(path=ftmp4[1],schema='newick',rooting="force-unrooted")
-        TreeList[e].append(tree_tmp)
-    if verbose:             
+            tm.tic()
+        anch = sorted(list(anch))
+        anch_temp = "/".join(anch)
+        print anch
+        print "time elapsing time for counting number of quartets for this anchors is: "
+        tm.tic()
+        if not readFromFile:
+            [_, frq] = atbs.findAnchoredDistanceTable(anch, trees, taxa, outpath,debugFlag)
+            fileFrq = "frequency-"+anch[0]+"-"+anch[1]
+            ftmp1 = tempfile.mkstemp(suffix='.frq', prefix=fileFrq, dir=outpath, text=None)
+            atbs.writeFrqAnchoredOnFile(frq,ftmp1[1])
+            computedAnchors[anch_temp] = ftmp1[1]
+            os.close(ftmp1[0])
+        else:
+            frq = atbs.findAnchoredDistanceTableFromFile(anch,frqT,taxa,outpath)
         tm.toc()
+        for e in to_resolve:
+            if e in skippedPoly:
+                continue
+            val = to_resolve[e]
+            (taxa_list,taxa_inv) =  tstt.getTaxaList(val)
+            if e.label not in TreeList:
+                TreeList[e.label] = dendropy.TreeList()
+            if verbose:
+                print "computing the partial quartet table"
+            for nd in taxa_list:
+                if anch[0] in taxa_list[nd]:
+                    N1 = nd
+                if anch[1] in taxa_list[nd]:
+                    N2 = nd
+            if N1 == N2:
+                if verbose:
+                        print "The anchors are not in two different clades around the polytomy "+e.label
+                continue
+            quartTable = tbsa.findTrueAverageTableAnchoringOnDifferentSides(frq,anch,taxa_list,N1,N2,am,met)
+            if verbose:
+                print "computing distance table using the method: "+str(am)
+            D=atbs.anchoredDistanceFromFrq(quartTable,anch)
+            keyDict = sorted(list(np.unique((" ".join(D.keys())).split(" "))))
+            fileDistance = "distancet-"+str(anch[0])+"-"+str(anch[1])+".d"
+            ftmp3=tempfile.mkstemp(suffix='.d', prefix=fileDistance, dir=outpath, text=None)
+            pr.printDistanceTableToFile(D,keyDict,ftmp3[1])
+            os.close(ftmp3[0])
+            ftmp4=tempfile.mkstemp(suffix='.nwk', prefix=fileDistance+"_fastme_tree.nwk",dir=outpath,text=None)
+            FNULL = open(os.devnull, 'w')
+            subprocess.call([WS_LOC_FM+"/fastme", "-i",ftmp3[1],"-w","none","-o",ftmp4[1],"-I","/dev/null"],stdout=FNULL,stderr=subprocess.STDOUT)
+            os.close(ftmp4[0])
+            tree_tmp = dendropy.Tree.get(path=ftmp4[1],schema='newick',rooting="force-unrooted")
+            TreeList[e.label].append(tree_tmp)
+        if verbose:             
+            tm.toc()
 
 if verbose:
     print "Start finding resolution for polytomies with degree smaller than 6"
 for e in skippedPoly:
-    print "changing polytomy!"
-    print e
     i = 0
     val = to_resolve[e]
     (taxa_list,taxa_inv) =  tstt.getTaxaList(val)
-    for achList in acSmall[e]:
+    for achList in acSmall[e.label]:
         quartTable = dict()
         D = dict()
         Frq = dict()
         if verbose:
             tm.tic()
         for anch in achList:
+            anch = sorted(list(anch))
+            anch_temp = "/".join(anch)
             if verbose:
-                print "computing the distance table, anchoring seperately"
-            if verbose:
+                print anch
+                print "time elapsing  for counting number of quartets for this anchors is: "
                 tm.tic()
             if not readFromFile:
-                [_, frq] = atbs.findAnchoredDistanceTable(anch, trees, taxa, outpath)
+                if anch_temp in computedAnchors:
+                    print "using precomputed quartet table"
+                    fname = computedAnchors[anch_temp]
+                    frq = atbs.readFrqAnchoredOnFile(fname)
+                else:
+                    [_, frq] = atbs.findAnchoredDistanceTable(anch, trees, taxa, outpath,debugFlag)
             else:
                 frq = atbs.findAnchoredDistanceTableFromFile(anch,frqT,taxa,outpath)
-            if verbose:
-                tm.toc()
             tbsa.findTrueAverageTableAnchoringOnDifferentSidesSmallPolytomies(frq,quartTable,anch,taxa_list,am,met)
         if verbose:
             print "computing distance table using the method: "+str(am)
@@ -227,7 +238,11 @@ for e in skippedPoly:
         subprocess.call([WS_LOC_FM+"/fastme", "-i",ftmp3[1],"-w","none","-o",ftmp4[1],"-I","/dev/null"],stdout=FNULL,stderr=subprocess.STDOUT)
         os.close(ftmp4[0])
         tree_tmp = dendropy.Tree.get(path=ftmp4[1],schema='newick')
-        TreeList[e].append(tree_tmp)
+        if e.label in TreeList:
+            TreeList[e.label].append(tree_tmp)
+        else:
+            TreeList[e.label] = dendropy.TreeList()
+            TreeList[e.label].append(tree_tmp)
         i += 1
         print i
         print "going to next round!"
@@ -240,7 +255,7 @@ for e in TreeList:
     if removeOutliers:
         tstt.remove_outliers(TreeList[e],strategy,outpath,e)
 for e in con_tree.postorder_node_iter():
-    if e in to_resolve_t:
+    if e in to_resolve:
         ftmp4=tstt.findMRL(TreeList[e.label],e.label,outpath)
         if verbose:
             print "starting to resolve polytomy"    
