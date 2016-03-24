@@ -42,7 +42,7 @@ parser.add_option("-m",dest="met",
 parser.add_option("-d",dest="debug",
         help = "The debug flag",default = False)
 parser.add_option("-r",dest="outlier",
-        help = "The strategy for outlier removal. The options are pairwise1, pairwise2, consensus10, or consensus3. Default is None", default = consensus10)
+        help = "The strategy for outlier removal. The options are pairwise1, pairwise2, consensus10, or consensus3. Default is None", default = "consensus10")
 (options,args) = parser.parse_args()
 filename = options.filename
 gt = options.gt
