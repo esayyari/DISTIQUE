@@ -70,5 +70,5 @@ for r in `find $i -maxdepth 1 -type d -name "R*"`; do
 done
 
 y=$(echo $o | sed -e 's/^.*\///')
-tar czf $o/testAnchoring-V$v-$y.tar.gz $tmpDIR/* 
+tar czf $o/testAnchoring-V$v-$y-$n.tar.gz $tmpDIR/* 
 rm -r $tmpDIR
