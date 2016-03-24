@@ -42,7 +42,7 @@ parser.add_option("-m",dest="met",
 parser.add_option("-d",dest="debug",
         help = "The debug flag",default = False)
 parser.add_option("-r",dest="outlier",
-        help = "The strategy for outlier removal. The options are pairwise1, pairwise2, consensus10, or consensus3. Default is None", default = None)
+        help = "The strategy for outlier removal. The options are pairwise1, pairwise2, consensus10, or consensus3. Default is None", default = consensus10)
 (options,args) = parser.parse_args()
 filename = options.filename
 gt = options.gt
@@ -104,7 +104,6 @@ n = len(con_tree.leaf_nodes())
 
 
 if randomSample:
-    ac = tstt.random_combination(itertools.combinations(taxa,2),num)
     ac = tstt.pickAnchors(taxa,to_resolve_t,num,debugFlag)    
 
 tm.toc()
@@ -114,10 +113,13 @@ for e in to_resolve:
     if len(to_resolve[e].keys())<6:
         val = to_resolve[e]
         (taxa_list,taxa_inv) =  tstt.getTaxaList(val)
-        acSmall[e] = tstt.chooseAnchoresAll(taxa_list,num,debugFlag) 
+        acSmall[e] = tstt.chooseAnchoresAll(taxa_list,num,debugFlag)
+        for acList in acSmall[e]:
+            for anch in acList:
+                ac.append(anch)
 TreeList = dict()
 TreeListName = dict()
-
+ac = set(ac)
 if verbose:
         print "hello!"
         print "Number of taxa is: " + str(n)
