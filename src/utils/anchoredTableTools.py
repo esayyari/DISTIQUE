@@ -99,7 +99,7 @@ def findAnchoredQuartets(anch,trees,taxa,out,debugFlag):
                         listTaxa = ch.leaf_nodes()
                         if debugFlag:
                             print "adding quartets around this node takes (more than 2 children): "
-                        Q= addQuartets(ch, listTaxa,Q,Q2,anch,debugFlag)
+                        Q= addQuartetsAnchored(ch, listTaxa,Q,anch,debugFlag)
                         if debugFlag:
                             tm.toc()
                     for j in range(i+1,chs_n):
@@ -109,7 +109,7 @@ def findAnchoredQuartets(anch,trees,taxa,out,debugFlag):
                             if debugFlag:
                                 tm.tic()
                             listTaxatmp = [listTaxa,chs[j].leaf_nodes()]
-                            Q=removeFromQuartetLentreesh(Q,listTaxatmp,anch)
+                            Q=removeFromQuartetLentreeshAnchored(Q,listTaxatmp,anch)
                             if debugFlag:
                                 print "adding quartets around this node takes (more than 2 children): "
                                 tm.toc()
@@ -121,7 +121,7 @@ def findAnchoredQuartets(anch,trees,taxa,out,debugFlag):
                         if debugFlag:
                             tm.tic()
                         listTaxa = ch.leaf_nodes()
-                        Q= addQuartets(ch, listTaxa,Q,Q2,anch,debugFlag)
+                        Q= addQuartetsAnchored(ch, listTaxa,Q,anch,debugFlag)
                         if debugFlag:
                             print "adding quartets around this node takes (less than two children): "
                             tm.toc()
@@ -136,9 +136,9 @@ def buildEmptyQuartets(anch,taxa,n):
     taxa = list(set(taxa)-set(anch))
     Q = dict()
     for pair in chooseTaxa(taxa):
-        p1 = sorted(list(pair))
-        p2 = sorted(anch)
-        p = "/".join(sorted(p1+p2))
+        p1 = pair
+        p2 = anch
+        p = genKey(p1,p2)
         Q[p] = [0.5,n+1.5]
     return Q
 
@@ -220,6 +220,44 @@ def addQuartets( ch, listTaxa,Q,Q2,anch,debugFlag):
         print "Time to add found quartets to the dictionary: "
         tm.toc()
     return Q
+def addQuartetsAnchored( ch, listTaxa,Q,anch,debugFlag):
+    if debugFlag:
+        tm.tic()
+    pairs = findAllChildrenPairs(listTaxa)
+    if debugFlag:
+        print "Time to find all pairs: "
+        tm.toc()
+    if debugFlag:
+        tm.tic()
+        print "length of these pairs is: "+str(len(pairs))
+    for p in pairs:
+
+        if p[0]<anch[0]:
+            key = p[0]+' '+p[1]+' | '+anch[0]+' '+anch[1]
+        else:
+            key = anch[0]+' '+anch[1]+' | '+p[0]+' '+p[1]
+            
+        Q[key][0] += 1
+    if debugFlag:
+        print "Time to add found quartets to the dictionary: "
+        tm.toc()
+    return Q
+def removeFromQuartetLentreeshAnchored(Q,listTaxa,anch):
+    x = list()
+    for et in listTaxa:
+        T = list()
+        for t in et:
+            T.append(t.taxon.label)
+        x.append(T)
+    keySet=[p for p in itertools.product(*x)]
+    for pt in keySet:
+        p = sorted(list(pt))
+        if p[0]<anch[0]:
+            key = p[0]+' '+p[1]+' | '+anch[0]+' '+anch[1]
+        else:
+            key = anch[0]+' '+anch[1]+' | '+p[0]+' '+p[1] 
+        Q[key][1] -= 1
+    return Q
 def removeFromQuartetLentreesh(Q,listTaxa,anch):
     x = list()
     for et in listTaxa:
@@ -255,14 +293,22 @@ def findAnchoredQuartetsFromFile(anch,frqT,taxa,out):
     n = frqT[a[0]][b[0]][1]
     Q = buildEmptyQuartets(anch,taxa,n)
     for key in Q:
-        l = key.split("/")
+        lt = key.split("|")
+        l = list()
+        for ltt in lt:
+            L = ltt.split(" ")
+            for Lt in L:
+                l.append(Lt)
+        l = sorted(list(set(l)-{''}))
+        
         anchComp = sorted(list(set(l) - anchS))
         if l[0] in anchS:
             tq = anch[1]
         else:
             tq = anchComp[1]
-        Q[key][0] = frqT[key][tq][0]
-        Q[key][1] = frqT[key][tq][1]
+        key2 = "/".join(sorted(l))
+        Q[key][0] = frqT[key2][tq][0]
+        Q[key][1] = frqT[key2][tq][1]
     return Q
 def resolvePolytomy(pathToTree,node,verbose):
         src_fpath = os.path.expanduser(os.path.expandvars(pathToTree))
@@ -597,10 +643,14 @@ def fillEmptyElementsDistanceTable(D,C,fillmethod):
     return
 def normalizeDistanceTable(D,C):
     flag = any(C[key] == 0 or D[key]<0 for key in D)
+    Max = 1.
+    for key in D:
+        Max = np.max([D[key],Max])
     if not flag:
         for key in D:
-            D[key] += 10.
+            D[key] += 0.
             D[key] /= C[key]
+            D[key] += Max
     return flag
 
 def check_four_point(D,listTaxa):
@@ -706,12 +756,12 @@ def anchoredDistanceFromFrqSmallPolytomies(quartTable,method,met):
 def writeFrqAnchoredOnFile(Q,filename):
     f1 = open(filename,'w')
     for key in Q:
-        print >> f1,key+" "+str(Q[key][0])+" "+str(Q[key][1])
+        print >> f1,key+"$"+str(Q[key][0])+"$"+str(Q[key][1])
     return
 def readFrqAnchoredOnFile(filename):
     f1 = open(filename,'r')
     Q = dict()
     for line in f1:
-        a=line.split(" ")
+        a=line.split("$")
         Q[a[0]] = [float(a[1]),float(a[2])]
     return Q

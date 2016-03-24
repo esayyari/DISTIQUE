@@ -79,7 +79,12 @@ def findTrueAverageTableAnchoring(frq,anch,list_taxa,method,met):
         TotalKeyf[q] = vtt
     return TotalKeyf
 
-
+def genKey(p1,p2):
+    if p1[0]<p2[0]:
+            p = p1[0]+' '+p1[1]+' | '+p2[0]+' '+p2[1]
+    else:
+        p = p2[0]+' '+p2[1]+' | '+p1[0]+' '+p1[1]
+    return p
 def findTrueAverageTableAnchoringAddDistances(frq, anch, list_taxa, N,method, met):
     tm.tic()
     [TotalKeyf,_]=initializeQuartetTable( anch, list_taxa)
@@ -99,9 +104,8 @@ def findTrueAverageTableAnchoringAddDistances(frq, anch, list_taxa, N,method, me
                 for taxon_j in list_taxa[lst_taxa[j]]:
                     lab_taxon_i = taxon_i
                     lab_taxon_j = taxon_j
-                    lab_taxon_k = anch[0]
-                    lab_taxon_z = anch[1]
-                    key_orig = "/".join(sorted([lab_taxon_i, lab_taxon_j, lab_taxon_k, lab_taxon_z]))
+                    p = sorted([lab_taxon_i,lab_taxon_j])
+                    key_orig = genKey(p,anch)
                     l = sorted([lst_taxa[i], lst_taxa[j], anch[0], anch[1]])
                     key_inv = "/".join(l)
                     if key_orig in frq:
