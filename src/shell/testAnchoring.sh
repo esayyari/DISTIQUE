@@ -1,7 +1,6 @@
 #!/bin/bash
 
-#set -x
-#set -e
+set -x
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 source $DIR/setup.sh
 source $DIR/setupData.sh
@@ -18,11 +17,12 @@ EOF
 }
 n=10
 m=log
+l=const
 if [ $# -lt 1 ]; then
 	show_help
 	exit 0;
 fi  
-while getopts "hg:n:o:r:m:" opt; do
+while getopts "hg:n:o:r:m:l:" opt; do
 	case $opt in 
 	h) 
 		show_help
@@ -42,6 +42,9 @@ while getopts "hg:n:o:r:m:" opt; do
 	m)
 		m=$OPTARG
 		;;
+	l)
+		l=$OPTARG
+		;;
 	esac
 done
 out_final=`mktemp -d`
@@ -50,9 +53,9 @@ START=1
 for (( c=$START; c<=$END; c++ ))
 do
 out=`mktemp -d`
-$WS_LOC_PUTIL/testAnchoring.py -g $gt -o $out -n $nt -m $m
+$WS_LOC_PUTIL/testAnchoring-v4.py -g $gt -o $out -n $nt -m $m
 $WS_LOC_SH/mrl.sh $out
-cat $out/distance-*.nwk > $out/anchored_trees
+cat $out/distance-*.nwk* > $out/anchored_trees
 cat $out/anchored_mrl_tree.nwk >> $out/anchored_trees
 tar czvf  $out/results$nt-$c.tar.gz $out/*
 mv $out/results$nt-$c.tar.gz $out_final
