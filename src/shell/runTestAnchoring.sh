@@ -1,6 +1,6 @@
 #!/bin/bash
 DIR=$( cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-#set -x
+set -x
 show_help(){
 cat << EOF
 USAGE: ${0##*/} [-h] [-i DATA PATH] [-g QUARTET PATH] [-o OUTPATH] [-n NUMROUNDS] [-v VERSION]
