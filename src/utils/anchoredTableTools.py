@@ -55,6 +55,10 @@ def anchoredDistanceFromFrq(frq,achs):
             key2 = s[1]+" "+s[0]
             D[key1] = -np.log(frq[k])
             D[key2] = D[key1]
+    Max = max(D.values())
+    Max = max(1,Max)
+    for key in D:
+        D[key] += Max
     return D
 
 def findAnchoredQuartets(anch,trees,taxa,out,debugFlag):

@@ -306,7 +306,6 @@ def remove_outliers(treeList,strategy,outpath,e):
             st = np.std(d)
             print "the std of distances to consensus tree was: "+str(st)
             for i in range(len(d)-1,0,-1):
-                k = (d[i] -mean)/st
                 if d[i] > mean + 2.*st:
                     print "deleting "+str(i)+"th tree!"
                     print "d[i] to delete: "+str(d[i])
@@ -315,7 +314,7 @@ def remove_outliers(treeList,strategy,outpath,e):
             sortIdx = np.argsort(d,0)
             print len(sortIdx)
             print sortIdx
-            m = int(len(sortIdx)/5.)
+            m = int(len(sortIdx)/4.)
             print "deleting "+str(m)+" of the trees"
             idx = sorted([x for x in sortIdx[len(sortIdx)-m:len(sortIdx)]],reverse=True)
             print idx

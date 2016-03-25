@@ -236,11 +236,9 @@ def findTrueAverageTableAnchoringOnDifferentSides(frq,anch,list_taxa,N1,N2,metho
                 continue
             for taxon_i in list_taxa[lst_taxa[i]]:
                 for taxon_j in list_taxa[lst_taxa[j]]:
-                    lab_taxon_i = taxon_i
-                    lab_taxon_j = taxon_j
-                    lab_taxon_k = anch[0]
-                    lab_taxon_z = anch[1]
-                    key_orig = "/".join(sorted([lab_taxon_i,lab_taxon_j,lab_taxon_k,lab_taxon_z]))
+
+                    p = sorted([taxon_i,taxon_j])
+                    key_orig = genKey(p,anch)
 
                     l = sorted([lst_taxa[i],lst_taxa[j],anch[0],anch[1]])
                     key_inv = "/".join(l)
@@ -307,11 +305,8 @@ def findTrueAverageTableAnchoringOnDifferentSidesSmallPolytomies(frq,TotalKeyf,a
                 continue
             for taxon_i in list_taxa[lst_taxa[i]]:
                 for taxon_j in list_taxa[lst_taxa[j]]:
-                    lab_taxon_i = taxon_i
-                    lab_taxon_j = taxon_j
-                    lab_taxon_k = anch[0]
-                    lab_taxon_z = anch[1]
-                    key_orig = "/".join(sorted([lab_taxon_i,lab_taxon_j,lab_taxon_k,lab_taxon_z]))
+                    p=sorted([taxon_i,taxon_j])
+                    key_orig = genKey(p, anch)
 
                     l = sorted([lst_taxa[i],lst_taxa[j],N1,N2])
                     key_inv = "/".join(l)

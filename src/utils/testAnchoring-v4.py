@@ -111,7 +111,7 @@ for e in to_resolvettt:
     if len(to_resolvettt[e].keys())<6:
         val = to_resolvettt[e]
         (taxa_list,taxa_inv) =  tstt.getTaxaList(val)
-        acSmall[e] = tstt.chooseAnchoresAll(taxa_list,num,debugFlag)
+        acSmall[e] = tstt.chooseAnchoresAll(taxa_list,1,debugFlag)
         for acList in acSmall[e]:
             for anch in acList:
                 if len(ac) == 0:
@@ -227,6 +227,7 @@ for e in skippedPoly:
         if verbose:
             print "computing distance table using the method: "+str(am)
         Frq=atbs.anchoredDistanceFromFrqSmallPolytomies(quartTable,am,met)
+        print Frq
         D=pd.prodDistance(Frq,met)
         keyDict = sorted(list(np.unique((" ".join(D.keys())).split(" "))))
         fileDistance = "distancet-anchList-"+str(i)+".d"
