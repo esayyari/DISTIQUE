@@ -61,12 +61,12 @@ for r in `find $i -maxdepth 1 -type d -name "R*"`; do
 	R=$(echo $r | sed -e 's/.*\///')
 	tmptmpDIR=`mktemp -d $tmpDIR/tmp$R.XXXXXXX`
 	echo $tmptmpDIR
-	for ((C=1;C<=5;C++))
+	for ((C=1;C<=5;C++)); do
 	{
 		tmptmptmpDIR=`mktemp -d $tmptmpDIR/tmp$C.XXXXXX`
 		$WS_LOC_UTIL/testAnchoring-v$v.py -g $r/genetrees.gt -o $tmptmptmpDIR -f $q/$R/quartets.q -n $n > $tmptmptmpDIR/results.log 2>&1
 	}
-
+	done
 done
 
 y=$(echo $o | sed -e 's/^.*\///')
