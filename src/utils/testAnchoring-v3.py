@@ -125,7 +125,7 @@ if len(ac) == 0:
         numAnchors += len(acSmall[e][0])*1
 else:        
     numAnchors = len(ac)
-
+i = 0
 distance_tables = dict()            
 if verbose:
     print "Number of taxa is: " + str(n)
@@ -140,8 +140,10 @@ if verbose:
     print "The number of anchores are: "+str(numAnchors)
 count_distance_table = dict()
 computedAnchors = dict()
+count = 0
 
 if ac is not None:
+    count = 0
     for anch in ac:
         
     
@@ -211,6 +213,8 @@ if ac is not None:
                     distance_tables[e.label] = Dtmp
                     count_distance_table[e.label] = Ctmp
         print "Computing distance table using anchors "+anch[0]+" and "+anch[1]+" has been finished!"
+        print "The anchor "+str(count)+" out of "+str(len(ac))+" anchors has been finished!"
+        count += 1
         tm.toc()
 for e in skippedPoly:
     i = 0
@@ -234,6 +238,7 @@ for e in skippedPoly:
                     frq = atbs.readFrqAnchoredOnFile(fname)
                 else:
                     [_, frq] = atbs.findAnchoredDistanceTable(anch, trees, taxa, outpath,debugFlag)
+                    print frq
             else:
                 frq = atbs.findAnchoredDistanceTableFromFile(anch,frqT,taxa,outpath)
             if verbose:
@@ -277,6 +282,10 @@ for e in skippedPoly:
                     distance_tables[e.label] = Dtmp
                     count_distance_table[e.label] = Ctmp
         print "Computing distance table using anchors "+anch[0]+" and "+anch[1]+" has been finished! Here!"
+        if ac is None:
+            if verbose:
+                print "The anchor "+str(count)+" out of "+str(len(ac))+" anchors has been finished!"
+            count += 1
         tm.toc()
 
 if verbose:

@@ -98,6 +98,8 @@ os.close(ftmp[0])
 taxa = list()
 for e in con_tree.leaf_nodes():
     taxa.append(e.taxon.label)
+
+
 notEnoughSample = True
 skippedPoly = set()
 (to_resolve, _) = tstt.findPolytomies(con_tree)
@@ -140,7 +142,9 @@ if verbose:
 count_distance_table = dict()
 TreeList = dict()
 computedAnchors = dict()
+count = 0
 if ac is not None:
+    count = 0
     for anch in ac:
         if verbose:
             tm.tic()
@@ -194,6 +198,8 @@ if ac is not None:
             TreeList[e.label].append(tree_tmp)
         if verbose:             
             tm.toc()
+            print "The anchor "+str(count)+" out of "+str(len(ac))+" anchors has been finished!"
+        count += 1
 
 if verbose:
     print "Start finding resolution for polytomies with degree smaller than 6"
@@ -220,7 +226,7 @@ for e in skippedPoly:
                     fname = computedAnchors[anch_temp]
                     frq = atbs.readFrqAnchoredOnFile(fname)
                 else:
-                    [_, frq] = atbs.findAnchoredDistanceTable(anch, trees, taxa, outpath,debugFlag)
+                    [_, frq] = atbs.findAnchoredDistanceTable(anch, trees, taxa,outpath,debugFlag)
             else:
                 frq = atbs.findAnchoredDistanceTableFromFile(anch,frqT,taxa,outpath)
             tbsa.findTrueAverageTableAnchoringOnDifferentSidesSmallPolytomies(frq,quartTable,anch,taxa_list,am,met)
@@ -244,10 +250,12 @@ for e in skippedPoly:
         else:
             TreeList[e.label] = dendropy.TreeList()
             TreeList[e.label].append(tree_tmp)
-        i += 1
-        print i
-        print "going to next round!"
+        if ac is None:
+            if verbose:
+                print "The anchor "+str(count)+" out of "+str(len(ac))+" anchors has been finished!"
+            count += 1
         if verbose:
+            
             tm.toc()
 if removeOutliers and verbose:
     print "removeing outliers"
