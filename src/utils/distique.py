@@ -65,13 +65,13 @@ print "time to compute consensus is: "
 tm.tic()
 con_tree = trees.consensus(min_freq=thr)   
 tm.toc()
-tstt.labelNodes(con_tree)
 
 ftmpt=tempfile.mkstemp(suffix='.nwk', prefix="consensusTree", dir=outpath, text=None)
 con_tree.write(path=ftmpt[1],schema="newick",suppress_rooting=True)
 
 os.close(ftmpt[0])
 
+tstt.labelNodes(con_tree)
 
 (to_resolve,maxPolyOrder) = tstt.findPolytomies(con_tree)
 taxa = list()
@@ -112,7 +112,7 @@ for e in con_tree.postorder_node_iter():
 		os.close(ftmp4[0])
 		if verbose:
 			print "starting to resolve polytomy"	
-		res= tstt.resolvePolytomy(ftmp4[1],e,con_tree,verbose)	
+		res= tstt.resolvePolytomy(ftmp4[1],e,verbose)	
 print "resolving polytomies takes about: "
 tm.toc()
 ftmp=tempfile.mkstemp(suffix='.nwk', prefix="distance.d_distique_tree.nwk", dir=outpath, text=None)

@@ -267,8 +267,7 @@ for e in con_tree.postorder_node_iter():
     if e in to_resolve:
         ftmp4=tstt.findMRL(TreeList[e.label],e.label,outpath)
         if verbose:
-            print "starting to resolve polytomy"    
-            
+            print "starting to resolve polytomy"       
         res=atbs.resolvePolytomy(ftmp4,e,verbose) 
 tstt.prune_tree_trivial_nodes(con_tree)
 

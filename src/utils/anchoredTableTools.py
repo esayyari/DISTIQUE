@@ -327,66 +327,58 @@ def findAnchoredQuartetsFromFile(anch,frqT,taxa,out):
         Q[key][1] = frqT[key2][tq][1]
     return Q
 def resolvePolytomy(pathToTree,node,verbose):
-        src_fpath = os.path.expanduser(os.path.expandvars(pathToTree))
-        if not os.path.exists(src_fpath):
+    src_fpath = os.path.expanduser(os.path.expandvars(pathToTree))
+    if not os.path.exists(src_fpath):
             sys.stderr.write('Not found: "%s"' % src_fpath)
-        tlist = dendropy.TreeList.get(path=src_fpath,schema="newick")
-        sp_tree = tlist[0]
-        adjacent_list = set()
-        dict_children=dict()
-        for t in node.adjacent_nodes():
-            if t.taxon is not None:
-                dict_children[t.taxon.label] = t
-                adjacent_list.add(t.taxon.label)
-            else:
-                dict_children[t.label] = t
-                adjacent_list.add(t.label)
-
-        if node.parent_node is not None:
-            if node.parent_node.taxon is not None:
-                label = node.parent_node.taxon.label
-            else:
-                label = node.parent_node.label
-            filt = lambda node: True if node.taxon.label==label else False
-            if sp_tree.seed_node.taxon is not None and sp_tree.seed_node.taxon.label == label:
-                nd = sp_tree.seed_node
-            else:
-                ndl= [x for x in sp_tree.leaf_node_iter(filt)]
-                nd = ndl[0]
-            if nd is not None:
-                sp_tree.reroot_at_edge(nd.edge, update_bipartitions=False)
-
-        stack = list()
-        for e in sp_tree.postorder_node_iter():
-                n = len(e.child_nodes())
-                if n > 0:
-                        tmp_next = str()
-                        t = node.insert_new_child(n+1)
-                        children = set(node.child_nodes())
-                        for _ in range(0,n):
-                                if len(stack)>0:
-                                        tmp = stack.pop()
-                                        if dict_children[tmp]  in children:
-                                                node.remove_child(dict_children[tmp])
-                                        elif len(node.child_nodes())==1:
-                                                continue
-                                        t.add_child(dict_children[tmp])
-                                        tmp_next += tmp
-                        if t.taxon is not None:
-                            t.taxon.label = tmp_next
-                        else:
-                            t.label = tmp_next
-                        dict_children[tmp_next] = t
-                        stack.append(tmp_next)
-                elif e.is_leaf():
-                        e_t = e.taxon.__str__()
-                        e_t = e_t.split("'")
-                        stack.append(e_t[1])
-        if verbose:
-
-                return None
+    tlist = dendropy.TreeList.get(path=src_fpath,schema="newick")
+    sp_tree = tlist[0]
+    adjacent_list = set()
+    dict_children=dict()
+    for t in node.adjacent_nodes():
+        if t.taxon is not None:
+            dict_children[t.taxon.label] = t
+            adjacent_list.add(t.taxon.label)
         else:
-                return None
+            dict_children[t.label] = t
+            adjacent_list.add(t.label)
+    if node.parent_node is not None:
+        label = node.parent_node.label
+    else:
+        label = node.label
+    nd = sp_tree.find_node_with_taxon_label(label)
+    if nd is not None:
+        sp_tree.reroot_at_edge(nd.edge, update_bipartitions=False)
+    stack = list()
+    for e in sp_tree.postorder_node_iter():
+        n = len(e.child_nodes())
+        if len(node.adjacent_nodes())<=3 :
+            break
+        if n > 0:
+            tmp_next = str()
+            
+            t = node.insert_new_child(n+1)
+            children = set(node.child_nodes())
+            for _ in range(0,n):
+                if len(stack)>0:
+                    tmp = stack.pop()
+                    if dict_children[tmp]  in children:
+                        node.remove_child(dict_children[tmp])
+                    elif len(node.child_nodes())==1:
+                        break
+                    else:
+                        print "in ELSE! why?"
+                    t.add_child(dict_children[tmp])
+                    tmp_next += "*"+tmp+":"
+            if t.taxon is not None:
+                t.taxon.label = tmp_next
+            else:
+                t.label = tmp_next
+            dict_children[tmp_next] = t
+            stack.append(tmp_next)
+        elif e.is_leaf():
+            e_t = e.taxon.label
+            stack.append(e_t)
+    return
 def findPolytomies(con_tree,taxa,anch):
     to_resolve = dict()
     maxPolyOrder = 0

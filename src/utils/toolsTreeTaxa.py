@@ -10,6 +10,7 @@ from dendropy.calculate import treecompare
 import itertools
 from scipy.stats import mstats
 import subprocess
+from numpy.lib.index_tricks import nd_grid
 WS_LOC_SHELL= os.environ['WS_HOME']+'/DISTIQUE/src/shell'
 WS_LOC_FM = os.environ['WS_HOME']+'/fastme-2.1.4/src'
 def buildTree(setNodeLabels,tree,center):
@@ -148,7 +149,7 @@ def labelNodes(tree):
             i += 1
     return
 
-def resolvePolytomy(pathToTree,node,otr,verbose):
+def resolvePolytomy(pathToTree,node,verbose):
     src_fpath = os.path.expanduser(os.path.expandvars(pathToTree))
     if not os.path.exists(src_fpath):
             sys.stderr.write('Not found: "%s"' % src_fpath)
@@ -168,19 +169,23 @@ def resolvePolytomy(pathToTree,node,otr,verbose):
             label = node.parent_node.taxon.label
         else:
             label = node.parent_node.label
-        filt = lambda taxon: True if taxon.label==label else False
-        nd = sp_tree.find_node_with_taxon(filt)
-        if nd is not None:
-            sp_tree.reroot_at_edge(nd.edge, update_bipartitions=False)
+    else:
+        if node.taxon is not None:
+            label = node.taxon.label
+        else:
+            label = node.label
+    nd = sp_tree.find_node_with_taxon_label(label)
+    if nd is not None:
+        sp_tree.reroot_at_edge(nd.edge, update_bipartitions=False)
     stack = list()
     for e in sp_tree.postorder_node_iter():
         n = len(e.child_nodes())
-        if len(node.child_nodes())<=2:
-            continue
+        if len(node.adjacent_nodes())<=3 :
+            break
         if n > 0:
             tmp_next = str()
-            t = node.insert_new_child(n+1)
             children = set(node.child_nodes())
+            t = node.insert_new_child(n+1)
             for _ in range(0,n):
                 if len(stack)>0:
                     tmp = stack.pop()
@@ -188,8 +193,10 @@ def resolvePolytomy(pathToTree,node,otr,verbose):
                         node.remove_child(dict_children[tmp])
                     elif len(node.child_nodes())==1:
                         continue
+                    else:
+                        print "in ELSE! why?"
                     t.add_child(dict_children[tmp])
-                    tmp_next += tmp
+                    tmp_next += ":"+tmp
             if t.taxon is not None:
                 t.taxon.label = tmp_next
             else:
@@ -197,14 +204,9 @@ def resolvePolytomy(pathToTree,node,otr,verbose):
             dict_children[tmp_next] = t
             stack.append(tmp_next)
         elif e.is_leaf():
-            e_t = e.taxon.__str__()
-            e_t = e_t.split("'")
-            stack.append(e_t[1])
-    if verbose:
-
-        return None
-    else:
-        return None
+            e_t = e.taxon.label
+            stack.append(e_t)
+    return
 
 
 def random_combination(iterable, r):
