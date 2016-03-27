@@ -9,6 +9,7 @@ import random
 import timer as tm
 from scipy import stats
 from numpy import mean, sqrt, square
+from matplotlib.mlab import l2norm
 def anchoredDistance(**kwargs):
     readFromTable=False
     for k,v in kwargs.iteritems():
@@ -163,6 +164,20 @@ def buildEmptyQuartets(anch,taxa,n):
     Q = [[0.5 for _ in range(len(taxa))] for _ in range(len(taxa))]
     T = [[1.5+n for _ in range(len(taxa))] for _ in range(len(taxa))]
     return [Q,T,taxaDict,taxa]
+def buildEmptyQuartetsFromFile(anch,taxa,n):
+    taxa = list(set(taxa)-set(anch))
+    i = 0
+    Q = dict()
+    for i in range(0,len(taxa)):
+        for j in range(i+1,len(taxa)):
+            l1 = sorted([anch[0],anch[1]])
+            l2 = sorted([taxa[i],taxa[j]])
+            if l1[0]<l2[0]:
+                l = (" ").join(l1)+" | "+(" ").join(l2)
+            else:
+                l = (" ").join(l2)+" | "+(" ").join(l1)
+            Q[l] = [0.5,1.5+n]
+    return Q
 
 def chooseTaxa(taxa):
     List = list()
@@ -292,7 +307,7 @@ def findAnchoredQuartetsFromFile(anch,frqT,taxa,out):
     a=frqT.keys()
     b=frqT[a[0]].keys()
     n = frqT[a[0]][b[0]][1]
-    Q = buildEmptyQuartets(anch,taxa,n)
+    Q = buildEmptyQuartetsFromFile(anch,taxa,n)
     for key in Q:
         lt = key.split("|")
         l = list()

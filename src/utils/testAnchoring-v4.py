@@ -269,7 +269,7 @@ for e in con_tree.postorder_node_iter():
         if verbose:
             print "starting to resolve polytomy"    
             
-        res=atbs.resolvePolytomy(ftmp4,e,verbose)  
+        res=atbs.resolvePolytomy(ftmp4,e,verbose) 
 tstt.prune_tree_trivial_nodes(con_tree)
 
 ftmp=tempfile.mkstemp(suffix='.nwk', prefix="distique_anchoring_tree.nwk", dir=outpath, text=None)
