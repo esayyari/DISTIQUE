@@ -157,7 +157,14 @@ def findTrueAverageTable(frq,list_taxa,method,met):
 										
 									
 
-
+def normalizeDistanceTable(D): 
+    Max = 1.
+    for key in D:
+        Max = np.max([D[key],Max])
+    for key in D:
+    	D[key] += Max
+        D[key] /= Max
+    return
 def distanceTable(frq,method,outfile,met):
 	keyDict = sorted(np.unique(("/".join(frq.keys())).split("/")));
 	mapDict = dict()       	
@@ -165,6 +172,7 @@ def distanceTable(frq,method,outfile,met):
 		mapDict =minDistance(frq,met)
 	elif method == 'prod':
 		mapDict =prodDistance(frq,met)
+	normalizeDistanceTable(mapDict)
 	pr.printDistanceTableToFile(mapDict,keyDict,outfile)
 
 

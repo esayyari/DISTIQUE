@@ -10,9 +10,12 @@ from dendropy.calculate import treecompare
 import itertools
 from scipy.stats import mstats
 import subprocess
+import shutil
 from numpy.lib.index_tricks import nd_grid
 WS_LOC_SHELL= os.environ['WS_HOME']+'/DISTIQUE/src/shell'
 WS_LOC_FM = os.environ['WS_HOME']+'/fastme-2.1.4/src'
+WS_LOC_PH = os.environ['WS_HOME']+'/PhyDstar/'
+WS_LOC_NJ = os.environ['WS_HOME']+'/ninja'
 def buildTree(setNodeLabels,tree,center):
     inferedTree = tree.clone(2)
     taxa = dendropy.TaxonNamespace()
@@ -486,3 +489,34 @@ def findMRL(treeList,e,outpath):
     subprocess.call([WS_LOC_SHELL+"/MRL_AroundPoly.sh", "-i",ftmp3[1],"-o",ftmp4[1]],stdout=FNULL,stderr=subprocess.STDOUT)
     os.close(ftmp4[0])
     return ftmp4[1]
+def buildTreeFromDistanceMatrix(distPath,outPath,sumProg,sumProgOption):
+    FNULL = open(os.devnull,'w')
+    if sumProg == "fastme":
+        if sumProgOption == "B2" or sumProgOption == "O2":
+            if sumProgOption == "B2":
+                subprocess.call([WS_LOC_FM+"/fastme", "-i",distPath,"-w","none","-o",outPath,"-n","-m","B","-I","/dev/null"],stdout=FNULL,stderr=subprocess.STDOUT)
+            else:
+                subprocess.call([WS_LOC_FM+"/fastme", "-i",distPath,"-w","none","-o",outPath,"-n","-m","O","-I","/dev/null"],stdout=FNULL,stderr=subprocess.STDOUT)
+                
+        else:
+            subprocess.call([WS_LOC_FM+"/fastme", "-i",distPath,"-w","none","-o",outPath,"-s","-m",sumProgOption,"-I","/dev/null"],stdout=FNULL,stderr=subprocess.STDOUT)
+    elif sumProg == "phydstar":
+        subprocess.call(['java','-jar',WS_LOC_PH+"/PhyDstar.jar","-i",distPath,"-d",sumProgOption],stdout=FNULL,stderr=subprocess.STDOUT)
+        if sumProgOption == "BioNJ":
+            o = distPath+"_bionj.t"
+            if not os.path.exists(o):
+                sys.stderr.write('Not found: "%s"' % o)
+            os.rename(o,outPath)
+        elif sumProgOption == "NJ":
+            o = distPath+"_nj.t"
+            if not os.path.exists(o):
+                sys.stderr.write('Not found: "%s"' % o)
+            os.rename(o,outPath)
+        elif sumProgOption == "MVR":
+            o = distPath+"_mvr.t"
+            if not os.path.exists(o):
+                sys.stderr.write('Not found: "%s"' % o)
+            os.rename(o,outPath)
+    elif sumProg == "ninja":
+        subprocess.call([WS_LOC_NJ+"/ninja","--in",distPath,"--out",outPath,"--in_type","d"],stdout=FNULL,stderr=subprocess.STDOUT)
+    return

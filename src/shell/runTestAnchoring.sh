@@ -61,13 +61,46 @@ for r in `find $i -maxdepth 1 -type d -name "R*"`; do
 	R=$(echo $r | sed -e 's/.*\///')
 	tmptmpDIR=`mktemp -d $tmpDIR/tmp$R.XXXXXXX`
 	echo $tmptmpDIR
-	for ((C=1;C<=5;C++)); do
-	{
-		tmptmptmpDIR=`mktemp -d $tmptmpDIR/tmp$C.XXXXXX`
-		$WS_LOC_UTIL/testAnchoring-v$v.py -g $r/genetrees.gt -o $tmptmptmpDIR -f $q/$R/quartets.q -n $n > $tmptmptmpDIR/results.log 2>&1
-	}
+#	for ((C=1;C<=5;C++)); do
+#	{
+		#tmptmptmpDIR=`mktemp -d $tmptmpDIR/tmp$C.XXXXXX`
+	if [ "$v" == "0" ]; then
+		tmptmptmpDIR=`mktemp -d $tmptmpDIR/tmp-fastme-TaxAdd_BalME.XXXXX`
+        	/usr/bin/time -p $WS_LOC_UTIL/distique.py -g $r/genetrees.gt -o $tmptmptmpDIR -f $q/$R/quartets.q -u fastme -z B  > $tmptmptmpDIR/results.log 2>&1
+       		tmptmptmpDIR=`mktemp -d $tmptmpDIR/tmp-fastme-TaxAdd_OLSME.XXXXX`
+	        /usr/bin/time -p $WS_LOC_UTIL/distique.py -g $r/genetrees.gt -o $tmptmptmpDIR -f $q/$R/quartets.q -u fastme -z O  > $tmptmptmpDIR/results.log 2>&1
+        	tmptmptmpDIR=`mktemp -d $tmptmpDIR/tmp-fastme-BIONJ.XXXXX`
+	        /usr/bin/time -p $WS_LOC_UTIL/distique.py -g $r/genetrees.gt -o $tmptmptmpDIR -f $q/$R/quartets.q -u fastme -z I  > $tmptmptmpDIR/results.log 2>&1
+        	tmptmptmpDIR=`mktemp -d $tmptmpDIR/tmp-fastme-NJ.XXXXX`
+	        /usr/bin/time -p $WS_LOC_UTIL/distique.py -g $r/genetrees.gt -o $tmptmptmpDIR -f $q/$R/quartets.q -u fastme -z N  > $tmptmptmpDIR/results.log 2>&1
+		tmptmptmpDIR=`mktemp -d $tmptmpDIR/tmp-fastme-TaxAdd_BalME2.XXXXX`
+                /usr/bin/time -p $WS_LOC_UTIL/distique.py -g $r/genetrees.gt -o $tmptmptmpDIR -f $q/$R/quartets.q -u fastme -z B2  > $tmptmptmpDIR/results.log 2>&1
+                tmptmptmpDIR=`mktemp -d $tmptmpDIR/tmp-fastme-TaxAdd_OLSME2.XXXXX`
+                /usr/bin/time -p $WS_LOC_UTIL/distique.py-g $r/genetrees.gt -o $tmptmptmpDIR -f $q/$R/quartets.q -u fastme -z O2  > $tmptmptmpDIR/results.log 2>&1
+                tmptmptmpDIR=`mktemp -d $tmptmpDIR/tmp-PhyDstar-MVR.XXXXX`
+                /usr/bin/time -p $WS_LOC_UTIL/distique.py -g $r/genetrees.gt -o $tmptmptmpDIR -f $q/$R/quartets.q -u phydstar -z MVR  > $tmptmptmpDIR/results.log 2>&1
+                tmptmptmpDIR=`mktemp -d $tmptmpDIR/tmp-PhyDstar-BioNJ.XXXXX`
+                /usr/bin/time -p $WS_LOC_UTIL/distique.py -g $r/genetrees.gt -o $tmptmptmpDIR -f $q/$R/quartets.q -u phydstar -z BioNJ  > $tmptmptmpDIR/results.log 2>&1
+	fi
+	tmptmptmpDIR=`mktemp -d $tmptmpDIR/tmp-fastme-TaxAdd_BalME.XXXXX`
+	/usr/bin/time -p $WS_LOC_UTIL/testAnchoring-v$v.py -g $r/genetrees.gt -o $tmptmptmpDIR -f $q/$R/quartets.q -n $n -u fastme -z B  > $tmptmptmpDIR/results.log 2>&1
+	tmptmptmpDIR=`mktemp -d $tmptmpDIR/tmp-fastme-TaxAdd_OLSME.XXXXX`
+        /usr/bin/time -p $WS_LOC_UTIL/testAnchoring-v$v.py -g $r/genetrees.gt -o $tmptmptmpDIR -f $q/$R/quartets.q -n $n -u fastme -z O  > $tmptmptmpDIR/results.log 2>&1
+	tmptmptmpDIR=`mktemp -d $tmptmpDIR/tmp-fastme-BIONJ.XXXXX`
+        /usr/bin/time -p $WS_LOC_UTIL/testAnchoring-v$v.py -g $r/genetrees.gt -o $tmptmptmpDIR -f $q/$R/quartets.q -n $n -u fastme -z I  > $tmptmptmpDIR/results.log 2>&1
+	tmptmptmpDIR=`mktemp -d $tmptmpDIR/tmp-fastme-NJ.XXXXX`
+        /usr/bin/time -p $WS_LOC_UTIL/testAnchoring-v$v.py -g $r/genetrees.gt -o $tmptmptmpDIR -f $q/$R/quartets.q -n $n -u fastme -z N  > $tmptmptmpDIR/results.log 2>&1
+	tmptmptmpDIR=`mktemp -d $tmptmpDIR/tmp-fastme-TaxAdd_BalME2.XXXXX`
+        /usr/bin/time -p $WS_LOC_UTIL/testAnchoring-v$v.py -g $r/genetrees.gt -o $tmptmptmpDIR -f $q/$R/quartets.q -n $n -u fastme -z B2  > $tmptmptmpDIR/results.log 2>&1
+        tmptmptmpDIR=`mktemp -d $tmptmpDIR/tmp-fastme-TaxAdd_OLSME2.XXXXX`
+        /usr/bin/time -p $WS_LOC_UTIL/testAnchoring-v$v.py -g $r/genetrees.gt -o $tmptmptmpDIR -f $q/$R/quartets.q -n $n -u fastme -z O2  > $tmptmptmpDIR/results.log 2>&1
+        tmptmptmpDIR=`mktemp -d $tmptmpDIR/tmp-PhyDstar-MVR.XXXXX`
+        /usr/bin/time -p $WS_LOC_UTIL/testAnchoring-v$v.py -g $r/genetrees.gt -o $tmptmptmpDIR -f $q/$R/quartets.q -n $n -u phydstar -z MVR  > $tmptmptmpDIR/results.log 2>&1
+        tmptmptmpDIR=`mktemp -d $tmptmpDIR/tmp-PhyDstar-BioNJ.XXXXX`
+        /usr/bin/time -p $WS_LOC_UTIL/testAnchoring-v$v.py -g $r/genetrees.gt -o $tmptmptmpDIR -f $q/$R/quartets.q -n $n -u phydstar -z BioNJ  > $tmptmptmpDIR/results.log 2>&1
+#	}
 	done
-done
+#done
 
 y=$(echo $o | sed -e 's/^.*\///')
 tar czf $o/testAnchoring-V$v-$y-$n.tar.gz $tmpDIR/* 

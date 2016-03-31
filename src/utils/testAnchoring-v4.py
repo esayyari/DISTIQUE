@@ -43,8 +43,10 @@ parser.add_option("-d",dest="debug",
         help = "The debug flag",default = False)
 parser.add_option("-r",dest="outlier",
         help = "The strategy for outlier removal. The options are pairwise1, pairwise2, consensus10, or consensus3. Default is None", default = "consensus3")
-parser.add_option("-z",dest="fmMet",
-                  help = "The distance method to build the tree. The default is TaxAdd_(B)alME, TaxAdd_(O)LSME, B(I)ONJ (default), (N)J or (U)NJ",default="I")
+parser.add_option("-u",dest="sumProg",
+        help = "The summerize method program to find species tree from distance matrix. The options are ninja, fastme, phydstar. Default is fastme ",default="fastme") 
+parser.add_option("-z",dest="sumProgOption",
+                  help = "The distance method to build the tree. If sumProg is set to fastme the options are TaxAdd_(B)alME (-s), TaxAdd_(B2)alME (-n), TaxAdd_(O)LSME (-s), TaxAdd_(O2)LSME (-n), B(I)ONJ (default), (N)J. The default in this case is B(I)ONJ. if the  sumProg is set to phydstar, the options are BioNJ, MVR, and NJ. The default is BioNJ.",default="I")
 (options,args) = parser.parse_args()
 filename = options.filename
 gt = options.gt
@@ -52,8 +54,14 @@ debugFlag = (options.debug == "1")
 outpath = options.out
 thr = float(options.thr)
 sp = options.sp
-fmMet = options.fmMet
 num = options.num
+sumProg = options.sumProg
+sumProgOption = options.sumProgOption
+if sumProg == "phydstar" and sumProgOption == "":
+    sumProgOption = "BioNJ"
+elif sumProg == "phydstar":
+    sumProgOption = options.sumProgOption
+
 met = options.met
 strategy = options.outlier
 print strategy
@@ -194,8 +202,7 @@ if ac is not None:
             pr.printDistanceTableToFile(D,keyDict,ftmp3[1])
             os.close(ftmp3[0])
             ftmp4=tempfile.mkstemp(suffix='.nwk', prefix=fileDistance+"_fastme_tree.nwk",dir=outpath,text=None)
-            FNULL = open(os.devnull, 'w')
-            subprocess.call([WS_LOC_FM+"/fastme", "-i",ftmp3[1],"-w","none","-o",ftmp4[1],"-m",fmMet,"-I","/dev/null"],stdout=FNULL,stderr=subprocess.STDOUT)
+            tstt.buildTreeFromDistanceMatrix(ftmp3[1],ftmp4[1],sumProg,sumProgOption)
             os.close(ftmp4[0])
             tree_tmp = dendropy.Tree.get(path=ftmp4[1],schema='newick',rooting="force-unrooted")
             TreeList[e.label].append(tree_tmp)
@@ -244,8 +251,7 @@ for e in skippedPoly:
         pr.printDistanceTableToFile(D,keyDict,ftmp3[1])
         os.close(ftmp3[0])
         ftmp4=tempfile.mkstemp(suffix='.nwk', prefix=fileDistance+"_fastme_tree.nwk",dir=outpath,text=None)
-        FNULL = open(os.devnull, 'w')
-        subprocess.call([WS_LOC_FM+"/fastme", "-i",ftmp3[1],"-w","none","-m",fmMet,"-o",ftmp4[1],"-I","/dev/null"],stdout=FNULL,stderr=subprocess.STDOUT)
+        tstt.buildTreeFromDistanceMatrix(ftmp3[1],ftmp4[1],sumProg,sumProgOption)
         os.close(ftmp4[0])
         tree_tmp = dendropy.Tree.get(path=ftmp4[1],schema='newick')
         if e.label in TreeList:

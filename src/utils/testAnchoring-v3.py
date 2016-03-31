@@ -46,8 +46,10 @@ parser.add_option("-l",dest="fillmethod",
         help="The method to fill empty cells in distance tables, const, rand, or normConst. Default is const", default="const")
 parser.add_option("-d",dest="debug",
         help = "The flag for indicating that this run is for debugging!", default = False)
-parser.add_option("-z",dest="fmMet",
-                  help = "The distance method to build the tree. The default is TaxAdd_(B)alME, TaxAdd_(O)LSME, B(I)ONJ (default), (N)J or (U)NJ",default="I")
+parser.add_option("-u",dest="sumProg",
+        help = "The summerize method program to find species tree from distance matrix. The options are ninja, fastme, phydstar. Default is fastme ",default="fastme") 
+parser.add_option("-z",dest="sumProgOption",
+                  help = "The distance method to build the tree. If sumProg is set to fastme the options are TaxAdd_(B)alME (-s), TaxAdd_(B2)alME (-n), TaxAdd_(O)LSME (-s), TaxAdd_(O2)LSME (-n), B(I)ONJ (default), (N)J. The default in this case is B(I)ONJ. if the  sumProg is set to phydstar, the options are BioNJ, MVR, and NJ. The default is BioNJ.",default="I")
 (options,args) = parser.parse_args()
 filename = options.filename
 gt = options.gt
@@ -55,9 +57,15 @@ outpath = options.out
 fillmethod = options.fillmethod
 thr = float(options.thr)
 sp = options.sp
-fmMet = options.fmMet
 num = options.num
 met = options.met
+sumProg = options.sumProg
+sumProgOption = options.sumProgOption
+if sumProg == "phydstar" and sumProgOption == "":
+    sumProgOption = "BioNJ"
+elif sumProg == "phydstar":
+    sumProgOption = options.sumProgOption
+
 debugFlag = (options.debug == "1")
 if (num != "all"):
     num = int(num)
@@ -322,8 +330,7 @@ for e in con_tree.postorder_node_iter():
             print "writing distance table to "+str(ftmp3[1])
             os.close(ftmp3[0])
             ftmp4=tempfile.mkstemp(suffix='.nwk', prefix=fileDistance+"_fastme_tree.nwk",dir=outpath,text=None)
-            FNULL = open(os.devnull, 'w')
-            subprocess.call([WS_LOC_FM+"/fastme", "-i",ftmp3[1],"-w","none","-m",fmMet,"-o",ftmp4[1],"-I","/dev/null"],stdout=FNULL,stderr=subprocess.STDOUT)
+            tstt.buildTreeFromDistanceMatrix(ftmp3[1],ftmp4[1],sumProg,sumProgOption)
             os.close(ftmp4[0])
             if verbose:
                 print "starting to resolve polytomy"

@@ -35,9 +35,11 @@ parser.add_option("-r","--readFromFile",dest="readFromFile",
 parser.add_option("-a","--averagemethod",dest="av",
 		help="The average method to find the average quartet table. Default is mean.", default="mean")
 parser.add_option("-l",dest="met",
-		help = "The method to summerize quartet results around each node, freq, or log", default="log") 
-parser.add_option("-z",dest="fmMet",
-                  help = "The distance method to build the tree. The default is TaxAdd_(B)alME, TaxAdd_(O)LSME, B(I)ONJ (default), (N)J or (U)NJ",default="I")
+		help = "The method to summerize quartet results around each node, freq, or log", default="log")
+parser.add_option("-u",dest="sumProg",
+        help = "The summerize method program to find species tree from distance matrix. The options are ninja, fastme, phydstar. Default is fastme ",default="fastme") 
+parser.add_option("-z",dest="sumProgOption",
+                  help = "The distance method to build the tree. If sumProg is set to fastme the options are TaxAdd_(B)alME (-s), TaxAdd_(B2)alME (-n), TaxAdd_(O)LSME (-s), TaxAdd_(O2)LSME (-n), B(I)ONJ (default), (N)J. The default in this case is B(I)ONJ. if the  sumProg is set to phydstar, the options are BioNJ, MVR, and NJ. The default is BioNJ.",default="I")
 (options,args) = parser.parse_args()
 filename = options.filename
 gt = options.gt
@@ -45,7 +47,13 @@ outpath = options.out
 thr = options.thr
 thr=options.thr
 av = options.av
-fmMet = options.fmMet
+sumProg = options.sumProg
+sumProgOption = options.sumProgOption
+if sumProg == "phydstar" and sumProgOption == "":
+    sumProgOption = "BioNJ"
+elif sumProg == "phydstar":
+    sumProgOption = options.sumProgOption
+
 met = options.met
 verbose=options.verbose
 if options.readFromFile == 1:
@@ -82,9 +90,11 @@ for e in con_tree.leaf_nodes():
 	taxa.append(e.taxon.label)
 n = len(con_tree.leaf_nodes())
 if verbose:
-	print "Number of taxa is: " + str(n)
-	print "the number of polytomies is: "+str(len(to_resolve))
-	print "the maximum order of polytomies is: "+str(maxPolyOrder)
+    print "The summary program is: "+sumProg
+    print "The option for this summary program is: "+sumProgOption
+    print "Number of taxa is: " + str(n)
+    print "the number of polytomies is: "+str(len(to_resolve))
+    print "the maximum order of polytomies is: "+str(maxPolyOrder)
 if verbose:
 	print "computing the total quartet table"
 if readFromFile:
@@ -101,21 +111,19 @@ for e in con_tree.postorder_node_iter():
 		val = to_resolve[e]
 		(taxa_list,taxa_inv) =  tstt.getTaxaList(to_resolve[e])
 		if verbose:
-			print "computing the partial quartet table"
-		
+			print "computing the partial quartet table"	
 		quartTable = tbs.findTrueAverageTable(frq,taxa_list,av,met)
 		if verbose:
 			print "computing distance table using the method: "+str(method)
 		ftmp3=tempfile.mkstemp(suffix='.d', prefix="distancet.d", dir=outpath, text=None)
 		tbs.distanceTable(quartTable,method,ftmp3[1],met)
-		os.close(ftmp3[0])
 		ftmp4=tempfile.mkstemp(suffix='.nwk',prefix="distance.d_fastme_tree.nwk",dir=outpath,text=None)
-		FNULL = open(os.devnull,'w')
-		subprocess.call([WS_LOC_FM+"/fastme", "-i",ftmp3[1],"-w","none","-o",ftmp4[1],"-m",fmMet,"-I","/dev/null"],stdout=FNULL,stderr=subprocess.STDOUT)
-		os.close(ftmp4[0])
-		if verbose:
-			print "starting to resolve polytomy"	
-		res= tstt.resolvePolytomy(ftmp4[1],e,verbose)	
+        	tstt.buildTreeFromDistanceMatrix(ftmp3[1],ftmp4[1],sumProg,sumProgOption)
+	        os.close(ftmp3[0])
+        	os.close(ftmp4[0])
+	        if verbose:
+            		print "starting to resolve polytomy"	
+	        res= tstt.resolvePolytomy(ftmp4[1],e,verbose)	
 print "resolving polytomies takes about: "
 tm.toc()
 ftmp=tempfile.mkstemp(suffix='.nwk', prefix="distance.d_distique_tree.nwk", dir=outpath, text=None)
