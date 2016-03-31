@@ -9,7 +9,6 @@ import random
 import timer as tm
 from scipy import stats
 from numpy import mean, sqrt, square
-from matplotlib.mlab import l2norm
 def anchoredDistance(**kwargs):
     readFromTable=False
     for k,v in kwargs.iteritems():
