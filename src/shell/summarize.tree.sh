@@ -93,7 +93,7 @@ $DIR/quartet.freq.sh -w $w -f $FILE_NAME -m $dm -p $do -c $pc -o $res_root  >$re
 printf "start building species tree\n"
 case $m in
 fm)
-	$WS_HOME/"fastme-2.1.4"/src/fastme -i $res_root/distance.d -w none>$res_root/log.inof;
+	$WS_HOME/"fastme-2.1.4"/src/fastme -i -m $d $met $res_root/distance.d -w none>$res_root/log.inof;
 #	$WS_HOME/"fastme-2.1.4"/src/fastme -i $res_root/distance.d -o estimated_species_tree.tre >$res_root/log.inof;	
 	;;
 	

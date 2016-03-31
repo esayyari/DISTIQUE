@@ -648,7 +648,7 @@ def fillEmptyElementsDistanceTable(D,C,fillmethod):
                 D[key] = 0
                 C[key] = 0
     return
-def normalizeDistanceTable(D,C):
+def normalizeDistanceTable(D,C): 
     flag = any(C[key] == 0 or D[key]<0 for key in D)
     Max = 1.
     for key in D:

@@ -43,6 +43,8 @@ parser.add_option("-d",dest="debug",
         help = "The debug flag",default = False)
 parser.add_option("-r",dest="outlier",
         help = "The strategy for outlier removal. The options are pairwise1, pairwise2, consensus10, or consensus3. Default is None", default = "consensus3")
+parser.add_option("-z",dest="fmMet",
+                  help = "The distance method to build the tree. The default is TaxAdd_(B)alME, TaxAdd_(O)LSME, B(I)ONJ (default), (N)J or (U)NJ",default="I")
 (options,args) = parser.parse_args()
 filename = options.filename
 gt = options.gt
@@ -50,6 +52,7 @@ debugFlag = (options.debug == "1")
 outpath = options.out
 thr = float(options.thr)
 sp = options.sp
+fmMet = options.fmMet
 num = options.num
 met = options.met
 strategy = options.outlier
@@ -192,7 +195,7 @@ if ac is not None:
             os.close(ftmp3[0])
             ftmp4=tempfile.mkstemp(suffix='.nwk', prefix=fileDistance+"_fastme_tree.nwk",dir=outpath,text=None)
             FNULL = open(os.devnull, 'w')
-            subprocess.call([WS_LOC_FM+"/fastme", "-i",ftmp3[1],"-w","none","-o",ftmp4[1],"-I","/dev/null"],stdout=FNULL,stderr=subprocess.STDOUT)
+            subprocess.call([WS_LOC_FM+"/fastme", "-i",ftmp3[1],"-w","none","-o",ftmp4[1],"-m",fmMet,"-I","/dev/null"],stdout=FNULL,stderr=subprocess.STDOUT)
             os.close(ftmp4[0])
             tree_tmp = dendropy.Tree.get(path=ftmp4[1],schema='newick',rooting="force-unrooted")
             TreeList[e.label].append(tree_tmp)
@@ -242,7 +245,7 @@ for e in skippedPoly:
         os.close(ftmp3[0])
         ftmp4=tempfile.mkstemp(suffix='.nwk', prefix=fileDistance+"_fastme_tree.nwk",dir=outpath,text=None)
         FNULL = open(os.devnull, 'w')
-        subprocess.call([WS_LOC_FM+"/fastme", "-i",ftmp3[1],"-w","none","-o",ftmp4[1],"-I","/dev/null"],stdout=FNULL,stderr=subprocess.STDOUT)
+        subprocess.call([WS_LOC_FM+"/fastme", "-i",ftmp3[1],"-w","none","-m",fmMet,"-o",ftmp4[1],"-I","/dev/null"],stdout=FNULL,stderr=subprocess.STDOUT)
         os.close(ftmp4[0])
         tree_tmp = dendropy.Tree.get(path=ftmp4[1],schema='newick')
         if e.label in TreeList:

@@ -46,6 +46,8 @@ parser.add_option("-l",dest="fillmethod",
         help="The method to fill empty cells in distance tables, const, rand, or normConst. Default is const", default="const")
 parser.add_option("-d",dest="debug",
         help = "The flag for indicating that this run is for debugging!", default = False)
+parser.add_option("-z",dest="fmMet",
+                  help = "The distance method to build the tree. The default is TaxAdd_(B)alME, TaxAdd_(O)LSME, B(I)ONJ (default), (N)J or (U)NJ",default="I")
 (options,args) = parser.parse_args()
 filename = options.filename
 gt = options.gt
@@ -53,6 +55,7 @@ outpath = options.out
 fillmethod = options.fillmethod
 thr = float(options.thr)
 sp = options.sp
+fmMet = options.fmMet
 num = options.num
 met = options.met
 debugFlag = (options.debug == "1")
@@ -320,7 +323,7 @@ for e in con_tree.postorder_node_iter():
             os.close(ftmp3[0])
             ftmp4=tempfile.mkstemp(suffix='.nwk', prefix=fileDistance+"_fastme_tree.nwk",dir=outpath,text=None)
             FNULL = open(os.devnull, 'w')
-            subprocess.call([WS_LOC_FM+"/fastme", "-i",ftmp3[1],"-w","none","-o",ftmp4[1],"-I","/dev/null"],stdout=FNULL,stderr=subprocess.STDOUT)
+            subprocess.call([WS_LOC_FM+"/fastme", "-i",ftmp3[1],"-w","none","-m",fmMet,"-o",ftmp4[1],"-I","/dev/null"],stdout=FNULL,stderr=subprocess.STDOUT)
             os.close(ftmp4[0])
             if verbose:
                 print "starting to resolve polytomy"

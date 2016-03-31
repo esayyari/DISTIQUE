@@ -36,6 +36,8 @@ parser.add_option("-a","--averagemethod",dest="av",
 		help="The average method to find the average quartet table. Default is mean.", default="mean")
 parser.add_option("-l",dest="met",
 		help = "The method to summerize quartet results around each node, freq, or log", default="log") 
+parser.add_option("-z",dest="fmMet",
+                  help = "The distance method to build the tree. The default is TaxAdd_(B)alME, TaxAdd_(O)LSME, B(I)ONJ (default), (N)J or (U)NJ",default="I")
 (options,args) = parser.parse_args()
 filename = options.filename
 gt = options.gt
@@ -43,6 +45,7 @@ outpath = options.out
 thr = options.thr
 thr=options.thr
 av = options.av
+fmMet = options.fmMet
 met = options.met
 verbose=options.verbose
 if options.readFromFile == 1:
@@ -108,7 +111,7 @@ for e in con_tree.postorder_node_iter():
 		os.close(ftmp3[0])
 		ftmp4=tempfile.mkstemp(suffix='.nwk',prefix="distance.d_fastme_tree.nwk",dir=outpath,text=None)
 		FNULL = open(os.devnull,'w')
-		subprocess.call([WS_LOC_FM+"/fastme", "-i",ftmp3[1],"-w","none","-o",ftmp4[1],"-I","/dev/null"],stdout=FNULL,stderr=subprocess.STDOUT)
+		subprocess.call([WS_LOC_FM+"/fastme", "-i",ftmp3[1],"-w","none","-o",ftmp4[1],"-m",fmMet,"-I","/dev/null"],stdout=FNULL,stderr=subprocess.STDOUT)
 		os.close(ftmp4[0])
 		if verbose:
 			print "starting to resolve polytomy"	
