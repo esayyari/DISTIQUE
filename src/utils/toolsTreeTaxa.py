@@ -498,8 +498,11 @@ def buildTreeFromDistanceMatrix(distPath,outPath,sumProg,sumProgOption):
             else:
                 subprocess.call([WS_LOC_FM+"/fastme", "-i",distPath,"-w","none","-o",outPath,"-n","-m","O","-I","/dev/null"],stdout=FNULL,stderr=subprocess.STDOUT)
                 
+        elif sumProgOption == "I" or sumProgOption == "N":
+            subprocess.call([WS_LOC_FM+"/fastme", "-i",distPath,"-w","none","-o",outPath,"-m",sumProgOption,"-I","/dev/null"],stdout=FNULL,stderr=subprocess.STDOUT)
         else:
             subprocess.call([WS_LOC_FM+"/fastme", "-i",distPath,"-w","none","-o",outPath,"-s","-m",sumProgOption,"-I","/dev/null"],stdout=FNULL,stderr=subprocess.STDOUT)
+
     elif sumProg == "phydstar":
         subprocess.call(['java','-jar',WS_LOC_PH+"/PhyDstar.jar","-i",distPath,"-d",sumProgOption],stdout=FNULL,stderr=subprocess.STDOUT)
         if sumProgOption == "BioNJ":
