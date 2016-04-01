@@ -97,5 +97,5 @@ else
 	done
 fi
 y=$(echo $o | sed -e 's/^.*\///')
-tar czf $o/testAnchoring-V$v-$y-$n.tar.gz $tmpDIR/* 
+tar czf $o/testAnchoring-run2-V$v-$y-$n.tar.gz $tmpDIR/* 
 rm -r $tmpDIR
