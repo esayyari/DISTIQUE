@@ -172,7 +172,6 @@ def distanceTable(frq,method,outfile,met):
 		mapDict =minDistance(frq,met)
 	elif method == 'prod':
 		mapDict =prodDistance(frq,met)
-	normalizeDistanceTable(mapDict)
 	pr.printDistanceTableToFile(mapDict,keyDict,outfile)
 
 
