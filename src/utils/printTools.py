@@ -25,7 +25,7 @@ def printDistanceTableToFile (mapDict , keyDict, outfile):
 	keyDict = list(keyDict)
 	l = len(keyDict)
 	norm = 1.
-	ps = 100.
+	ps = 5.
 	print >> f1, l
 	for i in range(0,l):
         	sp = keyDict[i]
