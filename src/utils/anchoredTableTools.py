@@ -795,7 +795,7 @@ def findAnchoredQuartetsOverall(anch,to_resolve,e,trees,taxa,out,debugFlag):
     n = len(trees)
     if debugFlag:
         tm.tic()
-    [Q,T,taxaDict,clades,L1,L2,m,C] = buildEmptyQuartetsOverall(anch,to_resolve,e,taxa,n)
+    [Q,T,taxaDict,clades,L1,L2,m,C,listPoly] = buildEmptyQuartetsOverall(anch,to_resolve,e,taxa,n)
     if debugFlag:
         print "Initializing arrays takes: "
         tm.toc()
@@ -869,7 +869,7 @@ def findAnchoredQuartetsOverall(anch,to_resolve,e,trees,taxa,out,debugFlag):
         if debugFlag:
             print "time for counting is: "
             tm.toc()
-    frq=makeTrueFrqOverall(Q,T,clades,anch,C)
+    frq=makeTrueFrqOverall(Q,T,clades,anch,C,listPoly)
     return frq
 def removeFromQuartetLentreeshAnchoredOverall(T,listTaxa,taxaDict,e,m):
     x = list()
@@ -883,13 +883,11 @@ def removeFromQuartetLentreeshAnchoredOverall(T,listTaxa,taxaDict,e,m):
         for j in range(i+1,len(x)):
             l1 = x[i]
             l2 = x[j]
-            for k in l1:
-                for z in l2:
-                    if k == z: 
-                        continue
-                    key = " ".join(sorted([z,k]))
-#                     T[i][j] -= l1[k]*l2[z]
-                    T[key] -= l1[k]*l2[z]
+            for k in range(0,len(l1)):
+                for z in range(k+1,len(l2)):
+#                     key = " ".join(sorted([z,k]))
+                        T[k][z] -= l1[k]*l2[z]
+#                     T[key] -= l1[k]*l2[z]
     return
 
 
@@ -921,15 +919,15 @@ def addQuartetsAnchoredOverall(listTaxa,Q,taxaDict,e,anch,L1,L2,m,debugFlag):
         tm.tic()
         print "length of these pairs is: "+str(len(pairs)*(len(pairs)-1)/2)
     l = countNum(pairs,m)
-    lKey = l.keys()
-    for i in range(0,len(lKey)):
+#     lKey = l.keys()
+    for i in range(0,len(l)):
 #         if l[i] == 0:
 #             continue
-        for j in range(i+1,len(lKey)):
+        for j in range(i+1,len(l)):
 #             if l[j] == 0:
 #                 continue
-            key = " ".join(sorted([lKey[i],lKey[j]]))
-            Q[key] += l[lKey[i]]*l[lKey[j]]
+#             key = " ".join(sorted([lKey[i],lKey[j]]))
+            Q[i][j] += l[i]*l[j]
 #             Q[j][i] += l[i]*l[j]
     if debugFlag:
         print "Time to add found quartets to the dictionary: "
@@ -953,44 +951,37 @@ def buildEmptyQuartetsOverall(anch,to_resolve,e,taxa,k):
     for j in range(len(TaxaList)):
 #         tmp = list()
         dictClade[TaxaList[j]] = j
+        
 #         for k in range(j+1,len(TaxaList)):
 #             tmp.append(1.5+k*len(TaxaList[k])*len(TaxaList[j]))
 #         T.append(tmp)
-#     for t in taxa:
-#         taxaDict[t] = dictClade[taxa_inv[t]]
-#     Q = [[0.5 for _ in range(0,N)] for _ in range(0,N)]
-    taxaDict = taxa_inv
-    Q = dict()
-    T = dict()
-    for i in range(len(TaxaList)):
-        for j in range(i+1,len(TaxaList)):
-            a = sorted([TaxaList[i],TaxaList[j]])
-            Q[" ".join(a)] = 0.5
-            T[" ".join(a)] = k*len(taxa_list[TaxaList[i]])*len(taxa_list[TaxaList[j]])+1.5
-#     listPoly = taxa_list.keys()
-#     T = [[1.5+k*len(taxa_list[listPoly[i]])*len(taxa_list[listPoly[j]]) for i in range(0,N)] for j in range(0,N)]
-    return [Q,T,taxaDict,clades,L1,L2,m,C] 
-def makeTrueFrqOverall(Q,T,clades,anch,C):
+    for t in taxa:
+        taxaDict[t] = dictClade[taxa_inv[t]]
+    Q = [[0.5 for _ in range(0,N)] for _ in range(0,N)]
+#     taxaDict = taxa_inv
+    listPoly = taxa_list.keys()
+    T = [[1.5+k*len(taxa_list[listPoly[i]])*len(taxa_list[listPoly[j]]) for i in range(0,N)] for j in range(0,N)]
+    return [Q,T,taxaDict,clades,L1,L2,m,C,listPoly] 
+def makeTrueFrqOverall(Q,T,clades,anch,C,listPoly):
     frq = dict()
     n = len(Q)
     
     clades =list(set(clades))
-    for kt in Q:
-            p = sorted(kt.split(" "))
+    for i in range(len(Q)):
+        for j in range(i+1,len(Q[0])):
+            I = listPoly[i]
+            J = listPoly[j]
+            p = sorted([I,J])
 #             p = sorted([I,J])
             key = genKey(p,anch)
-            val = [Q[kt],T[kt]]
+            val = [Q[i][j],T[i][j]]
             frq[key] = val
     return frq
 def countNum(L,n):
-#     l = [0 for _ in range(n)]
-    l = dict()
+    l = [0 for _ in range(n)]
     
-    for j in L:
-        if j in l:
-            l[j] += 1
-        else:
-            l[j] = 1 
+    for j in range(0,len(L)):
+            l[L[j]] += 1
     return l
 def findAnchoredDistanceTableOverall(achs,trees,to_resolve,e,taxa,out,debugFlag):
     frq=findAnchoredQuartetsOverall(achs,to_resolve,e,trees,taxa,out,debugFlag)
