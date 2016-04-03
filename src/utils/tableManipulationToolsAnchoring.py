@@ -363,3 +363,79 @@ def readTable(tmpPath):
         v[d[3]] = [float(k[3]),s]
         frq[k[0]] = v
     return frq
+def findTrueAverageTableAnchoringAddDistancesOverall(frq, anch, list_taxa, N,method, met):
+    tm.tic()
+    [TotalKeyf,_]=initializeQuartetTable( anch, list_taxa)
+    anch = sorted(list(anch))
+    lst_taxa = list_taxa.keys()
+    TotalKey = dict()
+    n = len(lst_taxa)
+    numG = max(v[1] for v in frq.values())
+    skipClades = N
+    for i in range(0, n):
+        if lst_taxa[i] in skipClades:
+            continue
+        for j in range(i+1, n):
+            if lst_taxa[j] in skipClades:
+                continue
+            l = sorted([lst_taxa[i], lst_taxa[j], anch[0], anch[1]])
+            key_inv = "/".join(l)
+            key_orig = genKey(anch,sorted([lst_taxa[i],lst_taxa[j]]))
+            v = frq[key_orig]
+            if len(v) == 1:
+                v.append(1)   
+            if key_inv in TotalKey:
+                    vt = TotalKey[key_inv]
+                    vt[0] += v[0]
+                    vt[1] += v[1]
+            else:
+                    vt = list()
+                    vt = v
+            TotalKey[key_inv] = vt
+    for q, v2 in TotalKey.iteritems():
+        vtt = v2[0]/v2[1]
+        TotalKeyf[q] = vtt
+    tm.toc()
+    return TotalKeyf
+def findTrueAverageTableAnchoringAddDistancesOverallFromFile(frq, anch, list_taxa, N,method, met):
+    tm.tic()
+    [TotalKeyf,_]=initializeQuartetTable( anch, list_taxa)
+    anch = sorted(list(anch))
+    lst_taxa = list_taxa.keys()
+    TotalKey = dict()
+    n = len(lst_taxa)
+    numG = max(v[1] for v in frq.values())
+    skipClades = N
+    for i in range(0, n):
+        if lst_taxa[i] in skipClades:
+            continue
+        for j in range(i+1, n):
+            if lst_taxa[j] in skipClades:
+                continue
+            for taxon_i in list_taxa[lst_taxa[i]]:
+                for taxon_j in list_taxa[lst_taxa[j]]:
+                    lab_taxon_i = taxon_i
+                    lab_taxon_j = taxon_j
+                    p = sorted([lab_taxon_i,lab_taxon_j])
+                    key_orig = genKey(p,anch)
+                    l = sorted([lst_taxa[i], lst_taxa[j], anch[0], anch[1]])
+                    key_inv = "/".join(l)        
+                    v = frq[key_orig]
+                    if len(v) == 1:
+                        v.append(1)
+                    else:
+                        v[0] -= 0.5
+                        v[1] -= 1.5   
+                    if key_inv in TotalKey:
+                            vt = TotalKey[key_inv]
+                            vt[0] += v[0]
+                            vt[1] += v[1]
+                    else:
+                            vt = list()
+                            vt = v
+                    TotalKey[key_inv] = vt
+    for q, v2 in TotalKey.iteritems():
+        vtt = (v2[0]+0.5)/(v2[1]+1.5)
+        TotalKeyf[q] = vtt
+    tm.toc()
+    return TotalKeyf

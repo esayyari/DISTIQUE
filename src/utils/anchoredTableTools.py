@@ -9,6 +9,7 @@ import random
 import timer as tm
 from scipy import stats
 from numpy import mean, sqrt, square
+import toolsTreeTaxa as tstt
 def anchoredDistance(**kwargs):
     readFromTable=False
     for k,v in kwargs.iteritems():
@@ -145,7 +146,7 @@ def makeTrueFrq(Q,T,taxa,anch):
     frq = dict()
     n = len(Q)
     for i in range(0,n):
-        for j in range(0,n):
+        for j in range(i+1,n):
             I = taxa[i]
             J = taxa[j]
             p = sorted([I,J])
@@ -215,7 +216,7 @@ def genKey(p1,p2):
     return p
 
 def findAllChildrenPairs(listTaxa,taxaDict,debugFlag):
-    listTaxaLabels = np.zeros((len(listTaxa)),dtype=np.int16)
+    listTaxaLabels = [0 for _ in range(len(listTaxa))]
     i = 0
     if debugFlag:
             tm.tic()
@@ -256,8 +257,10 @@ def addQuartetsAnchored( ch, listTaxa,Q,taxaDict,debugFlag):
         print "length of these pairs is: "+str(len(pairs)*(len(pairs)-1)/2)
     for i in range(0,len(pairs)):
         for j in range(i+1,len(pairs)):
-            Q[pairs[i]][pairs[j]] += 1
-            Q[pairs[j]][pairs[i]] += 1
+            if pairs[i]<pairs[j]:
+                Q[pairs[i]][pairs[j]] += 1
+            else:
+                Q[pairs[j]][pairs[i]] += 1
     if debugFlag:
         print "Time to add found quartets to the dictionary: "
         tm.toc()
@@ -270,8 +273,10 @@ def removeFromQuartetLentreeshAnchored(T,listTaxa,taxaDict):
             L.append(taxaDict[t.taxon.label])
         x.append(L)
     for pt in itertools.product(*x):
-        T[pt[0]][pt[1]] -= 1
-        T[pt[1]][pt[0]] -= 1
+        if pt[0]<pt[1]:
+            T[pt[0]][pt[1]] -= 1
+        else:
+            T[pt[1]][pt[0]] -= 1
     return 
 def removeFromQuartetLentreesh(Q,listTaxa,anch):
     x = list()
@@ -772,3 +777,230 @@ def readFrqAnchoredOnFile(filename):
         a=line.split("$")
         Q[a[0]] = [float(a[1]),float(a[2])]
     return Q
+def traverseAndFindPoly(node,root,con_tree,setPolyNodes,debugFlag):
+    to_cover = set()
+    while(node.parent_node is not root):
+        if debugFlag:
+            tm.tic()
+        node = node.parent_node
+        if debugFlag:
+            print "finding children of this node takes: "
+            tm.tic()
+        if node.label in setPolyNodes:
+            to_cover.add(node.label)
+    return to_cover
+def checkAroundPoly(to_resolve,ac,con_tree,setPolyNodes,debugFlag):
+    return
+def findAnchoredQuartetsOverall(anch,to_resolve,e,trees,taxa,out,debugFlag):
+    n = len(trees)
+    if debugFlag:
+        tm.tic()
+    [Q,T,taxaDict,clades,L1,L2,m,C] = buildEmptyQuartetsOverall(anch,to_resolve,e,taxa,n)
+    if debugFlag:
+        print "Initializing arrays takes: "
+        tm.toc()
+    for tree in trees:
+        rerooted=reroot(tree,anch)
+#         tm.toc()
+        node = rerooted[0]
+        root = rerooted[1]
+        
+        if debugFlag:
+            tm.tic()
+#         listTaxaTmp=list()
+        while(node.parent_node is not root):
+            if debugFlag:
+                tm.tic()
+            node_pre = node
+#             if node_pre.is_leaf():
+#                 listTaxaTmp.append(node_pre)
+#                 
+            node = node.parent_node
+            if debugFlag:
+                print "finding children of this node takes: "
+                tm.tic()
+            chs = node.child_nodes()
+            if debugFlag:
+                tm.toc()
+            chs_n = len(chs)
+            
+            if len(chs)>2:
+                for i in range(0,chs_n):
+                    ch = chs[i]
+                    if (ch == node_pre):
+                        continue
+                    else:
+                        if debugFlag:
+                            tm.tic()    
+                        listTaxa = ch.leaf_nodes()
+                        if debugFlag:
+                            print "adding quartets around this node takes (more than 2 children): "
+                        addQuartetsAnchoredOverall(listTaxa,Q,taxaDict,e,anch,L1,L2,m,debugFlag)
+                        if debugFlag:
+                            tm.toc()
+                    for j in range(i+1,chs_n):
+                        if (chs[i] == chs[j]) or (chs[j]==node_pre):
+                            continue
+                        else:
+                            if debugFlag:
+                                tm.tic()
+                            listTaxatmp = [listTaxa,chs[j].leaf_nodes()]
+                            removeFromQuartetLentreeshAnchoredOverall(T,listTaxatmp,taxaDict,e,m)
+                            if debugFlag:
+                                print "adding quartets around this node takes (more than 2 children): "
+                                tm.toc()
+            else:
+                for ch in chs:
+                    if (ch==node_pre):
+                        continue
+                    else:
+                        if debugFlag:
+                            tm.tic()
+                        listTaxa = ch.leaf_nodes()
+                        if len(listTaxa) == 1:
+                            continue
+                        addQuartetsAnchoredOverall( listTaxa,Q,taxaDict,e,anch,L1,L2,m,debugFlag)
+                        if debugFlag:
+                            print "adding quartets around this node takes (less than two children): "
+                            tm.toc()
+            if debugFlag:
+                print "finding quartets on this node is finished!"
+                tm.toc()
+        if debugFlag:
+            print "time for counting is: "
+            tm.toc()
+    frq=makeTrueFrqOverall(Q,T,clades,anch,C)
+    return frq
+def removeFromQuartetLentreeshAnchoredOverall(T,listTaxa,taxaDict,e,m):
+    x = list()
+    for et in listTaxa:
+        L = list()
+        for t in et:
+            L.append(taxaDict[t.taxon.label])
+        l = countNum(L,m)
+        x.append(l)
+    for i in range(0,len(x)):
+        for j in range(i+1,len(x)):
+            l1 = x[i]
+            l2 = x[j]
+            for k in l1:
+                for z in l2:
+                    if k == z: 
+                        continue
+                    key = " ".join(sorted([z,k]))
+#                     T[i][j] -= l1[k]*l2[z]
+                    T[key] -= l1[k]*l2[z]
+    return
+
+
+
+def findAllChildrenPairsOverall(listTaxa,taxaDict,L1,L2,debugFlag):
+    listTaxaLabels = list()
+    if debugFlag:
+            tm.tic()
+    for t in listTaxa:
+        
+#         if t.taxon.label in L1  or t.taxon.label in L2:
+#             print "in L1 or L2"
+#             continue
+        listTaxaLabels.append(taxaDict[t.taxon.label])
+    if debugFlag:
+        print "Time to find indeces"
+        tm.toc()
+    return listTaxaLabels
+
+
+def addQuartetsAnchoredOverall(listTaxa,Q,taxaDict,e,anch,L1,L2,m,debugFlag):
+    if debugFlag:
+        tm.tic()
+    pairs = findAllChildrenPairsOverall(listTaxa,taxaDict,L1,L2,debugFlag)
+    if debugFlag:
+        print "Time to find all pairs: "
+        tm.toc()
+    if debugFlag:
+        tm.tic()
+        print "length of these pairs is: "+str(len(pairs)*(len(pairs)-1)/2)
+    l = countNum(pairs,m)
+    lKey = l.keys()
+    for i in range(0,len(lKey)):
+#         if l[i] == 0:
+#             continue
+        for j in range(i+1,len(lKey)):
+#             if l[j] == 0:
+#                 continue
+            key = " ".join(sorted([lKey[i],lKey[j]]))
+            Q[key] += l[lKey[i]]*l[lKey[j]]
+#             Q[j][i] += l[i]*l[j]
+    if debugFlag:
+        print "Time to add found quartets to the dictionary: "
+        tm.toc()
+    return 
+    
+    return
+def buildEmptyQuartetsOverall(anch,to_resolve,e,taxa,k):
+    taxaDict = dict()
+    (taxa_list,taxa_inv) =  tstt.getTaxaList(to_resolve[e.label])
+    N1=taxa_inv[anch[0]]
+    N2=taxa_inv[anch[1]]
+    C = {N1,N2}
+    L1 = set(taxa_list[N1])
+    L2 = set(taxa_list[N2])
+    clades = set(taxa_list.keys())
+    m = len(clades)
+    dictClade = dict()
+    N = len(taxa_list.keys())
+    TaxaList =taxa_list.keys()
+    for j in range(len(TaxaList)):
+#         tmp = list()
+        dictClade[TaxaList[j]] = j
+#         for k in range(j+1,len(TaxaList)):
+#             tmp.append(1.5+k*len(TaxaList[k])*len(TaxaList[j]))
+#         T.append(tmp)
+#     for t in taxa:
+#         taxaDict[t] = dictClade[taxa_inv[t]]
+#     Q = [[0.5 for _ in range(0,N)] for _ in range(0,N)]
+    taxaDict = taxa_inv
+    Q = dict()
+    T = dict()
+    for i in range(len(TaxaList)):
+        for j in range(i+1,len(TaxaList)):
+            a = sorted([TaxaList[i],TaxaList[j]])
+            Q[" ".join(a)] = 0.5
+            T[" ".join(a)] = k*len(taxa_list[TaxaList[i]])*len(taxa_list[TaxaList[j]])+1.5
+#     listPoly = taxa_list.keys()
+#     T = [[1.5+k*len(taxa_list[listPoly[i]])*len(taxa_list[listPoly[j]]) for i in range(0,N)] for j in range(0,N)]
+    return [Q,T,taxaDict,clades,L1,L2,m,C] 
+def makeTrueFrqOverall(Q,T,clades,anch,C):
+    frq = dict()
+    n = len(Q)
+    
+    clades =list(set(clades))
+    for kt in Q:
+            p = sorted(kt.split(" "))
+#             p = sorted([I,J])
+            key = genKey(p,anch)
+            val = [Q[kt],T[kt]]
+            frq[key] = val
+    return frq
+def countNum(L,n):
+#     l = [0 for _ in range(n)]
+    l = dict()
+    
+    for j in L:
+        if j in l:
+            l[j] += 1
+        else:
+            l[j] = 1 
+    return l
+def findAnchoredDistanceTableOverall(achs,trees,to_resolve,e,taxa,out,debugFlag):
+    frq=findAnchoredQuartetsOverall(achs,to_resolve,e,trees,taxa,out,debugFlag)
+    D = dict()
+#     for k in frq:
+#         kt = sorted(k.split("/"))
+#         if ((achs[0] in kt ) and( achs[1] in kt)):
+#             s = sorted(list(set(kt)-{achs[0],achs[1]}))
+#             key1 = kt
+#             key2 = s[1]+" "+s[0]
+#             D[key1]=-np.log(frq[k][0]/float(frq[k][1]))
+#             D[key2]=D[key1]
+    return [D,frq]

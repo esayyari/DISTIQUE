@@ -12,10 +12,15 @@ from scipy.stats import mstats
 import subprocess
 import shutil
 from numpy.lib.index_tricks import nd_grid
-WS_LOC_SHELL= os.environ['WS_HOME']+'/DISTIQUE/src/shell'
-WS_LOC_FM = os.environ['WS_HOME']+'/fastme-2.1.4/src'
-WS_LOC_PH = os.environ['WS_HOME']+'/PhyDstar/'
-WS_LOC_NJ = os.environ['WS_HOME']+'/ninja'
+WS_HOME='/Users/Erfan/Documents/Research/'
+# WS_LOC_SHELL= os.environ['WS_HOME']+'/DISTIQUE/src/shell'
+# WS_LOC_FM = os.environ['WS_HOME']+'/fastme-2.1.4/src'
+# WS_LOC_PH = os.environ['WS_HOME']+'/PhyDstar/'
+# WS_LOC_NJ = os.environ['WS_HOME']+'/ninja'
+WS_LOC_SHELL= WS_HOME+'/DISTIQUE/src/shell'
+WS_LOC_FM = WS_HOME+'/fastme-2.1.4/src'
+WS_LOC_PH = WS_HOME+'/PhyDstar/'
+WS_LOC_NJ = WS_HOME+'/ninja'
 def buildTree(setNodeLabels,tree,center):
     inferedTree = tree.clone(2)
     taxa = dendropy.TaxonNamespace()
