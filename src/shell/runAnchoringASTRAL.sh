@@ -72,23 +72,39 @@ res50half=`mktemp -d $tmpDIR/50genes.half.XXXXX` || exit 1
 res200half=`mktemp -d $tmpDIR/200genes.half.XXXXX` || exit 1
 res1000half=`mktemp -d $tmpDIR/1000genes.half.XXXXX` || exit 1
 
-
-$WS_LOC_UTIL/testAnchoring-v$v"."py -g $gt1000half -o $res1000half -n $n > $res1000half/results.log 2>&1
+if [ -s $gt1000half ]; then
+$WS_LOC_UTIL/testAnchoring-v$v"."py -g $gt1000half -o $res1000half -n $n -u fastme -z B > $res1000half/results.log 2>&1
 echo "working on $i/estimatedgenetre.halfresolved1000 has been finished!"
-$WS_LOC_UTIL/testAnchoring-v$v"."py -g $gt200half  -o $res200half  -n $n > $res200half/results.log 2>&1
+fi
+if [ -s $gt200half ]; then
+$WS_LOC_UTIL/testAnchoring-v$v"."py -g $gt200half  -o $res200half  -n $n -u fastme -z B > $res200half/results.log 2>&1
 echo "working on $i/estimatedgenetre.halfresolved200 has been finished!"
-$WS_LOC_UTIL/testAnchoring-v$v"."py -g $gt50half   -o $res50half   -n $n > $res50half/results.log 2>&1
+fi
+if [ -s $gt50half ]; then
+$WS_LOC_UTIL/testAnchoring-v$v"."py -g $gt50half   -o $res50half   -n $n -u fastme -z B > $res50half/results.log 2>&1
 echo "working on $i/estimatedgenetre.halfresolved50 has been finished!"
-$WS_LOC_UTIL/testAnchoring-v$v"."py -g $gt1000true -o $res1000true -n $n > $res1000true/results.log 2>&1
+fi
+if [ -s $res1000true ]; then
+$WS_LOC_UTIL/testAnchoring-v$v"."py -g $gt1000true -o $res1000true -n $n -u fastme -z B > $res1000true/results.log 2>&1
 echo "working on $i/truegenetre1000 has been finished!"
-$WS_LOC_UTIL/testAnchoring-v$v"."py -g $gt200true  -o $res200true  -n $n > $res200true/results.log 2>&1
+fi
+if [ -s $res200true ]; then
+$WS_LOC_UTIL/testAnchoring-v$v"."py -g $gt200true  -o $res200true  -n $n -u fastme -z B > $res200true/results.log 2>&1
 echo "working on $i/truegenetre200 has been finished!"
-$WS_LOC_UTIL/testAnchoring-v$v"."py -g $gt50true   -o $res50true   -n $n > $res50true/results.log 2>&1
+fi
+if [ -s $res50true ]; then
+$WS_LOC_UTIL/testAnchoring-v$v"."py -g $gt50true   -o $res50true   -n $n -u fastme -z B> $res50true/results.log 2>&1
 echo "working on $i/truegenetre50 has been finished!"
+fi
 if [ "$v" == "3" ]; then
 	for x in `find $tmpDIR -name "distance.*"`; do
 		y=$(dirname $x)
 		$WS_HOME/DISTIQUE/src/shell/compare.tree.sh -s $sp -g $x > $y/results-distique-v$v"."score
+	done
+elif [ "$v" == "5" ]; then
+	for x in `find $tmpDIR -name "distance.*"`; do
+		y=$(dirname $x)
+                $WS_HOME/DISTIQUE/src/shell/compare.tree.sh -s $sp -g $x > $y/results-distique-v$v"."score
 	done
 else
 	for x in `find $tmpDIR -name "distiq*"`; do
