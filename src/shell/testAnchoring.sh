@@ -74,7 +74,7 @@ cat $out/distance-*.nwk* > $out/anchored_trees
 cat $out/anchored_mrl_tree.nwk >> $out/anchored_trees
 fi
 tar czvf  $out/results$v-$nt-$z-$u.tar.gz $out/*
-mv $out/results$nt-$c.tar.gz $out_final
+mv $out/results$v-$nt-$z-$u.tar.gz $out_final
 done
 tar czvf $o/results$v-$nt-$z-$u.tar.gz $out_final/*
 #mv $out_final/results$nt-$m.tar.gz $o
