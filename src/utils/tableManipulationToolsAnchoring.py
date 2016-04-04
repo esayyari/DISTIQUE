@@ -404,7 +404,6 @@ def findTrueAverageTableAnchoringAddDistancesOverallFromFile(frq, anch, list_tax
     lst_taxa = list_taxa.keys()
     TotalKey = dict()
     n = len(lst_taxa)
-    numG = max(v[1] for v in frq.values())
     skipClades = N
     for i in range(0, n):
         if lst_taxa[i] in skipClades:
@@ -438,4 +437,219 @@ def findTrueAverageTableAnchoringAddDistancesOverallFromFile(frq, anch, list_tax
         vtt = (v2[0]+0.5)/(v2[1]+1.5)
         TotalKeyf[q] = vtt
     tm.toc()
+    return TotalKeyf
+def findTrueAverageTableAnchoringOnDifferentSidesOverall(frq,anch,list_taxa,N1,N2,method, met):
+    anch = sorted(list(anch))
+    lst_taxa = list(list_taxa.keys())
+    TotalKey = dict()
+    n = len(lst_taxa)
+    N = {N1,N2}
+    for i in range(0,n):
+        if lst_taxa[i] in N:
+            continue 
+        for j in range(i+1,n):
+            if lst_taxa[j] in N:
+                continue
+            p = sorted([lst_taxa[i],lst_taxa[j]])
+            key_orig = genKey(p,anch)
+
+            l = sorted([lst_taxa[i],lst_taxa[j],anch[0],anch[1]])
+            key_inv = "/".join(l)
+            v = frq[key_orig]
+            v_inv = float(v[0])/v[1]
+            if key_inv in TotalKey:
+                if (met=="freq"):
+                    vt = TotalKey[key_inv]
+                    vt.append(v_inv)
+                elif met == "log":
+                    vt = TotalKey[key_inv]
+                    vt.append(-np.log(1.*v_inv))
+            else:
+                if (met == "freq"):
+                    vt = list()
+                    vt.append(v_inv)
+                elif met == "log":
+                    vt = list()
+                    vt.append(-np.log(1.*v_inv))
+            TotalKey[key_inv] = vt
+    TotalKeyf = dict()
+    for q,v2 in TotalKey.iteritems():
+        l = set(q.split("/"))
+        l = list(l - set(anch))
+        if met == "log":
+            if method == "gmean":
+                vtt = np.exp(-stats.gmean(v2))
+            elif method == "mean":
+                vtt = np.exp(-mean(v2))
+        else:
+            vtt = np.exp(-sqrt(mean(square(v2))))
+        if met == "freq":
+            if method == "gmean":
+                vtt = (stats.gmean(v2))
+            elif method == "mean":
+                vtt = (mean(v2))
+            else:
+                vtt = (sqrt(mean(square(v2))))
+        TotalKeyf[q] = vtt
+    return TotalKeyf
+def findTrueAverageTableAnchoringOnDifferentSidesSmallPolytomiesOverall(frq,TotalKeyf,anch,list_taxa,N1,N2,method,met):
+    anch = sorted(list(anch))
+    lst_taxa = list(list_taxa.keys())
+    TotalKey = dict()
+    n = len(lst_taxa)
+    
+    N = {N1,N2}
+    NL = sorted(list(N))
+    for i in range(0,n):
+        if lst_taxa[i] in N:
+            continue
+        for j in range(i+1,n):
+            if lst_taxa[j] in N:
+                continue
+            p=sorted([lst_taxa[i],lst_taxa[j]])
+            key_orig = genKey(p, anch)
+
+            l = sorted([lst_taxa[i],lst_taxa[j],N1,N2])
+            key_inv = "/".join(l)
+            v = frq[key_orig]
+            v_inv = float(v[0])/v[1]
+            if key_inv in TotalKey:
+                if (met=="freq"):
+                    vt = TotalKey[key_inv]
+                    vt.append(v_inv)
+                elif met == "log":
+                    vt = TotalKey[key_inv]
+                    vt.append(-np.log(1.*v_inv))
+            else:
+                if (met == "freq"):
+                    vt = list()
+                    vt.append(v_inv)
+                elif met == "log":
+                    vt = list()
+                    vt.append(-np.log(1.*v_inv))
+            TotalKey[key_inv] = vt
+    for q,v2 in TotalKey.iteritems():
+        l = sorted(list(q.split("/")))
+        O = sorted(list(set(l)-N))
+        if l[0] == NL[0]:
+            key = NL[1]
+        elif l[0] == O[0]:
+            key = O[1]
+        if q in TotalKeyf:
+            vtmp=TotalKeyf[q]
+            if key in vtmp:
+                for x in v2:
+                    vtmp[key].append(x)
+            else:
+                vtmp[key] = v2
+        else:
+            vtmp = dict()
+            vtmp[key] = v2 
+            TotalKeyf[q] = vtmp
+    return TotalKeyf
+
+    
+def findTrueAverageTableAnchoringOnDifferentSidesOverallFromFile(frq,anch,list_taxa,N1,N2,method, met):
+    anch = sorted(list(anch))
+    lst_taxa = list(list_taxa.keys())
+    TotalKey = dict()
+    n = len(lst_taxa)
+    N = {N1,N2}
+    for i in range(0,n):
+        if lst_taxa[i] in N:
+            continue 
+        for j in range(i+1,n):
+            if lst_taxa[j] in N:
+                continue
+            for taxon_i in list_taxa[lst_taxa[i]]:
+                for taxon_j in list_taxa[lst_taxa[j]]:
+                    lab_taxon_i = taxon_i
+                    lab_taxon_j = taxon_j
+                    p = sorted([lab_taxon_i,lab_taxon_j])
+                    key_orig = genKey(p,anch)
+                    l = sorted([lst_taxa[i], lst_taxa[j], anch[0], anch[1]])
+                    key_inv = "/".join(l)        
+                    v = frq[key_orig]
+                    if len(v) == 1:
+                        v.append(1)
+                    else:
+                        v[0] -= 0.5
+                        v[1] -= 1.5   
+                    if key_inv in TotalKey:
+                            vt = TotalKey[key_inv]
+                            vt[0] += v[0]
+                            vt[1] += v[1]
+                    else:
+                            vt = list()
+                            vt = v
+                    TotalKey[key_inv] = vt
+    TotalKeyf = dict()
+            
+        
+    for q,v2 in TotalKey.iteritems():
+        l = set(q.split("/"))
+        l = list(l - set(anch))
+        
+        TotalKeyf[q] = (v2[0]+0.5)/(v2[1]+1.5)
+    return TotalKeyf
+
+
+def findTrueAverageTableAnchoringOnDifferentSidesSmallPolytomiesOverallFromFile(frq,TotalKeyf,anch,list_taxa,N1,N2,method,met):
+    anch = sorted(list(anch))
+    lst_taxa = list(list_taxa.keys())
+    TotalKey = dict()
+    n = len(lst_taxa)
+    
+    N = {N1,N2}
+    NL = sorted(list(N))
+    for i in range(0,n):
+        if lst_taxa[i] in N:
+            continue
+        for j in range(i+1,n):
+            if lst_taxa[j] in N:
+                continue
+            for taxon_i in list_taxa[lst_taxa[i]]:
+                for taxon_j in list_taxa[lst_taxa[j]]:
+                    lab_taxon_i = taxon_i
+                    lab_taxon_j = taxon_j
+                    p = sorted([lab_taxon_i,lab_taxon_j])
+                    key_orig = genKey(p,anch)
+                    l = sorted([lst_taxa[i], lst_taxa[j],N1,N2])
+                    key_inv = "/".join(l)        
+                    v = frq[key_orig]
+                    if len(v) == 1:
+                        v.append(1)
+                    else:
+                        v[0] -= 0.5
+                        v[1] -= 1.5   
+                    if key_inv in TotalKey:
+                            vt = TotalKey[key_inv]
+                            vt[0] += v[0]
+                            vt[1] += v[1]
+                    else:
+                            vt = list()
+                            vt = v
+                    TotalKey[key_inv] = vt
+    for q,v2 in TotalKey.iteritems():
+        l = sorted(list(q.split("/")))
+        O = sorted(list(set(l)-N))
+        vtt = (v2[0]+0.5)/(v2[1]+1.5)
+        if l[0] == NL[0]:
+            key = NL[1]
+        elif l[0] == O[0]:
+            key = O[1]
+        print key
+        if q in TotalKeyf:
+            vtmp=TotalKeyf[q]
+            if key in vtmp:
+                vtmp[key].append(vtt)
+            else:
+                vtmp=dict()
+                vtmp[key] = list()
+                vtmp[key].append(vtt)
+        else:
+            vtmp = dict()
+            vtmp[key] = list()
+            vtmp[key].append(vtt) 
+        TotalKeyf[q] = vtmp
     return TotalKeyf

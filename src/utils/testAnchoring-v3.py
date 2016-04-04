@@ -243,7 +243,7 @@ for e in skippedPoly:
                 print "time elapsing  for counting number of quartets for this anchors is: "
                 tm.tic()
             if not readFromFile:
-                if anch_temp in c:
+                if anch_temp in computedAnchors:
                     print "using precomputed quartet table"
                     fname = computedAnchors[anch_temp]
                     frq = atbs.readFrqAnchoredOnFile(fname)
