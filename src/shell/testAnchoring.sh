@@ -64,7 +64,7 @@ START=1
 for (( c=$START; c<=$END; c++ ))
 do
 out=`mktemp -d`
-if [ "$v" == "5" or "$v" == "3" ]; then
+if [ "$v" == "5" ] || [ "$v" == "3" ]; then
 $WS_LOC_PUTIL/testAnchoring-v$v.py -g $gt -o $out -n $nt -u $u -z $z
 
 else

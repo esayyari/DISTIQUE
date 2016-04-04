@@ -118,9 +118,15 @@ for e in con_tree.postorder_node_iter():
 		ftmp3=tempfile.mkstemp(suffix='.d', prefix="distancet.d", dir=outpath, text=None)
 		tbs.distanceTable(quartTable,method,ftmp3[1],met)
 		ftmp4=tempfile.mkstemp(suffix='.nwk',prefix="distance.d_fastme_tree.nwk",dir=outpath,text=None)
-        	tstt.buildTreeFromDistanceMatrix(ftmp3[1],ftmp4[1],sumProg,sumProgOption)
-	        os.close(ftmp3[0])
-        	os.close(ftmp4[0])
+		os.close(ftmp3[0])
+		ftmp4=tempfile.mkstemp(suffix='.nwk',prefix="distance.d_fastme_tree.nwk",dir=outpath,text=None)
+		FNULL = open(os.devnull,'w')
+		subprocess.call([WS_LOC_FM+"/fastme", "-i",ftmp3[1],"-w","none","-o",ftmp4[1],"-I","/dev/null"],stdout=FNULL,stderr=subprocess.STDOUT)
+		os.close(ftmp4[0])
+
+#        	tstt.buildTreeFromDistanceMatrix(ftmp3[1],ftmp4[1],sumProg,sumProgOption)
+#	        os.close(ftmp3[0])
+ #       	os.close(ftmp4[0])
 	        if verbose:
             		print "starting to resolve polytomy"	
 	        res= tstt.resolvePolytomy(ftmp4[1],e,verbose)	
