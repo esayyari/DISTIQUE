@@ -17,10 +17,10 @@ import dendropy
 import gc
 WS_HOME="/Users/Erfan/Documents/Research"
 
-# WS_LOC_SHELL= os.environ['WS_HOME']+'/DISTIQUE/src/shell'
-# WS_LOC_FM = os.environ['WS_HOME']+'/fastme-2.1.4/src'
-WS_LOC_SHELL = "/Users/Erfan/Documents/Research//DISTIQUE/src/shell"
-WS_LOC_FM = "/Users/Erfan/Documents/Research//DISTIQUE/fastme-2.1.4/src"
+WS_LOC_SHELL= os.environ['WS_HOME']+'/DISTIQUE/src/shell'
+WS_LOC_FM = os.environ['WS_HOME']+'/fastme-2.1.4/src'
+# WS_LOC_SHELL = "/Users/Erfan/Documents/Research//DISTIQUE/src/shell"
+# WS_LOC_FM = "/Users/Erfan/Documents/Research//DISTIQUE/fastme-2.1.4/src"
 
 usage = "usage: %prog [options]"
 parser = OptionParser(usage)
