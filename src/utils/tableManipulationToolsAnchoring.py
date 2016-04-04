@@ -369,8 +369,8 @@ def findTrueAverageTableAnchoringAddDistancesOverall(frq, anch, list_taxa, N,met
     anch = sorted(list(anch))
     lst_taxa = list_taxa.keys()
     TotalKey = dict()
+
     n = len(lst_taxa)
-    numG = max(v[1] for v in frq.values())
     skipClades = N
     for i in range(0, n):
         if lst_taxa[i] in skipClades:

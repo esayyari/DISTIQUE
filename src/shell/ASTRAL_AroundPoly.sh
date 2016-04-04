@@ -55,21 +55,11 @@ out=anchored_mrl_tree.nwk
 #  exit 0;
 #fi
 cd $outdir
+	#v=$(find $WS_HOME/ASTRAL/ -name "astral.*jar" )
+	#vt=$(ls $v)
+java -Xmx2500M -jar $WS_HOME/ASTRAL/astral.4.10.3.jar -i $in -o $o 
+	
 
-		
-	tmp=`mktemp $outdir/mrpmaptrix.$out.XXXXX`
-	java -jar $FASTMRP/mrp.jar $in $tmp  PHYLIP -randomize > $I 2>&1
-
-#rm -f RAxML_*$out*
-	$raxml -m BINCAT -s $tmp -n $out -N 2 -p $RANDOM > $I 2>&1
-
-#test "$?" != "0" && exit 1
-
-	mv RAxML_bestTree.$out* $o
-	mv RAxML_info.$out $outdir/mrl.log
-
-	rm RAxML_*$out* 
-
-echo MRL Done. Output at: $o
+echo ASTRAL Done. Output at: $o
 
 

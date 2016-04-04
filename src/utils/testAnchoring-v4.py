@@ -47,6 +47,8 @@ parser.add_option("-u",dest="sumProg",
         help = "The summerize method program to find species tree from distance matrix. The options are ninja, fastme, phydstar. Default is fastme ",default="fastme") 
 parser.add_option("-z",dest="sumProgOption",
                   help = "The distance method to build the tree. If sumProg is set to fastme the options are TaxAdd_(B)alME (-s), TaxAdd_(B2)alME (-n), TaxAdd_(O)LSME (-s), TaxAdd_(O2)LSME (-n), B(I)ONJ (default), (N)J. The default in this case is B(I)ONJ. if the  sumProg is set to phydstar, the options are BioNJ, MVR, and NJ. The default is BioNJ.",default="I")
+parser.add_option("-x",dest="summary",
+                  help = "The summary method that will be used to summarize inferred species trees. Default is mrl",default = "mrl")
 (options,args) = parser.parse_args()
 filename = options.filename
 gt = options.gt
@@ -55,6 +57,7 @@ outpath = options.out
 thr = float(options.thr)
 sp = options.sp
 num = options.num
+summary = options.summary
 sumProg = options.sumProg
 sumProgOption = options.sumProgOption
 if sumProg == "phydstar" and sumProgOption == "":
@@ -271,10 +274,10 @@ if removeOutliers and verbose:
 
 for e in TreeList:
     if removeOutliers:
-        tstt.remove_outliers(TreeList[e],strategy,outpath,e)
+        tstt.remove_outliers(TreeList[e],strategy,outpath,e,summary)
 for e in con_tree.postorder_node_iter():
     if e in to_resolve:
-        ftmp4=tstt.findMRL(TreeList[e.label],e.label,outpath)
+        ftmp4=tstt.findMRL(TreeList[e.label],e.label,outpath,summary)
         if verbose:
             print "starting to resolve polytomy"       
         res=atbs.resolvePolytomy(ftmp4,e,verbose) 

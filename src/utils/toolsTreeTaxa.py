@@ -292,13 +292,13 @@ def findPolytomies_with_names(con_tree):
 
 
     return to_resolve, maxPolyOrder
-def remove_outliers(treeList,strategy,outpath,e):
+def remove_outliers(treeList,strategy,outpath,e,summary):
     print "the strategy is: "+strategy
     if len(treeList)<10:
         print "number of trees is "+str(len(treeList))+". This is not enough for outlier removal!"
         return treeList
     if strategy == "consensus10" or strategy == "consensus3":
-        ftmp=findMRL(treeList,e,outpath)
+        ftmp=findMRL(treeList,e,outpath,summary)
         ref_tree = dendropy.Tree.get(path=ftmp,schema="newick")
         treeList.append(ref_tree)
         d = list()
@@ -485,13 +485,16 @@ def chooseAnchoresAll(list_taxa,num,debugFlag):
                 print "printing taxa in list"
                 print a 
     return ac
-def findMRL(treeList,e,outpath):
+def findMRL(treeList,e,outpath,summary):
     ftmp3=tempfile.mkstemp(suffix='.nwk', prefix="distancet-allTreesAroundPoly-"+e+".nwk", dir=outpath, text=None)
     treeList.write(path=ftmp3[1],schema="newick",suppress_rooting=True,suppress_internal_node_labels=True)
     os.close(ftmp3[0])
     ftmp4=tempfile.mkstemp(suffix='.nwk', prefix="distancet-allTreesAroundPoly_MRL_tree"+e+".nwk",dir=outpath,text=None)
     FNULL = open(os.devnull, 'w')
-    subprocess.call([WS_LOC_SHELL+"/MRL_AroundPoly.sh", "-i",ftmp3[1],"-o",ftmp4[1]],stdout=FNULL,stderr=subprocess.STDOUT)
+    if summary == "mrl":
+        subprocess.call([WS_LOC_SHELL+"/MRL_AroundPoly.sh", "-i",ftmp3[1],"-o",ftmp4[1]],stdout=FNULL,stderr=subprocess.STDOUT)
+    elif summary == "astral":
+        subprocess.call([WS_LOC_SHELL+"/ASTRAL_AroundPoly.sh", "-i",ftmp3[1],"-o",ftmp4[1]],stdout=FNULL,stderr=subprocess.STDOUT)        
     os.close(ftmp4[0])
     return ftmp4[1]
 def buildTreeFromDistanceMatrix(distPath,outPath,sumProg,sumProgOption):

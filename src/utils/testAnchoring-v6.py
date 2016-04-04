@@ -14,6 +14,7 @@ import tempfile
 import testDependencies as tD
 import warnings
 import dendropy
+import gc
 WS_HOME="/Users/Erfan/Documents/Research"
 
 # WS_LOC_SHELL= os.environ['WS_HOME']+'/DISTIQUE/src/shell'
@@ -51,6 +52,7 @@ parser.add_option("-u",dest="sumProg",
         help = "The summerize method program to find species tree from distance matrix. The options are ninja, fastme, phydstar. Default is fastme ",default="fastme") 
 parser.add_option("-z",dest="sumProgOption",
                   help = "The distance method to build the tree. If sumProg is set to fastme the options are TaxAdd_(B)alME (-s), TaxAdd_(B2)alME (-n), TaxAdd_(O)LSME (-s), TaxAdd_(O2)LSME (-n), B(I)ONJ (default), (N)J. The default in this case is B(I)ONJ. if the  sumProg is set to phydstar, the options are BioNJ, MVR, and NJ. The default is BioNJ.",default="I")
+tm.tic()
 (options,args) = parser.parse_args()
 filename = options.filename
 gt = options.gt
@@ -126,8 +128,9 @@ for e in to_resolvettt:
         (taxa_list,taxa_inv) =  tstt.getTaxaList(val)
         acSmall[e] = tstt.chooseAnchoresAll(taxa_list,1,debugFlag)
         for acList in acSmall[e]:
-            smallAnchs.add(anch)
             for anch in acList:
+                smallAnchs.add(anch)
+
                 if len(ac) == 0:
                     continue
                 ac.append(anch)
@@ -151,16 +154,18 @@ if verbose:
     print "Filling method is: " + fillmethod
     print "Distance method is: "+ method
     print "Averaging distances around polytomies using method: "+ met
-    print "The number of anchores are: "+str(numAnchors)
+    print "The number of anchors are: "+str(max(numAnchors,len(smallAnchs)))
 count_distance_table = dict()
 computedAnchors = dict()
 k=0
-anchPoly = list()
-anchsList = list(ac)
-if anchsList is not None:
+acP = list()
+if ac is not None:
+    anchsList = list(ac)
+
+if len(ac) != 0:
     for k in range(len(anchsList)): 
         anch = anchsList[k]
-        anchPoly.append(list())
+        acP.append(list())
         for e in to_resolve:
             v = dict()
             val = to_resolve[e]
@@ -172,145 +177,92 @@ if anchsList is not None:
             N = {N1,N2}
             if e in skippedPoly and anch not in smallAnchs:
                 continue
-            v = [e.label,N,anch,taxa_list,taxa_inv]
-            anchPoly[k].append(v)
+            v = [e,N,anch]
+            acP[k].append(v)
+else:
+    k=0
+    for e in to_resolve:
+        for acList in acSmall[e.label]: 
+            for anch in acList:
+                acP.append(list())
 
-if anchPoly is not None:
-    count = 0
-    for i in range(len(anchPoly)):
-        k = len(anchPoly[i])
+                v = dict()
+                val = to_resolve[e]
+                (taxa_list, taxa_inv) = tstt.getTaxaList(val)
+                N1 = taxa_inv[anch[0]]
+                N2 = taxa_inv[anch[1]]
+                if N1 == N2:
+                    continue
+                N = {N1,N2}
+                v = [e,N,anch]
+                acP[k].append(v)
+                k+=1
+print "The number of rounds are: "+str(len(acP))
+distance_tables = []
+listPoly = to_resolve.keys()
+for z in range(len(listPoly)):
+    distance_tables.append([])
+for k in range(len(acP)):
         tm.tic()
-        if not readFromFile:
-            [_, frq] = atbs.findAnchoredDistanceTableOverall(anchPoly[i], trees,taxa, outpath,debugFlag)
-        else:
+        anch = sorted(anch)
+        anchPoly = list()
+        for vtt in acP[k]:
+            [e,N,anch] = vtt
+            val = to_resolve[e]
+            (taxa_list, taxa_inv) = tstt.getTaxaList(val)
+            g = [e,N,anch,taxa_list,taxa_inv]
+            anchPoly.append(g)
+
+        if  readFromFile:
             frq = atbs.findAnchoredDistanceTableFromFile(anch,frqT,taxa,outpath)
-        print "time elapsing time for counting number of quartets for anch "+anchsList[k][0]+" "+anchsList[k][1]+" which contributes to "+str(k)+"polytomies is:"
-        tm.toc()
-        
-        tm.tic()
-        if readFromFile:
-            quartTable = tbsa.findTrueAverageTableAnchoringAddDistancesOverallFromFile(frq,anch,taxa_list,N,method,met)
         else:
-            quartTable = tbsa.findTrueAverageTableAnchoringAddDistancesOverall(frq,anch,taxa_list,N,method,met)
-#         print frq
-#         print quartTable
-#         quartTable = frq
-        if debugFlag:
-            outpath1 = outpath + "/quartTable_Main-"+anch[0]+"-"+anch[1]+"-"+e.label+".qt"
-            tD.printQuartTable(frq,outpath1)
-            outpath2 = outpath + "/quartTable_Main_Processed-"+anch[0]+"-"+anch[1]+"-"+e.label+".qt"
-            tD.printQuartetTableAveraged(quartTable,outpath2)
-            outpath2 = outpath + "/listTaxa-"+e.label+".lt"
-            tD.printTaxaList(taxa_list,outpath2)
-        [Dtmp,Ctmp] = atbs.anchoredDistanceFromFrqAddDistances(quartTable,anch,taxa_list)
-        if debugFlag:
-            outpath2 = outpath +"/DistanceTable-"+anch[0]+"-"+anch[1]+"-"+e.label+".dt"
-            outpath3 = outpath +"/CountTable-"+anch[0]+"-"+anch[1]+"-"+e.label+".ct"
-            tD.printDistanceTable(Dtmp,Ctmp,outpath2,outpath3)
-        atbs.fillEmptyElementsDistanceTable(Dtmp,Ctmp,fillmethod)
-        if debugFlag:
-            outpath3 = outpath +"/FilledCountTable-"+anch[0]+"-"+anch[1]+"-"+e.label+".fct"
-            outpath2 = outpath+"/FilledDistanceTable-"+anch[0]+"-"+anch[1]+"-"+e.label+".fdt"
-            tD.printDistanceTable(Dtmp,Ctmp,outpath2,outpath3)
-        if e.label in distance_tables:
-            atbs.addDistanceAnchores(distance_tables[e.label],Dtmp,count_distance_table[e.label],Ctmp,fillmethod)
-        else:
-            if fillmethod == "normConst":
-                Dmax = max(np.abs(Dtmp.values()))*1.
-                if Dmax == 0:
-                    Dmax = 1.
-                for kttDtmp in Dtmp:
-                    Dtmp[kttDtmp] = Dtmp[kttDtmp]/Dmax
-                distance_tables[e.label] = Dtmp
-                count_distance_table[e.label] = Ctmp
-            else:
-                distance_tables[e.label] = Dtmp
-                count_distance_table[e.label] = Ctmp
-        print "Computing distance table using anchors "+anch[0]+" and "+anch[1]+" has been finished!"
-        print "The anchor "+str(count)+" out of "+str(len(ac))+" anchors has been finished!"
-        count += 1
-        tm.toc()
-for e in skippedPoly:
-    i = 0
-    val = to_resolve[e]
-    (taxa_list,taxa_inv) =  tstt.getTaxaList(val)
-    for achList in acSmall[e.label]:
-        if verbose:
-            tm.tic()
-        for anch in achList:
+            frq = atbs.findAnchoredDistanceTableOverall(anchPoly, trees,taxa, outpath,debugFlag)
             
-            anch = sorted(list(anch))
-            anch_temp = "/".join(anch)
-            if verbose:
-                print anch
-                print "time elapsing  for counting number of quartets for this anchors is: "
-                tm.tic()
+        print "time elapsing time for counting number of quartets for anch "+anch[0]+" "+anch[1]
+        for l in range(len(anchPoly)):
             if not readFromFile:
-                 [_, frq] = atbs.findAnchoredDistanceTableOverall(anch, trees, to_resolvettt,e,taxa, outpath,debugFlag)
-#                  fileFrq = "frequency-"+e.label+"-"+anch[0]+"-"+anch[1]
-#                  ftmp1 = tempfile.mkstemp(suffix='.frq', prefix=fileFrq, dir=outpath, text=None)
-#                  atbs.writeFrqAnchoredOnFile(frq,ftmp1[1])
-#                  computedAnchors[anch_temp] = ftmp1[1]
-#                  os.close(ftmp1[0])
+                [e,frqTmp,anch,taxa_list,N] = frq[l]
             else:
-                frq = atbs.findAnchoredDistanceTableFromFile(anch,frqT,taxa,outpath)
-            if verbose:
-                tm.toc()
-            for nd in taxa_list:
-                if anch[0] in taxa_list[nd]:
-                    N1 = nd
-                if anch[1] in taxa_list[nd]:
-                    N2 = nd    
-            N = {N1,N2}
-            
+                [e,N,anch,taxa_list,taxa_inv]=anchPoly[l]
+                frqTmp = frq
             if readFromFile:
-                quartTable = tbsa.findTrueAverageTableAnchoringAddDistancesOverallFromFile(frq,anch,taxa_list,N,method,met)
+                quartTable = tbsa.findTrueAverageTableAnchoringAddDistancesOverallFromFile(frqTmp,anch,taxa_list,list(N),method,met)
             else:
-                quartTable = tbsa.findTrueAverageTableAnchoringAddDistancesOverall(frq,anch,taxa_list,N,method,met)            
-            if debugFlag:
-                outpath1 = outpath + "/quartTable_Main-"+anch[0]+"-"+anch[1]+"-"+e.label+".qt"
-                tD.printQuartTable(frq,outpath1)
-                outpath2 = outpath + "/quartTable_Main_Processed-"+anch[0]+"-"+anch[1]+"-"+e.label+".qt"
-                tD.printQuartetTableAveraged(quartTable,outpath2)
-                outpath2 = outpath + "/listTaxa-"+e.label+".lt"
-                tD.printTaxaList(taxa_list,outpath2)
+                quartTable = tbsa.findTrueAverageTableAnchoringAddDistancesOverall(frqTmp,anch,taxa_list,list(N),method,met)
             [Dtmp,Ctmp] = atbs.anchoredDistanceFromFrqAddDistances(quartTable,anch,taxa_list)
-            if debugFlag:
-                outpath2 = outpath +"/DistanceTable-"+anch[0]+"-"+anch[1]+"-"+e.label+".dt"
-                outpath3 = outpath +"/CountTable-"+anch[0]+"-"+anch[1]+"-"+e.label+".ct"
-                tD.printDistanceTable(Dtmp,Ctmp,outpath2,outpath3)
             atbs.fillEmptyElementsDistanceTable(Dtmp,Ctmp,fillmethod)
-            if debugFlag:
-                outpath3 = outpath +"/FilledCountTable-"+anch[0]+"-"+anch[1]+"-"+e.label+".fct"
-                outpath2 = outpath+"/FilledDistanceTable-"+anch[0]+"-"+anch[1]+"-"+e.label+".fdt"
-                tD.printDistanceTable(Dtmp,Ctmp,outpath2,outpath3)
-            if e.label in distance_tables:
-                atbs.addDistanceAnchores(distance_tables[e.label],Dtmp,count_distance_table[e.label],Ctmp,fillmethod)
-            else:
+            z = listPoly.index(e)
+            if len(distance_tables[z]) ==0:
                 if fillmethod == "normConst":
                     Dmax = max(np.abs(Dtmp.values()))*1.
                     if Dmax == 0:
                         Dmax = 1.
                     for kttDtmp in Dtmp:
                         Dtmp[kttDtmp] = Dtmp[kttDtmp]/Dmax
-                    distance_tables[e.label] = Dtmp
-                    count_distance_table[e.label] = Ctmp
+                    distance_tables[z] = Dtmp
+                    count_distance_table[z] = Ctmp
                 else:
-                    distance_tables[e.label] = Dtmp
-                    count_distance_table[e.label] = Ctmp
-        print "Computing distance table using anchors "+anch[0]+" and "+anch[1]+" has been finished! Here!"
-        if ac is None:
-            if verbose:
-                print "The anchor "+str(count)+" out of "+str(len(ac))+" anchors has been finished!"
-            count += 1
-        tm.toc()
+                    distance_tables[z] = Dtmp
+                    count_distance_table[z] = Ctmp
+            else:
+                atbs.addDistanceAnchores(distance_tables[z],Dtmp,count_distance_table[z],Ctmp,fillmethod)
+            del frqTmp
+            del quartTable
+            print "Computing distance table using anchors "+anch[0]+" and "+anch[1]+" has been finished!"
 
+        del frq
+        if verbose:
+            print "the number of polytomies covered with this anchor was: "+str(len(anchPoly))
+            print "The round "+str(k)+" out of "+str(len(acP))+" rounds has been finished!"
+        if (k%50)==0:
+            gc.collect()
+        tm.toc()
 if verbose:
     print "Number of anchors is: "+str(len(ac))
 normalizedD = distance_tables
 normalizedC = count_distance_table
-for e in to_resolve:
-    flag=atbs.normalizeDistanceTable(normalizedD[e.label],normalizedC[e.label])   
+for z  in range(len(listPoly)):
+    flag=atbs.normalizeDistanceTable(normalizedD[z],normalizedC[z])   
     
 fileAnch = "listAnchors"
 ftmp3=tempfile.mkstemp(suffix='.txt', prefix=fileAnch, dir=outpath, text=None)
@@ -329,10 +281,13 @@ os.close(ftmp3[0])
 
 for e in con_tree.postorder_node_iter():
         if e in to_resolve:
-            keyDict = sorted(list(np.unique((" ".join(normalizedD[e.label].keys())).split(" "))))
+#             if e not in skippedPoly:
+#                 continue
+            z=listPoly.index(e)
+            keyDict = sorted(list(np.unique((" ".join(normalizedD[z].keys())).split(" "))))
             fileDistance = "distancet-"+str(e.label)+".d"
             ftmp3=tempfile.mkstemp(suffix='.d', prefix=fileDistance, dir=outpath, text=None)
-            pr.printDistanceTableToFile(normalizedD[e.label],keyDict,ftmp3[1])
+            pr.printDistanceTableToFile(normalizedD[z],keyDict,ftmp3[1])
             print "writing distance table to "+str(ftmp3[1])
             os.close(ftmp3[0])
             ftmp4=tempfile.mkstemp(suffix='.nwk', prefix=fileDistance+"_fastme_tree.nwk",dir=outpath,text=None)
@@ -346,3 +301,5 @@ print "writing the resulting tree as: "+outpath+"/distance.d_distique_anchoring_
 ftmp=tempfile.mkstemp(suffix='.nwk', prefix="distance.d_distique_anchoring_tree.nwk", dir=outpath, text=None)
 con_tree.write(path=ftmp[1],schema="newick",suppress_rooting=True,suppress_internal_node_labels=True)
 os.close(ftmp[0])
+print "The total time for infering species tree is: "
+tm.toc()
