@@ -52,6 +52,7 @@ parser.add_option("-u",dest="sumProg",
         help = "The summerize method program to find species tree from distance matrix. The options are ninja, fastme, phydstar. Default is fastme ",default="fastme") 
 parser.add_option("-z",dest="sumProgOption",
                   help = "The distance method to build the tree. If sumProg is set to fastme the options are TaxAdd_(B)alME (-s), TaxAdd_(B2)alME (-n), TaxAdd_(O)LSME (-s), TaxAdd_(O2)LSME (-n), B(I)ONJ (default), (N)J. The default in this case is B(I)ONJ. if the  sumProg is set to phydstar, the options are BioNJ, MVR, and NJ. The default is BioNJ.",default="I")
+tm.tic()
 (options,args) = parser.parse_args()
 filename = options.filename
 gt = options.gt
@@ -329,3 +330,5 @@ print "writing the resulting tree as: "+outpath+"/distance.d_distique_anchoring_
 ftmp=tempfile.mkstemp(suffix='.nwk', prefix="distance.d_distique_anchoring_tree.nwk", dir=outpath, text=None)
 con_tree.write(path=ftmp[1],schema="newick",suppress_rooting=True,suppress_internal_node_labels=True)
 os.close(ftmp[0])
+print "The overall time to infer the species tree is: "
+tm.toc()
