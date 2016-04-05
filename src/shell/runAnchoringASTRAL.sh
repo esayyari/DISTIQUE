@@ -77,27 +77,27 @@ res200half=`mktemp -d $tmpDIR/200genes.half.XXXXX` || exit 1
 res1000half=`mktemp -d $tmpDIR/1000genes.half.XXXXX` || exit 1
 
 if [ -s $gt1000half ]; then
-$WS_LOC_UTIL/testAnchoring-v$v"."py -g $gt1000half -o $res1000half -n $n -u fastme -z $z > $res1000half/results.log 2>&1
+/usr/bin/time -p $WS_LOC_UTIL/testAnchoring-v$v"."py -g $gt1000half -o $res1000half -n $n -u fastme -z $z > $res1000half/results.log 2>&1
 echo "working on $i/estimatedgenetre.halfresolved1000 has been finished!"
 fi
 if [ -s $gt200half ]; then
-$WS_LOC_UTIL/testAnchoring-v$v"."py -g $gt200half  -o $res200half  -n $n -u fastme -z $z > $res200half/results.log 2>&1
+/usr/bin/time -p $WS_LOC_UTIL/testAnchoring-v$v"."py -g $gt200half  -o $res200half  -n $n -u fastme -z $z > $res200half/results.log 2>&1
 echo "working on $i/estimatedgenetre.halfresolved200 has been finished!"
 fi
 if [ -s $gt50half ]; then
-$WS_LOC_UTIL/testAnchoring-v$v"."py -g $gt50half   -o $res50half   -n $n -u fastme -z $z > $res50half/results.log 2>&1
+/usr/bin/time -p $WS_LOC_UTIL/testAnchoring-v$v"."py -g $gt50half   -o $res50half   -n $n -u fastme -z $z > $res50half/results.log 2>&1
 echo "working on $i/estimatedgenetre.halfresolved50 has been finished!"
 fi
 if [ -s $res1000true ]; then
-$WS_LOC_UTIL/testAnchoring-v$v"."py -g $gt1000true -o $res1000true -n $n -u fastme -z $z > $res1000true/results.log 2>&1
+/usr/bin/time -p $WS_LOC_UTIL/testAnchoring-v$v"."py -g $gt1000true -o $res1000true -n $n -u fastme -z $z > $res1000true/results.log 2>&1
 echo "working on $i/truegenetre1000 has been finished!"
 fi
 if [ -s $res200true ]; then
-$WS_LOC_UTIL/testAnchoring-v$v"."py -g $gt200true  -o $res200true  -n $n -u fastme -z $z > $res200true/results.log 2>&1
+/usr/bin/time -p $WS_LOC_UTIL/testAnchoring-v$v"."py -g $gt200true  -o $res200true  -n $n -u fastme -z $z > $res200true/results.log 2>&1
 echo "working on $i/truegenetre200 has been finished!"
 fi
 if [ -s $res50true ]; then
-$WS_LOC_UTIL/testAnchoring-v$v"."py -g $gt50true   -o $res50true   -n $n -u fastme -z $z> $res50true/results.log 2>&1
+/usr/bin/time -p $WS_LOC_UTIL/testAnchoring-v$v"."py -g $gt50true   -o $res50true   -n $n -u fastme -z $z> $res50true/results.log 2>&1
 echo "working on $i/truegenetre50 has been finished!"
 fi
 if [ "$v" == "3" ]; then
