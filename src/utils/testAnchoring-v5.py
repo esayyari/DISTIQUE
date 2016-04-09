@@ -51,7 +51,7 @@ parser.add_option("-d",dest="debug",
 parser.add_option("-u",dest="sumProg",
         help = "The summerize method program to find species tree from distance matrix. The options are ninja, fastme, phydstar. Default is fastme ",default="fastme") 
 parser.add_option("-z",dest="sumProgOption",
-                  help = "The distance method to build the tree. If sumProg is set to fastme the options are TaxAdd_(B)alME (-s), TaxAdd_(B2)alME (-n), TaxAdd_(O)LSME (-s), TaxAdd_(O2)LSME (-n), B(I)ONJ (default), (N)J. The default in this case is B(I)ONJ. if the  sumProg is set to phydstar, the options are BioNJ, MVR, and NJ. The default is BioNJ.",default="I")
+                  help = "The distance method to build the tree. If sumProg is set to fastme the options are TaxAdd_(B)alME (-s), TaxAdd_(B2)alME (-n), TaxAdd_(O)LSME (-s), TaxAdd_(O2)LSME (-n), B(I)ONJ (default), (N)J. The default in this case is B(I)ONJ. if the  sumProg is set to phydstar, the options are BioNJ, MVR, and NJ. The default is BioNJ.",default="B")
 (options,args) = parser.parse_args()
 filename = options.filename
 gt = options.gt
