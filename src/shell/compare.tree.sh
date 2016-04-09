@@ -9,7 +9,7 @@ Compares two trees. SPECIES TREE is the species tree or the reference tree, whil
 EOF
 }
 
-while getopts "hs:g:" opt; do
+while getopts "hs:g:i:" opt; do
         case $opt in
         h)
                 show_help
@@ -21,6 +21,9 @@ while getopts "hs:g:" opt; do
         g)
                 g=$OPTARG
                 ;;
+	i)
+		i=$OUTARG
+		;;
         '?')
                 printf "Unknown input option"
                 show_help
@@ -50,4 +53,7 @@ head -n 1 $g | sed -e 's/\[&U\] \|\[&R\] //'>$tmp2
 #for x in `head -n 1 $g`; do
 # echo -n "$x" | sed -e 's/:-[0-9]*\.[0-9]*\|:[0-9]*\.[0-9]*//g;s/;//g'>$tmp2
 #done
-$WS_GLB_SH/compareTrees.missingBranch $tmp1 $tmp2
+$WS_GLB_SH/compareTrees.missingBranch $tmp1 $tmp2 -simplify
+
+rm $tmp1
+rm $tmp2

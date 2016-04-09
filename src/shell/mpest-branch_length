@@ -1,0 +1,26 @@
+#!/bin/bash
+<<<<<<< HEAD
+set -x
+module load gnu
+=======
+>>>>>>> b8e7bc8b14ff99f36aeb289850937cf25fdf0ce5
+tmp=`mktemp `
+<<<<<<< HEAD
+tmp2=`mktemp`
+nw_reroot $1 $2 > $tmp2
+nw_topology -I $tmp2 > $tmp
+=======
+#nw_reroot $1 $2 > $tmp
+nw_topology -I $1 > $tmp
+>>>>>>> b80edaab37c14d2fdaa83c56311c3a94697a06e9
+echo "rerooting genetrees has been finished"
+listS=`mktemp`
+nw_labels -I $3 > $listS
+listSpec=`mktemp`
+for x in `cat $listS`; do
+	echo "$x 1 $x"
+done > $listSpec
+echo "rerooted genetrees at $tmp will be used" 
+echo "list of species available at $listSpec"
+echo $4
+$WS_HOME/DISTIQUE/src/shell/mpest $tmp $listSpec $3 $4
