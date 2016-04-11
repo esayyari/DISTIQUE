@@ -166,7 +166,7 @@ listPoly = to_resolve.keys()
 for z in range(len(listPoly)):
     distance_tables.append([])
 if len(ac) !=0:
-    count = 0
+    count = 1
     for z in range(len(listPoly)):
         anchPoly = list()
         e = listPoly[z]
@@ -224,7 +224,7 @@ if len(ac) !=0:
             if (count%50)==0:
                 gc.collect()
             tm.toc()
-countT = 0
+countT = 1
 skippedPolyList = list(skippedPoly)
 for e in skippedPolyList:
     anchPoly = list()
@@ -241,7 +241,7 @@ for e in skippedPolyList:
             if verbose:
                 print anch
                 print "time elapsing  for counting number of quartets for this anchors is: "
-                tm.tic()
+                tm.toc()
             N1 = taxa_inv[anch[0]]
             N2 = taxa_inv[anch[1]]
             if N1 == N2:
@@ -274,13 +274,13 @@ for e in skippedPolyList:
                     count_distance_table[z] = Ctmp
             else:
                 atbs.addDistanceAnchores(distance_tables[z],Dtmp,count_distance_table[z],Ctmp,fillmethod)
-
+            if verbose:
+                print "The anchor "+str(countT)+" out of "+str(len(smallAnchs))+" anchors has been finished!"
+            countT += 1
             del quartTable
             del frq
         print "Computing distance table using anchors "+anch[0]+" and "+anch[1]+" has been finished!"
-        if verbose:
-            print "The anchor "+str(countT)+" out of "+str(len(smallAnchs))+" anchors has been finished!"
-        countT += 1
+        
         
         if (countT%50 == 0):
             gc.collect()

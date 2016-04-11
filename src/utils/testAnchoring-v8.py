@@ -136,10 +136,13 @@ for e in to_resolvettt:
 
 n = len(con_tree.leaf_nodes())
 ac = set(ac)
+numSmallAnchors = 0
 if len(ac) == 0:
     for e in acSmall:
         numAnchors += len(acSmall[e][0])*1 
-else:        
+else:
+    for e in acSmall:
+        numSmallAnchors += len(acSmall[e][0])
     numAnchors = len(ac)
 
 distance_tables = dict()            
@@ -156,9 +159,9 @@ if verbose:
 count_distance_table = dict()
 TreeList = dict()
 computedAnchors = dict()
-count = 0
+count = 1
 if ac is not None:
-    count = 0
+    count = 1
     for anch in ac:
         if verbose:
             tm.tic()
@@ -193,6 +196,7 @@ if ac is not None:
             if verbose:
                 print "computing distance table using the method: "+str(am)
             D=atbs.anchoredDistanceFromFrq(quartTable,anch)
+
             keyDict = sorted(list(np.unique((" ".join(D.keys())).split(" "))))
             fileDistance = "distancet-"+str(anch[0])+"-"+str(anch[1])+".d"
             ftmp3=tempfile.mkstemp(suffix='.d', prefix=fileDistance, dir=outpath, text=None)
@@ -210,6 +214,7 @@ if ac is not None:
 
 if verbose:
     print "Start finding resolution for polytomies with degree smaller than 6"
+count = 1
 for e in skippedPoly:
     i = 0
     val = to_resolve[e]
@@ -226,7 +231,7 @@ for e in skippedPoly:
             if verbose:
                 print anch
                 print "time elapsing  for counting number of quartets for this anchors is: "
-                tm.tic()
+                tm.toc()
             N1 = taxa_inv[anch[0]]
             N2 = taxa_inv[anch[1]]
             if N1 == N2:
@@ -248,10 +253,12 @@ for e in skippedPoly:
                 tbsa.findTrueAverageTableAnchoringOnDifferentSidesSmallPolytomiesOverallFromFile(frq,quartTable,anch,taxa_list,N1,N2,am,met)
             else:
                 tbsa.findTrueAverageTableAnchoringOnDifferentSidesSmallPolytomiesOverall(frq,quartTable,anch,taxa_list,N1,N2,am,met)
+            if verbose:
+                print "The anchor "+str(count)+" out of "+str(numSmallAnchors)+" anchors has been finished!"
+            count += 1
         if verbose:
             print "computing distance table using the method: "+str(am)
         Frq=atbs.anchoredDistanceFromFrqSmallPolytomies(quartTable,am,met)
-        print Frq
         D=pd.prodDistance(Frq,met)
         keyDict = sorted(list(np.unique((" ".join(D.keys())).split(" "))))
         fileDistance = "distancet-anchList-"+str(i)+".d"
@@ -267,12 +274,8 @@ for e in skippedPoly:
         else:
             TreeList[e.label] = dendropy.TreeList()
             TreeList[e.label].append(tree_tmp)
-        if ac is None:
-            if verbose:
-                print "The anchor "+str(count)+" out of "+str(len(ac))+" anchors has been finished!"
-            count += 1
-        if verbose:
-            
+        
+        if verbose:  
             tm.toc()
 if removeOutliers and verbose:
     print "removeing outliers"

@@ -630,6 +630,8 @@ def findTrueAverageTableAnchoringOnDifferentSidesSmallPolytomiesOverallFromFile(
                             vt = list()
                             vt = v
                     TotalKey[key_inv] = vt
+                    
+
     for q,v2 in TotalKey.iteritems():
         l = sorted(list(q.split("/")))
         O = sorted(list(set(l)-N))
@@ -638,13 +640,11 @@ def findTrueAverageTableAnchoringOnDifferentSidesSmallPolytomiesOverallFromFile(
             key = NL[1]
         elif l[0] == O[0]:
             key = O[1]
-        print key
         if q in TotalKeyf:
             vtmp=TotalKeyf[q]
             if key in vtmp:
                 vtmp[key].append(vtt)
             else:
-                vtmp=dict()
                 vtmp[key] = list()
                 vtmp[key].append(vtt)
         else:
