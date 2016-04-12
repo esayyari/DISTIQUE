@@ -240,8 +240,6 @@ for e in skippedPolyList:
             anch_temp = "/".join(anch)
             if verbose:
                 print anch
-                print "time elapsing  for counting number of quartets for this anchors is: "
-                tm.toc()
             N1 = taxa_inv[anch[0]]
             N2 = taxa_inv[anch[1]]
             if N1 == N2:
@@ -284,6 +282,7 @@ for e in skippedPolyList:
         
         if (countT%50 == 0):
             gc.collect()
+        print "time elapsing  for counting number of quartets for this anchors is: "
         tm.toc()
 
 if verbose:
