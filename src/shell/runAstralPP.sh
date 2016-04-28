@@ -41,5 +41,12 @@ tmpDIR=`mktemp -d`
 echo $tmpDIR
 
 gt=`mktemp  ${tmpDIR}/genetre.XXXXX`   || exit 1
-nw_prune $i 1 2 3 4 5  > $gt 
-java -Xmx3000M -jar $WS_LOC_UTIL/astral.4.10.4.jar  -i $gt -o $o -y -t 12  2>/dev/null
+out=`mktemp ${tmpDIR}/astral-pp.nwk.XXXXX` || exit 1
+nw_prune $i 1 2 > $gt 
+java -Xmx3000M -jar $WS_LOC_UTIL/astral.4.10.4.jar  -i $gt -o $out -y -t 12  2>/dev/null
+out=`mktemp ${tmpDIR}/astral.nwk.XXXXX` || exit 1
+java -Xmx3000M -jar $WS_LOC_UTIL/astral.4.10.4.jar  -i $gt -o $out 2>/dev/null
+out=`mktemp ${tmpDIR}/astrid.nwk.XXXXX` || exit 1
+python $WS_LOC_UTIL/../ASTRID/ASTRID -i $gt -o $out 
+tar czvf $o/results.tar.gz $tmpDIR/*
+rm -r $tmpDIR
