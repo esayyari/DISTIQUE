@@ -143,14 +143,14 @@ tgt200=`mktemp -p $TmpFolder true200.XXXXX`
 tgt50=`mktemp -p $TmpFolder true50.XXXXX`
 
 
-while read x; do echo $x | nw_prune - `echo {10..50}$(( $RANDOM % 200 ))|sed -e 's/ ../ /g' -e 's/^..//g'`; done < $gt1000 > $gt1000
+while read x; do echo $x | nw_prune - `echo {10..50}$(( $RANDOM % 200 ))|sed -e 's/ ../ /g' -e 's/^..//g'`; done < $p/$gt > $gt1000
 #head -n 1000 $gt1000 >$gt1000
 head -n 200 $gt1000 > $gt200
 head -n 50 $gt1000 > $gt50
 
 
 
-while read x; do echo $x | nw_prune - `echo {10..50}$(( $RANDOM % 200 ))|sed -e 's/ ../ /g' -e 's/^..//g'`; done < $tgt1000 > $tgt1000
+while read x; do echo $x | nw_prune - `echo {10..50}$(( $RANDOM % 200 ))|sed -e 's/ ../ /g' -e 's/^..//g'`; done < $p/$tgt > $tgt1000
 #head -n 1000 $tgt1000 > $tgt1000
 head -n 200 $tgt1000 > $tgt200
 head -n 50 $tgt1000 > $tgt50
