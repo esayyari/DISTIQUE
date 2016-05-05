@@ -21,7 +21,7 @@ if [ $# -lt 1 ]; then
 fi
 
 t=0.2;
-m=10;
+m=0;
 
 while getopts "hg:t:m:o:s:" opt; do
         case $opt in
