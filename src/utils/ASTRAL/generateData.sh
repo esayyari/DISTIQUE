@@ -309,8 +309,8 @@ $DIR/extractPPofPoolOfBranches.py -i $astral_50_true_trueSp_Stat -s $TmpSpStat -
 
 
 echo "pp of branches computed"
-cp $gt $TmpFolder
-cp $tgt $TmpFolder
-tar czvf $out/astral-BUG-missing$m.tar.gz $TmpFolder
+cp $p/$gt $TmpFolder
+cp $p/$tgt $TmpFolder
+tar czvf $out/astral-BUG-missing"$m".tar.gz $TmpFolder
 
 rm -r $TmpFolder
