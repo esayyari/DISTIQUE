@@ -35,7 +35,7 @@ while getopts "hg:t:m:o:s:" opt; do
         t)
                 t=$OPTARG
                 ;;
-        n)
+        m)
                 m=$OPTARG
                 ;;
         o)
