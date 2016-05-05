@@ -78,7 +78,7 @@ njst_1000_true=njst.halfresolved.genes1000
 njst_200_true=njst.halfresolved.genes200
 njst_50_true=njst.halfresolved.genes50
 
-if [ "$m" == "40"]; then
+if [ "$m" == "40" ]; then
 gt=estimatedgenetre.halfresolved-missing40
 tgt=truegenetrees-missing40
 elif [ "$m" == "80" ]; then
