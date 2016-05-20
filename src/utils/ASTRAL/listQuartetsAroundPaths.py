@@ -6,6 +6,21 @@ import itertools
 import random
 import re
 
+def readTable(tmpPath):
+        out_path  = os.path.expanduser(os.path.expandvars(tmpPath))
+        f = open(out_path, 'r')
+        frq = dict()
+        for line in f:
+                k=line.split()
+                v = dict()
+                d = k[0].split('/')
+                v[d[1]] = float(k[1])
+                v[d[2]] = float(k[2])
+                v[d[3]] = float(k[3])
+                frq[k[0]] = v
+        return frq
+
+
 
 def parseQuartetList(filename):
 	f = open(filename,'r')
@@ -38,13 +53,50 @@ def expandListName(filename):
 		sys.stderr.write('Not found: "%s"' % src_fpath)	
 	return src_fpath	
 def generateBranchName(c1,c2,sister,remain):
-	c = ",".join(sorted(c1 + c2))
-	sis = ",".join(sorted(sister+remain))
-	if c<sis:
-		branchName = c+"|"+sis
+	
+	if c1[0]<c2[0]:
+		if c1[0]<min(sister[0],remain[0]):
+			mainKey = ",".join(sorted(c1+c2)) + "|" + ",".join(sorted(sister+remain))
+			if sister[0]<remain[0]:
+				tp1 = ",".join(sorted(c1+sister)) + "|" + ",".join(sorted(remain+c2))
+				tp2 = ",".join(sorted(c1+remain)) + "|" + ",".join(sorted(sister+c2))
+			else:
+				tp1 = ",".join(sorted(c1+remain)) + "|" + ",".join(sorted(sister+c2))
+				tp2 = ",".join(sorted(c1+sister)) + "|" + ",".join(sorted(remain+c2))
+		else:
+			mainKey = ",".join(sorted(sister+remain)) + "|" + ",".join(sorted(c1+c2))
+			if sister[0]<remain[0]:
+				tp1 = ",".join(sorted(sister+c1)) + "|" + ",".join(sorted(remain+c2))
+				tp2 = ",".join(sorted(sister+c2)) + "|" + ",".join(sorted(remain+c1))
+			else:
+				tp1 = ",".join(sorted(remain+c1)) + "|" + ",".join(sorted(sister+c2))
+                                tp2 = ",".join(sorted(remain+c2)) + "|" + ",".join(sorted(sister+c1))
 	else:
-		branchName = sis+"|"+c
-	return branchName	
+                if c2[0]<min(sister[0],remain[0]):
+                        mainKey = ",".join(sorted(c1+c2)) + "|" + ",".join(sorted(sister+remain))
+                        if sister[0]<remain[0]:
+                                tp1 = ",".join(sorted(c2+sister)) + "|" + ",".join(sorted(remain+c1))
+                                tp2 = ",".join(sorted(c2+remain)) + "|" + ",".join(sorted(sister+c1))
+                        else:
+                                tp1 = ",".join(sorted(c2+remain)) + "|" + ",".join(sorted(sister+c1))
+                                tp2 = ",".join(sorted(c2+sister)) + "|" + ",".join(sorted(remain+c1))
+                else:
+                        mainKey = ",".join(sorted(sister+remain)) + "|" + ",".join(sorted(c1+c2))
+                        if sister[0]<remain[0]:
+                                tp1 = ",".join(sorted(sister+c2)) + "|" + ",".join(sorted(remain+c1))
+                                tp2 = ",".join(sorted(sister+c1)) + "|" + ",".join(sorted(remain+c2))
+                        else:
+                                tp1 = ",".join(sorted(remain+c2)) + "|" + ",".join(sorted(sister+c1))
+                                tp2 = ",".join(sorted(remain+c1)) + "|" + ",".join(sorted(sister+c2))
+
+	return (mainKey,tp1,tp2)	
+def readQuartetTable(src_fpath):
+        frq = readTable(src_fpath)
+        for k in frq:
+                sz = sum(frq[k].values())
+                for k2 in frq[k]:
+                        frq[k][k2] /= sz
+        return frq
 
 if __name__ == '__main__':
 	usage = "usage: %prog [options]"
@@ -64,15 +116,19 @@ if __name__ == '__main__':
 	qt = expandListName(qt)
 	filename = expandListName(filename)
 	lq = parseQuartetList(filename)
-	frqDist = list()
-	frqAlter = list()
+	frq = readQuartetTable(qt)
+	frqDist = dict()
+	frqAlter = dict()
 	for l in lq:
 		c1 = sorted(l[0][0])
 		c2 = sorted(l[0][1])
 		sister = sorted(l[1][0])
 		remain = sorted(l[1][1])
 		frqTmp = list()
-		frqAlterTmp = list()	
+		frqAlterTmp1 = list()	
+		frqAlterTmp2 = list()
+		(bName,b1Name,b2Name) = generateBranchName(c1,c2,sister,remain)
+		a1 = sorted(b1Name.split("|"))
 		
 		for t1 in c1:
 			for t2 in c2:
@@ -82,20 +138,42 @@ if __name__ == '__main__':
 						mainKey = "/".join(sl)
 						q1 = {t1,t2}
 						q2 = {tp1,tp2}
-
 						if sl[0] in q1:
 							k = q1 - {sl[0]}
-							f = frq[key][k]
+							k = list(k)[0]
+							f = frq[mainKey][k]
 							frqTmp.append(f)
-							frqAlterTmp.append(frq[key][tp1])
-							frqAlterTmp.append(frq[key][tp2])
+							
+							a2 = set(a1[0].split(","))-set(c1)-set(c2)
+							if tp1 in a2:
+								frqAlterTmp1.append(frq[mainKey][tp1])
+								frqAlterTmp2.append(frq[mainKey][tp2])
+							else:
+								frqAlterTmp1.append(frq[mainKey][tp2])
+								frqAlterTmp2.append(frq[mainKey][tp1])
 						else:
 							k = q2 - {sl[0]}
-							f = frq[key][k]
+							k = list(k)[0]
+							f = frq[mainKey][k]
 							frqTmp.append(f)
-							frqAlterTmp.append(frq[key][t1])
-							frqAlterTmp.append(frq[key][t2])
-		bName = generateBranchName(c1,c2,sister,remain)
-		frqDist.append(frqTmp)
-		frqAlterTmp.append(frqAlterTmp)
-	
+							a2 = set(a1[0].split(","))-set(sister)-set(remain)
+                                                        if t1 in a2:
+                                                                frqAlterTmp1.append(frq[mainKey][t1])
+                                                                frqAlterTmp2.append(frq[mainKey][t2])
+                                                        else:
+                                                                frqAlterTmp1.append(frq[mainKey][t2])
+                                                                frqAlterTmp2.append(frq[mainKey][t1])
+		frqDist[bName] = frqTmp
+		frqAlter[bName] = dict()
+		frqAlter[bName][b1Name] = frqAlterTmp1
+		frqAlter[bName][b2Name] = frqAlterTmp2
+	for bName in frqDist:
+		print bName, bName,
+		for val in frqDist[bName]:
+			print val,
+		print
+		for b1 in frqAlter[bName]:
+			print bName, b1,
+			for val in frqAlter[bName][b1]:
+				print val,
+			print
