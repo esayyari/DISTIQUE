@@ -52,12 +52,12 @@ while getopts "hg:t:n:o:s:" opt; do
 done
 #rm $out/*
 
-astral_1000_half=astral-v474-p1-halfresolved.genes1000 
-astral_200_half=astral-v474-p1-halfresolved.genes200
-astral_50_half=astral-v474-p1-halfresolved.genes50 
-astral_1000_true=astral-v474-p1-halfresolved.genes1000 
-astral_200_true=astral-v474-p1-halfresolved.genes200 
-astral_50_true=astral-v474-p1-halfresolved.genes50 
+astral_1000_half=astral-v4741-halfresolved.genes1000 
+astral_200_half=astral-v4741-halfresolved.genes200
+astral_50_half=astral-v4741-halfresolved.genes50 
+astral_1000_true=astral-v4741-halfresolved.genes1000 
+astral_200_true=astral-v4741-halfresolved.genes200 
+astral_50_true=astral-v4741-halfresolved.genes50 
 
 concat_1000=concatenatedtree.genes1000 
 concat_200=concatenatedtree.genes200 
@@ -82,65 +82,65 @@ tgt=truegenetrees
 
 TmpFolder=`mktemp -d`;
 
-A1000half=`mktemp -p $TmpFolder astral_1000_half.nwk.XXXXX`;
-A200half=`mktemp -p $TmpFolder astral_200_half.nwk.XXXXX`;
-A50half=`mktemp -p $TmpFolder astral_50_half.nwk.XXXXX`;
+A1000half=`mktemp $TmpFolder/astral_1000_half.nwk.XXXXX`;
+A200half=`mktemp $TmpFolder/astral_200_half.nwk.XXXXX`;
+A50half=`mktemp $TmpFolder/astral_50_half.nwk.XXXXX`;
 
-A1000true=`mktemp -p $TmpFolder astral_1000_true.nwk.XXXXX`;
-A200true=`mktemp -p $TmpFolder astral_200_true.nwk.XXXXX`;
-A50true=`mktemp -p $TmpFolder astral_50_true.nwk.XXXXX`;
+A1000true=`mktemp $TmpFolder/astral_1000_true.nwk.XXXXX`;
+A200true=`mktemp $TmpFolder/astral_200_true.nwk.XXXXX`;
+A50true=`mktemp $TmpFolder/astral_50_true.nwk.XXXXX`;
 
-N1000half=`mktemp -p $TmpFolder njst_1000.nwk.XXXXX`;
-N200half=`mktemp -p $TmpFolder njst_200.nwk.XXXXX`;
-N50half=`mktemp -p $TmpFolder njst_50.nwk.XXXXX`;
+N1000half=`mktemp $TmpFolder/njst_1000.nwk.XXXXX`;
+N200half=`mktemp $TmpFolder/njst_200.nwk.XXXXX`;
+N50half=`mktemp $TmpFolder/njst_50.nwk.XXXXX`;
 
-C1000half=`mktemp -p $TmpFolder concat_1000.nwk.XXXXX`;
-C200half=`mktemp -p $TmpFolder concat_200.nwk.XXXXX`;
-C50half=`mktemp -p $TmpFolder concat_50.nwk.XXXXX`;
+C1000half=`mktemp $TmpFolder/concat_1000.nwk.XXXXX`;
+C200half=`mktemp $TmpFolder/concat_200.nwk.XXXXX`;
+C50half=`mktemp $TmpFolder/concat_50.nwk.XXXXX`;
 
-N1000true=`mktemp -p $TmpFolder njst_1000_true.nwk.XXXXX`;
-N200true=`mktemp -p $TmpFolder njst_200_true.nwk.XXXXX`;
-N50true=`mktemp -p $TmpFolder njst_50_true.nwk.XXXXX`;
+N1000true=`mktemp $TmpFolder/njst_1000_true.nwk.XXXXX`;
+N200true=`mktemp $TmpFolder/njst_200_true.nwk.XXXXX`;
+N50true=`mktemp $TmpFolder/njst_50_true.nwk.XXXXX`;
 
-C1000true=`mktemp -p $TmpFolder concat_1000_true.nwk.XXXXX`;
-C200true=`mktemp -p $TmpFolder concat_200_true.nwk.XXXXX`;
-C50true=`mktemp -p $TmpFolder concat_50_true.nwk.XXXXX`;
+C1000true=`mktemp  $TmpFolder/concat_1000_true.nwk.XXXXX`;
+C200true=`mktemp  $TmpFolder/concat_200_true.nwk.XXXXX`;
+C50true=`mktemp  $TmpFolder/concat_50_true.nwk.XXXXX`;
 echo $TmpFolder
 
-astral_1000_halfStat=`mktemp -p $TmpFolder astral_1000_halfStat.XXXXX`
-astral_200_halfStat=`mktemp -p $TmpFolder astral_200_halfStat.XXXXX`
-astral_50_halfStat=`mktemp -p $TmpFolder astral_50_halfStat.XXXXX`
+astral_1000_halfStat=`mktemp  $TmpFolder/astral_1000_halfStat.XXXXX`
+astral_200_halfStat=`mktemp  $TmpFolder/astral_200_halfStat.XXXXX`
+astral_50_halfStat=`mktemp  $TmpFolder/astral_50_halfStat.XXXXX`
 
-astral_1000_trueStat=`mktemp -p $TmpFolder astral_1000_trueStat.XXXXX`
-astral_200_trueStat=`mktemp -p $TmpFolder astral_200_trueStat.XXXXX`
-astral_50_trueStat=`mktemp -p $TmpFolder astral_50_trueStat.XXXXX`
+astral_1000_trueStat=`mktemp  $TmpFolder/astral_1000_trueStat.XXXXX`
+astral_200_trueStat=`mktemp  $TmpFolder/astral_200_trueStat.XXXXX`
+astral_50_trueStat=`mktemp  $TmpFolder/astral_50_trueStat.XXXXX`
 
-njst_1000_halfStat=`mktemp -p $TmpFolder njst_1000Stat.XXXXX`
-njst_200_halfStat=`mktemp -p $TmpFolder njst_200Stat.XXXXX`
-njst_50_halfStat=`mktemp -p $TmpFolder njst_50Stat.XXXXX`
-
-
-concat_1000_halfStat=`mktemp -p $TmpFolder concat_1000Stat.XXXXX`
-concat_200_halfStat=`mktemp -p $TmpFolder concat_200Stat.XXXXX`
-concat_50_halfStat=`mktemp -p $TmpFolder concat_50Stat.XXXXX`
-
-njst_1000_trueStat=`mktemp -p $TmpFolder njst_1000_trueStat.XXXXX`
-njst_200_trueStat=`mktemp -p $TmpFolder njst_200_trueStat.XXXXX`
-njst_50_trueStat=`mktemp -p $TmpFolder njst_50_trueStat.XXXXX`
+njst_1000_halfStat=`mktemp  $TmpFolder/njst_1000Stat.XXXXX`
+njst_200_halfStat=`mktemp  $TmpFolder/njst_200Stat.XXXXX`
+njst_50_halfStat=`mktemp  $TmpFolder/njst_50Stat.XXXXX`
 
 
-concat_1000_trueStat=`mktemp -p $TmpFolder concat_1000_trueStat.XXXXX`
-concat_200_trueStat=`mktemp -p $TmpFolder concat_200_trueStat.XXXXX`
-concat_50_trueStat=`mktemp -p $TmpFolder concat_50_trueStat.XXXXX`
+concat_1000_halfStat=`mktemp  $TmpFolder/concat_1000Stat.XXXXX`
+concat_200_halfStat=`mktemp  $TmpFolder/concat_200Stat.XXXXX`
+concat_50_halfStat=`mktemp  $TmpFolder/concat_50Stat.XXXXX`
+
+njst_1000_trueStat=`mktemp  $TmpFolder/njst_1000_trueStat.XXXXX`
+njst_200_trueStat=`mktemp  $TmpFolder/njst_200_trueStat.XXXXX`
+njst_50_trueStat=`mktemp  $TmpFolder/njst_50_trueStat.XXXXX`
 
 
-gt1000=`mktemp -p $TmpFolder estimated1000.XXXXX`
-gt200=`mktemp -p $TmpFolder estimated200.XXXXX`
-gt50=`mktemp -p $TmpFolder estimated50.XXXXX`
+concat_1000_trueStat=`mktemp  $TmpFolder/concat_1000_trueStat.XXXXX`
+concat_200_trueStat=`mktemp  $TmpFolder/concat_200_trueStat.XXXXX`
+concat_50_trueStat=`mktemp  $TmpFolder/concat_50_trueStat.XXXXX`
 
-tgt1000=`mktemp -p $TmpFolder true1000.XXXXX`
-tgt200=`mktemp -p $TmpFolder true200.XXXXX`
-tgt50=`mktemp -p $TmpFolder true50.XXXXX`
+
+gt1000=`mktemp  $TmpFolder/estimated1000.XXXXX`
+gt200=`mktemp  $TmpFolder/estimated200.XXXXX`
+gt50=`mktemp  $TmpFolder/estimated50.XXXXX`
+
+tgt1000=`mktemp  $TmpFolder/true1000.XXXXX`
+tgt200=`mktemp  $TmpFolder/true200.XXXXX`
+tgt50=`mktemp  $TmpFolder/true50.XXXXX`
 
 
 while read x; do echo $x | nw_prune - `echo {10..50}$(( $RANDOM % 200 ))|sed -e 's/ ../ /g' -e 's/^..//g'`; done < $p/$gt > $gt1000
@@ -182,33 +182,33 @@ java -Xmx2000M -jar $WS_HOME/ASTRAL/astral.4.10.3.jar -i $tgt50 -q $p/$concat_50
 
 
 
-A_trueSp200half=`mktemp -p $TmpFolder astral_200_half_sp.nwk.XXXXX`;
-A_trueSp1000half=`mktemp -p $TmpFolder astral_1000_half_sp.nwk.XXXXX`;
-A_trueSp50half=`mktemp -p $TmpFolder astral_50_half_sp.nwk.XXXXX`;
-A_trueSp1000true=`mktemp -p $TmpFolder astral_1000_true_sp.nwk.XXXXX`;
-A_trueSp200true=`mktemp -p $TmpFolder astral_200_true_sp.nwk.XXXXX`;
-A_trueSp50true=`mktemp -p $TmpFolder astral_50_true_sp.nwk.XXXXX`;
-#N_trueSp1000half=`mktemp -p $TmpFolder njst_1000_sp.nwk.XXXXX`;
-#N_trueSp200half=`mktemp -p $TmpFolder njst_200_sp.nwk.XXXXX`;
-#N_trueSp50half=`mktemp -p $TmpFolder njst_50_sp.nwk.XXXXX`;
-#C_trueSp1000half=`mktemp -p $TmpFolder concat_1000_sp.nwk.XXXXX`;
-#C_trueSp200half=`mktemp -p $TmpFolder concat_200_sp.nwk.XXXXX`;
-#C_trueSp50half=`mktemp -p $TmpFolder concat_50_sp.nwk.XXXXX`;
+A_trueSp200half=`mktemp  $TmpFolder/astral_200_half_sp.nwk.XXXXX`;
+A_trueSp1000half=`mktemp  $TmpFolder/astral_1000_half_sp.nwk.XXXXX`;
+A_trueSp50half=`mktemp  $TmpFolder/astral_50_half_sp.nwk.XXXXX`;
+A_trueSp1000true=`mktemp  $TmpFolder/astral_1000_true_sp.nwk.XXXXX`;
+A_trueSp200true=`mktemp  $TmpFolder/astral_200_true_sp.nwk.XXXXX`;
+A_trueSp50true=`mktemp  $TmpFolder/astral_50_true_sp.nwk.XXXXX`;
+#N_trueSp1000half=`mktemp  $TmpFolder njst_1000_sp.nwk.XXXXX`;
+#N_trueSp200half=`mktemp  $TmpFolder njst_200_sp.nwk.XXXXX`;
+#N_trueSp50half=`mktemp  $TmpFolder njst_50_sp.nwk.XXXXX`;
+#C_trueSp1000half=`mktemp  $TmpFolder concat_1000_sp.nwk.XXXXX`;
+#C_trueSp200half=`mktemp  $TmpFolder concat_200_sp.nwk.XXXXX`;
+#C_trueSp50half=`mktemp  $TmpFolder concat_50_sp.nwk.XXXXX`;
 echo $TmpFolder
-astral_1000_half_trueSp_Stat=`mktemp -p $TmpFolder astral_1000_half_sp_Stat.XXXXX`
-astral_200_half_trueSp_Stat=`mktemp -p $TmpFolder astral_200_half_sp_Stat.XXXXX`
-astral_50_half_trueSp_Stat=`mktemp -p $TmpFolder astral_50_half_sp_Stat.XXXXX`
+astral_1000_half_trueSp_Stat=`mktemp  $TmpFolder/astral_1000_half_sp_Stat.XXXXX`
+astral_200_half_trueSp_Stat=`mktemp  $TmpFolder/astral_200_half_sp_Stat.XXXXX`
+astral_50_half_trueSp_Stat=`mktemp  $TmpFolder/astral_50_half_sp_Stat.XXXXX`
 
-astral_1000_true_trueSp_Stat=`mktemp -p $TmpFolder astral_1000_true_sp_Stat.XXXXX`
-astral_200_true_trueSp_Stat=`mktemp -p $TmpFolder astral_200_true_sp_Stat.XXXXX`
-astral_50_true_trueSp_Stat=`mktemp -p $TmpFolder astral_50_true_sp_Stat.XXXXX`
-#njst_1000_half_trueSp_Stat=`mktemp -p $TmpFolder njst_1000_sp_Stat.XXXXX`
-#njst_200_half_trueSp_Stat=`mktemp -p $TmpFolder njst_200_sp_Stat.XXXXX`
-#njst_50_half_trueSp_Stat=`mktemp -p $TmpFolder njst_50_sp_Stat.XXXXX`
+astral_1000_true_trueSp_Stat=`mktemp  $TmpFolder/astral_1000_true_sp_Stat.XXXXX`
+astral_200_true_trueSp_Stat=`mktemp  $TmpFolder/astral_200_true_sp_Stat.XXXXX`
+astral_50_true_trueSp_Stat=`mktemp  $TmpFolder/astral_50_true_sp_Stat.XXXXX`
+#njst_1000_half_trueSp_Stat=`mktemp  $TmpFolder njst_1000_sp_Stat.XXXXX`
+#njst_200_half_trueSp_Stat=`mktemp  $TmpFolder njst_200_sp_Stat.XXXXX`
+#njst_50_half_trueSp_Stat=`mktemp  $TmpFolder njst_50_sp_Stat.XXXXX`
 
-#concat_1000_half_trueSp_Stat=`mktemp -p $TmpFolder concat_1000_sp_Stat.XXXXX`
-#concat_200_half_trueSp_Stat=`mktemp -p $TmpFolder concat_200_sp_Stat.XXXXX`
-#concat_50_half_trueSp_Stat=`mktemp -p $TmpFolder concat_50_sp_Stat.XXXXX`
+#concat_1000_half_trueSp_Stat=`mktemp  $TmpFolder concat_1000_sp_Stat.XXXXX`
+#concat_200_half_trueSp_Stat=`mktemp  $TmpFolder concat_200_sp_Stat.XXXXX`
+#concat_50_half_trueSp_Stat=`mktemp  $TmpFolder concat_50_sp_Stat.XXXXX`
 
 
 
@@ -227,44 +227,44 @@ java -Xmx2000M -jar $WS_HOME/ASTRAL/astral.4.10.3.jar -q $s -i $tgt50  -t 6 > $A
 echo "bipartition and quartetpartition info of astral and njst trees has been generated"
 
 
-TmpSpStat=`mktemp -p $TmpFolder spTreeStat.XXXXX`;
-TmpSpTree=`mktemp -p $TmpFolder spTreePP.XXXXX`;
-tmptmp=`mktemp -p $TmpFolder`;
+TmpSpStat=`mktemp  $TmpFolder/spTreeStat.XXXXX`;
+TmpSpTree=`mktemp  $TmpFolder/spTreePP.XXXXX`;
+tmptmp=`mktemp  $TmpFolder/tmp.XXXXX`;
 java -jar $WS_HOME/ASTRAL/astral.4.10.3.jar -i $s -q $s -t 6 >> $TmpSpTree 2>>$TmpSpStat;
 cat $TmpSpStat | grep "\{" > $tmptmp
 awk 'NR %3 == 1' $tmptmp > $TmpSpStat
 echo "bipartition and quartetpartition info of species tree have been generated"
-res_astral_1000_half=`mktemp -p $TmpFolder ppOfBranches_astral_1000_half.XXXXX`;
-res_astral_200_half=`mktemp -p $TmpFolder ppOfBranches_astral_200_half.XXXXX`;
-res_astral_50_half=`mktemp -p $TmpFolder ppOfBranches_astral_50_half.XXXXX`;
+res_astral_1000_half=`mktemp  $TmpFolder/ppOfBranches_astral_1000_half.XXXXX`;
+res_astral_200_half=`mktemp  $TmpFolder/ppOfBranches_astral_200_half.XXXXX`;
+res_astral_50_half=`mktemp  $TmpFolder/ppOfBranches_astral_50_half.XXXXX`;
 
-res_astral_1000_true=`mktemp -p $TmpFolder ppOfBranches_astral_1000_true.XXXXX`;
-res_astral_200_true=`mktemp -p $TmpFolder ppOfBranches_astral_200_true.XXXXX`;
-res_astral_50_true=`mktemp -p $TmpFolder ppOfBranches_astral_50_true.XXXXX`;
+res_astral_1000_true=`mktemp  $TmpFolder/ppOfBranches_astral_1000_true.XXXXX`;
+res_astral_200_true=`mktemp  $TmpFolder/ppOfBranches_astral_200_true.XXXXX`;
+res_astral_50_true=`mktemp  $TmpFolder/ppOfBranches_astral_50_true.XXXXX`;
 
-res_njst_1000_half=`mktemp -p $TmpFolder ppOfBranches_njst_1000_half.XXXXX`;
-res_njst_200_half=`mktemp -p $TmpFolder ppOfBranches_njst_200_half.XXXXX`;
-res_njst_50_half=`mktemp -p $TmpFolder ppOfBranches_njst_50_half.XXXXX`;
+res_njst_1000_half=`mktemp  $TmpFolder/ppOfBranches_njst_1000_half.XXXXX`;
+res_njst_200_half=`mktemp  $TmpFolder/ppOfBranches_njst_200_half.XXXXX`;
+res_njst_50_half=`mktemp  $TmpFolder/ppOfBranches_njst_50_half.XXXXX`;
 
-res_concat_1000_half=`mktemp -p $TmpFolder ppOfBranches_concat_1000_half.XXXXX`;
-res_concat_200_half=`mktemp -p $TmpFolder ppOfBranches_concat_200_half.XXXXX`;
-res_concat_50_half=`mktemp -p $TmpFolder ppOfBranches_concat_50_half.XXXXX`;
+res_concat_1000_half=`mktemp  $TmpFolder/ppOfBranches_concat_1000_half.XXXXX`;
+res_concat_200_half=`mktemp  $TmpFolder/ppOfBranches_concat_200_half.XXXXX`;
+res_concat_50_half=`mktemp  $TmpFolder/ppOfBranches_concat_50_half.XXXXX`;
 
-res_sp_1000_half=`mktemp -p $TmpFolder ppOfBranches_sp_1000_half.XXXXX`;
-res_sp_200_half=`mktemp -p $TmpFolder ppOfBranches_sp_200_half.XXXXX`;
-res_sp_50_half=`mktemp -p $TmpFolder ppOfBranches_sp_50_half.XXXXX`;
+res_sp_1000_half=`mktemp  $TmpFolder/ppOfBranches_sp_1000_half.XXXXX`;
+res_sp_200_half=`mktemp  $TmpFolder/ppOfBranches_sp_200_half.XXXXX`;
+res_sp_50_half=`mktemp  $TmpFolder/ppOfBranches_sp_50_half.XXXXX`;
 
-res_sp_1000_true=`mktemp -p $TmpFolder ppOfBranches_sp_1000_true.XXXXX`;
-res_sp_200_true=`mktemp -p $TmpFolder ppOfBranches_sp_200_true.XXXXX`;
-res_sp_50_true=`mktemp -p $TmpFolder ppOfBranches_sp_50_true.XXXXX`;
+res_sp_1000_true=`mktemp  $TmpFolder/ppOfBranches_sp_1000_true.XXXXX`;
+res_sp_200_true=`mktemp  $TmpFolder/ppOfBranches_sp_200_true.XXXXX`;
+res_sp_50_true=`mktemp  $TmpFolder/ppOfBranches_sp_50_true.XXXXX`;
 
-res_njst_1000_true=`mktemp -p $TmpFolder ppOfBranches_njst_1000_true.XXXXX`;
-res_njst_200_true=`mktemp -p $TmpFolder ppOfBranches_njst_200_true.XXXXX`;
-res_njst_50_true=`mktemp -p $TmpFolder ppOfBranches_njst_50_true.XXXXX`;
+res_njst_1000_true=`mktemp  $TmpFolder/ppOfBranches_njst_1000_true.XXXXX`;
+res_njst_200_true=`mktemp  $TmpFolder/ppOfBranches_njst_200_true.XXXXX`;
+res_njst_50_true=`mktemp  $TmpFolder/ppOfBranches_njst_50_true.XXXXX`;
 
-res_concat_1000_true=`mktemp -p $TmpFolder ppOfBranches_concat_1000_true.XXXXX`;
-res_concat_200_true=`mktemp -p $TmpFolder ppOfBranches_concat_200_true.XXXXX`;
-res_concat_50_true=`mktemp -p $TmpFolder ppOfBranches_concat_50_true.XXXXX`;
+res_concat_1000_true=`mktemp  $TmpFolder/ppOfBranches_concat_1000_true.XXXXX`;
+res_concat_200_true=`mktemp  $TmpFolder/ppOfBranches_concat_200_true.XXXXX`;
+res_concat_50_true=`mktemp  $TmpFolder/ppOfBranches_concat_50_true.XXXXX`;
 
 $DIR/extractPPofPoolOfBranches.py -i $astral_1000_halfStat -s $TmpSpStat -o $res_astral_1000_half
 $DIR/extractPPofPoolOfBranches.py -i $astral_200_halfStat -s $TmpSpStat -o $res_astral_200_half
