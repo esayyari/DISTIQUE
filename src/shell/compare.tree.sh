@@ -22,7 +22,7 @@ while getopts "hs:g:i:" opt; do
                 g=$OPTARG
                 ;;
 	i)
-		i=$OUTARG
+		i=$OPTARG
 		;;
         '?')
                 printf "Unknown input option"
