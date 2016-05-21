@@ -18,6 +18,7 @@ def readTable(tmpPath):
                 v[d[2]] = float(k[2])
                 v[d[3]] = float(k[3])
                 frq[k[0]] = v
+	f.close()
         return frq
 
 
@@ -46,6 +47,7 @@ def parseQuartetList(filename):
 			b2.append(c.split(","))
 		b = (b1,b2)
 		lq.append(b)
+	f.close()
 	return lq
 def expandListName(filename):
         src_fpath = os.path.expanduser(os.path.expandvars(filename))
@@ -167,13 +169,15 @@ if __name__ == '__main__':
 		frqAlter[bName] = dict()
 		frqAlter[bName][b1Name] = frqAlterTmp1
 		frqAlter[bName][b2Name] = frqAlterTmp2
+	f = open(output,'w')
 	for bName in frqDist:
-		print bName, bName,
+		print >>f, bName,
 		for val in frqDist[bName]:
-			print val,
-		print
-		for b1 in frqAlter[bName]:
-			print bName, b1,
-			for val in frqAlter[bName][b1]:
-				print val,
-			print
+			print >> f, val,
+		print >>f,
+	f.close()
+#		for b1 in frqAlter[bName]:
+#			print bName, b1,
+#			for val in frqAlter[bName][b1]:
+#				print val,
+#			print
