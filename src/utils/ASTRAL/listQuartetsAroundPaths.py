@@ -171,10 +171,10 @@ if __name__ == '__main__':
 		frqAlter[bName][b2Name] = frqAlterTmp2
 	f = open(output,'w')
 	for bName in frqDist:
-		print >>f, bName,
+		print >>f, bName+":",
 		for val in frqDist[bName]:
 			print >> f, val,
-		print >>f,
+		print >>f, "\n"
 	f.close()
 #		for b1 in frqAlter[bName]:
 #			print bName, b1,
