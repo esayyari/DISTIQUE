@@ -307,7 +307,7 @@ def filterFrq(frq):
 		diffList.append(tmp[1]-tmp[0])
 	m = np.mean(diffList)
 	std = np.std(diffList)
-	print "The mean difference between second and third topologies is: "+str(m)+" , and the standard deviation is: "+"str(std)"
+	print "The mean difference between second and third topologies is: "+str(m)+" , and the standard deviation is: "+str(std)
 	for key in frq:
 		tmp = sorted(frq[key].values())
 		mi  = tmp[0]
@@ -321,5 +321,5 @@ def filterFrq(frq):
 				elif frq[key][top] < ma:
 					frq[key][top] = mi
 				else:
-					frq[key][top] = 1-2*mi
+					frq[key][top] = sum(tmp)-2*mi
 	return frq
