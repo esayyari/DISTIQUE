@@ -312,7 +312,7 @@ def filterFrq(frq):
 		tmp = sorted(frq[key].values())
 		mi  = tmp[0]
 		ma  = tmp[2]
-		if tmp[1]-tmp[0]>2*std:
+		if tmp[2]-tmp[1] < 0.05*sum(tmp) and tmp[1]-tmp[0] > tmp[2]-tmp[1]:
 			continue
 		else:
 			for top in frq[key]:
