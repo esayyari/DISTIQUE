@@ -74,6 +74,7 @@ def findTrueAverageTable(frq,list_taxa,method,met):
 	lst_taxa = list(list_taxa.keys())
 	TotalKey = dict()
 	s = {1,2,3}
+	frq = filterFrq(frq)
 	for i in range(0,n):
 		for j in range(i+1,n):
 			for k in range(j+1,n):
@@ -298,6 +299,7 @@ def findTrueAverageTableAnchoring(frq,anch,list_taxa,method):
 				vtt[q2] = sqrt(mean(square(v2)))
 		TotalKeyf[q] = vtt
 	return TotalKeyf
+<<<<<<< HEAD
 def listQuartetsAroundBipartitions(sp):
     leaves = sp.leaf_nodes()
     setLeaves = set(leaves)
@@ -312,3 +314,29 @@ def listQuartetsAroundBipartitions(sp):
                 if size(sibl.leaf_nodes())>v
     
     return
+=======
+def filterFrq(frq):
+	freq = dict()
+	diffList = list()
+	for key in frq:
+		tmp = sorted(frq[key].values())
+		diffList.append(tmp[1]-tmp[0])
+	m = np.mean(diffList)
+	std = np.std(diffList)
+	print "The mean difference between second and third topologies is: "+str(m)+" , and the standard deviation is: "+str(std)
+	for key in frq:
+		tmp = sorted(frq[key].values())
+		mi  = tmp[0]
+		ma  = tmp[2]
+		if tmp[2]-tmp[1] < 0.05*sum(tmp) and tmp[1]-tmp[0] > tmp[2]-tmp[1]:
+			continue
+		else:
+			for top in frq[key]:
+				if frq[key][top] == mi:
+					continue
+				elif frq[key][top] < ma:
+					frq[key][top] = mi
+				else:
+					frq[key][top] = sum(tmp)-2*mi
+	return frq
+>>>>>>> 3d4c5300e83e1f95796a1d60f2642d8e03e83ac0
