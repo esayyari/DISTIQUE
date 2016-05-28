@@ -309,6 +309,6 @@ def listQuartetsAroundBipartitions(sp):
         if nd.parent == root
             siblingNodes = nd.sibling_nodes()
             for sibl in siblingNodes:
-                if size(sibl.leaf_nodes())>
+                if size(sibl.leaf_nodes())>v
     
     return

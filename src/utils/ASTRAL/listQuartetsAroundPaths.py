@@ -169,12 +169,22 @@ if __name__ == '__main__':
 		frqAlter[bName] = dict()
 		frqAlter[bName][b1Name] = frqAlterTmp1
 		frqAlter[bName][b2Name] = frqAlterTmp2
+	keyL = sorted(frqDist.keys())
+	dictMKeys = dict()
+	dictAlTop = dict()
+	for i in range(0,len(keyL)):
+		dictMKeys[keyL[i]] = "Branch-"+str(i)
+	tmp = list()
+	for key in frqAlter:
+		keyt = sorted(frqAlter[key].keys())
+		dictAlTop[keyt[0]] = "top-1"
+		dictAlTop[keyt[1]] = "top-2"
+		
 	f = open(output,'w')
 	for bName in frqDist:
-		print >>f, bName,
-		for val in frqDist[bName]:
-			print >> f, val,
-		print >>f,
+		print >>f, frqMKeys[bName],"top-0", frqDist[bName]
+		for nt in frqAlter[bName]:
+			print >> f, frqMKeys[bName], dictAlTop[nt],val
 	f.close()
 #		for b1 in frqAlter[bName]:
 #			print bName, b1,
