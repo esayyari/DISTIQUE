@@ -169,19 +169,35 @@ if __name__ == '__main__':
 		frqAlter[bName] = dict()
 		frqAlter[bName][b1Name] = frqAlterTmp1
 		frqAlter[bName][b2Name] = frqAlterTmp2
+	keyL = sorted(frqDist.keys())
+	dictMKeys = dict()
+	dictAlTop = dict()
+	for i in range(0,len(keyL)):
+		dictMKeys[keyL[i]] = "Branch-"+str(i)
+	tmp = list()
+	for key in frqAlter:
+		keyt = sorted(frqAlter[key].keys())
+		dictAlTop[keyt[0]] = "top-1"
+		dictAlTop[keyt[1]] = "top-2"
+		
 	f = open(output,'w')
 	for bName in frqDist:
-		for val in frqDist[bName]:
-			bName = bName.replace(",","-")
+		print >>f, frqMKeys[bName],"top-0:", str(frqDist[bName])
+		for nt in frqAlter[bName]:
+			print >> f, frqMKeys[bName], dictAlTop[nt]+":",str(val)
+		print >> f,"\n"
+	#	for val in frqDist[bName]:
+	#		bName = bName.replace(",","-")
 		
 	#		print >> f, bName+":",val
-			print >> f, bName+",",bName+":",val
-			for n in frqAlter[bName]:
-				val2 = frqAlter[bName][n]
-				n = n.replace(",","-")
-				print >> f,bName+",",n+":",val2
+	#		print >> f, bName+",",bName+":",val
+	#		for n in frqAlter[bName]:
+	#			val2 = frqAlter[bName][n]
+	#			n = n.replace(",","-")
+	#			print >> f,bName+",",n+":",val2
 				
-		print >>f, "\n"
+	#	print >>f, "\n"
+#>>>>>>> 3d4c5300e83e1f95796a1d60f2642d8e03e83ac0
 	f.close()
 #		for b1 in frqAlter[bName]:
 #			print bName, b1,
