@@ -74,7 +74,6 @@ def findTrueAverageTable(frq,list_taxa,method,met):
 	lst_taxa = list(list_taxa.keys())
 	TotalKey = dict()
 	s = {1,2,3}
-	frq = filterFrq(frq)
 	for i in range(0,n):
 		for j in range(i+1,n):
 			for k in range(j+1,n):
@@ -154,6 +153,8 @@ def findTrueAverageTable(frq,list_taxa,method,met):
 				else:
 					vtt[q2] = (sqrt(mean(square(v2))))
 		TotalKeyf[q] = vtt
+	
+	TotalKeyf = filterFrq(TotalKeyf)
 	return TotalKeyf
 										
 									
@@ -312,7 +313,7 @@ def filterFrq(frq):
 		tmp = sorted(frq[key].values())
 		mi  = tmp[0]
 		ma  = tmp[2]
-		if tmp[2]-tmp[1] < 0.05*sum(tmp) and tmp[1]-tmp[0] > tmp[2]-tmp[1]:
+		if (tmp[1]-tmp[0] > 5*std and tmp[1]-tmp[0] > tmp[2]-tmp[1]) or (tmp[2]-tmp[1]<0.05*sum(tmp)):
 			continue
 		else:
 			for top in frq[key]:
