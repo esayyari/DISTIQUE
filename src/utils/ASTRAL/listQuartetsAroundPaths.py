@@ -182,10 +182,11 @@ if __name__ == '__main__':
 		
 	f = open(output,'w')
 	for bName in frqDist:
-		print >>f, frqMKeys[bName],"top-0:", str(frqDist[bName])
+		for val in frqDist[bName]:
+			print >>f, dictMKeys[bName],"top-0:", str(val)
 		for nt in frqAlter[bName]:
-			print >> f, frqMKeys[bName], dictAlTop[nt]+":",str(val)
-		print >> f,"\n"
+			for val in frqAlter[bName][nt]:
+				print >> f, dictMKeys[bName], dictAlTop[nt]+":",str(val)
 	#	for val in frqDist[bName]:
 	#		bName = bName.replace(",","-")
 		

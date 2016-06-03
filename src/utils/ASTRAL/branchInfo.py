@@ -32,15 +32,28 @@ if __name__ == "__main__":
 	tree.encode_bipartitions()
 	taxon_namespace = tree.taxon_namespace
 	f = open(out,'w')
+	tmpList = list()
+	tmp = dict()
 	for edge in tree.postorder_internal_edge_iter():
 		if edge.length is not None:
 			to_print = edge.bipartition.leafset_as_newick_string(taxon_namespace)
-			to_print = to_print.replace(";",":")
+			to_print = to_print.replace(";","")
 			to_print = to_print.replace(" ","")
-			to_print = to_print.replace("),(","}|{")
-			to_print = to_print.replace("(","{")
-			to_print = to_print.replace(")","}")
-			to_print = to_print.replace("{{","{")
-			to_print = to_print.replace("}}","}")
-			print >>f, to_print, edge.length
-	
+			to_print = to_print.replace("),(","|")
+			to_print = to_print.replace("(","")
+			to_print = to_print.replace(")","")
+			g = to_print.split("|")
+			g[0] = ",".join(sorted(g[0].split(",")))
+			g[1] = ",".join(sorted(g[1].split(",")))
+			to_print = "|".join(sorted([g[1],g[0]]))	
+			tmpList.append(to_print)
+			tmp[to_print] = edge.length
+	tmpList = sorted(tmpList)
+	l = [0.2,0.5,1,2]
+	for lt in l:
+		for i in range(0,len(tmpList)):
+			a = 1-2./3*np.exp(-tmp[tmpList[i]]*lt)	
+			print >> f,str(lt)+"X,true,true,R1,Branch-"+str(i)+",top-0,"+str(a)
+			b = 1./3*np.exp(-tmp[tmpList[i]]*lt)
+			print >> f,str(lt)+"X,true,true,R1,Branch-"+str(i)+",top-1,"+str(b)
+			print >> f,str(lt)+"X,true,true,R1,Branch-"+str(i)+",top-2,"+str(b)
