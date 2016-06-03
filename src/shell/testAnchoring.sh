@@ -65,10 +65,10 @@ for (( c=$START; c<=$END; c++ ))
 do
 out=`mktemp -d`
 if [ "$v" == "5" ] || [ "$v" == "3" ]; then
-$WS_LOC_PUTIL/testAnchoring-v$v.py -g $gt -o $out -n $nt -u $u -z $z
+$WS_LOC_PUTIL/distique-v$v.py -g $gt -o $out -n $nt -u $u -z $z
 
 else
-$WS_LOC_PUTIL/testAnchoring-v$v.py -g $gt -o $out -n $nt -u $u -z $z
+$WS_LOC_PUTIL/distique-v$v.py -g $gt -o $out -n $nt -u $u -z $z
 $WS_LOC_SH/mrl.sh $out
 cat $out/distance-*.nwk* > $out/anchored_trees
 cat $out/anchored_mrl_tree.nwk >> $out/anchored_trees

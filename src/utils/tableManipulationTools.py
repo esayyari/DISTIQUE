@@ -74,7 +74,6 @@ def findTrueAverageTable(frq,list_taxa,method,met):
 	lst_taxa = list(list_taxa.keys())
 	TotalKey = dict()
 	s = {1,2,3}
-	frq = filterFrq(frq)
 	for i in range(0,n):
 		for j in range(i+1,n):
 			for k in range(j+1,n):
@@ -154,6 +153,8 @@ def findTrueAverageTable(frq,list_taxa,method,met):
 				else:
 					vtt[q2] = (sqrt(mean(square(v2))))
 		TotalKeyf[q] = vtt
+	
+	TotalKeyf = filterFrq(TotalKeyf)
 	return TotalKeyf
 										
 									
@@ -299,22 +300,6 @@ def findTrueAverageTableAnchoring(frq,anch,list_taxa,method):
 				vtt[q2] = sqrt(mean(square(v2)))
 		TotalKeyf[q] = vtt
 	return TotalKeyf
-<<<<<<< HEAD
-def listQuartetsAroundBipartitions(sp):
-    leaves = sp.leaf_nodes()
-    setLeaves = set(leaves)
-    newRoot = random.sample(leaves)
-    sp.reroot_at_edge(newRoot.edge,update_bipartitions=True)
-    for nd in sp.postorder_node_iter():
-        if nd == root:
-            break
-        if nd.parent == root
-            siblingNodes = nd.sibling_nodes()
-            for sibl in siblingNodes:
-                if size(sibl.leaf_nodes())>v
-    
-    return
-=======
 def filterFrq(frq):
 	freq = dict()
 	diffList = list()
@@ -328,7 +313,7 @@ def filterFrq(frq):
 		tmp = sorted(frq[key].values())
 		mi  = tmp[0]
 		ma  = tmp[2]
-		if tmp[2]-tmp[1] < 0.05*sum(tmp) and tmp[1]-tmp[0] > tmp[2]-tmp[1]:
+		if (tmp[1]-tmp[0] > 5*std and tmp[1]-tmp[0] > tmp[2]-tmp[1]) or (tmp[2]-tmp[1]<0.05*sum(tmp)):
 			continue
 		else:
 			for top in frq[key]:
@@ -339,4 +324,3 @@ def filterFrq(frq):
 				else:
 					frq[key][top] = sum(tmp)-2*mi
 	return frq
->>>>>>> 3d4c5300e83e1f95796a1d60f2642d8e03e83ac0
