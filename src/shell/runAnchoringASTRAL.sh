@@ -88,18 +88,18 @@ if [ -s $gt50half ]; then
 /usr/bin/time -p $WS_LOC_UTIL/distique-v$v"."py -g $gt50half   -o $res50half   -n $n -u fastme -z $z > $res50half/results.log 2>&1
 echo "working on $i/estimatedgenetre.halfresolved50 has been finished!"
 fi
-if [ -s $res1000true ]; then
-/usr/bin/time -p $WS_LOC_UTIL/distique-v$v"."py -g $gt1000true -o $res1000true -n $n -u fastme -z $z > $res1000true/results.log 2>&1
-echo "working on $i/truegenetre1000 has been finished!"
-fi
-if [ -s $res200true ]; then
-/usr/bin/time -p $WS_LOC_UTIL/distique-v$v"."py -g $gt200true  -o $res200true  -n $n -u fastme -z $z > $res200true/results.log 2>&1
-echo "working on $i/truegenetre200 has been finished!"
-fi
-if [ -s $res50true ]; then
-/usr/bin/time -p $WS_LOC_UTIL/distique-v$v"."py -g $gt50true   -o $res50true   -n $n -u fastme -z $z> $res50true/results.log 2>&1
-echo "working on $i/truegenetre50 has been finished!"
-fi
+#if [ -s $res1000true ]; then
+#/usr/bin/time -p $WS_LOC_UTIL/distique-v$v"."py -g $gt1000true -o $res1000true -n $n -u fastme -z $z > $res1000true/results.log 2>&1
+#echo "working on $i/truegenetre1000 has been finished!"
+#fi
+#if [ -s $res200true ]; then
+#/usr/bin/time -p $WS_LOC_UTIL/distique-v$v"."py -g $gt200true  -o $res200true  -n $n -u fastme -z $z > $res200true/results.log 2>&1
+#echo "working on $i/truegenetre200 has been finished!"
+#fi
+#if [ -s $res50true ]; then
+#/usr/bin/time -p $WS_LOC_UTIL/distique-v$v"."py -g $gt50true   -o $res50true   -n $n -u fastme -z $z> $res50true/results.log 2>&1
+#echo "working on $i/truegenetre50 has been finished!"
+#fi
 if [ "$v" == "3" ]; then
 	for x in `find $tmpDIR -name "distance.*"`; do
 		y=$(dirname $x)
