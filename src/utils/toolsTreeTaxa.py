@@ -6,7 +6,7 @@ import numpy as np
 import random
 import tempfile
 from scipy.spatial import distance
-from dendropy.calculate import treecompare
+#from dendropy.calculate import treecompare
 import itertools
 from scipy.stats import mstats
 import subprocess

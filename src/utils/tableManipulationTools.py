@@ -332,12 +332,29 @@ def patristicDistanceAndMRCA(tree):
 	unweighted_patristic_distance = dict()
 	for idx1, taxon1 in enumerate(tree.taxon_namespace):
 	    for taxon2 in tree.taxon_namespace:
-		if taxon1 not in weighted_patristic_distance:
-			weighted_patristic_distance[taxon1] = dict()
-			unweighted_patristic_distance[taxon1] = dict()
-			mrca[taxon1] = dict()		
-		
-        	mrca[taxon1][taxon2] = pdm.mrca(taxon1, taxon2)
-	       	weighted_patristic_distance[taxon1][taxon2] = pdm.patristic_distance(taxon1, taxon2)
-        	unweighted_patristic_distance[taxon1][taxon2] = pdm.path_edge_count(taxon1, taxon2)
+		taxa = sorted([taxon1,taxon2])
+		key = 	taxa[0] +' '+taxa[1]
+        	mrca[key] = pdm.mrca(taxon1, taxon2)
+	       	weighted_patristic_distance[key] = pdm.patristic_distance(taxon1, taxon2)
+        	unweighted_patristic_distance[key] = pdm.path_edge_count(taxon1, taxon2)
 	return (mrca,weighted_patristic_distance,unweighted_patristic_distance)
+def addDistanceMatricies(D1,D2,n,method):
+	if method == "normConst":
+        	Dmax1 = max(np.abs(D1.values()))*1.
+		Dmax2 = max(np.abs(D2.values()))*1.
+		if (Dmax1>Dmax2):
+			a1 = 1.
+			a2 = Dmax1*1./Dmax2
+		else:
+			a1 = Dmax2*1./Dmax1
+			a2 = 1.
+        	for kttDtmp in D1:
+	            D1[kttDtmp] *= a1
+		    D2[kttDtmp] *= a2
+	elif method == "add":	
+		for key in D1:
+			D1[key] /= (n-2)*(n-3)/2
+	D = D1
+	for key in D:
+        	D[key] += D2[key]
+    	return D
