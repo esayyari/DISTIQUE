@@ -340,3 +340,4 @@ def patristicDistanceAndMRCA(tree):
         	mrca[taxon1][taxon2] = pdm.mrca(taxon1, taxon2)
 	       	weighted_patristic_distance[taxon1][taxon2] = pdm.patristic_distance(taxon1, taxon2)
         	unweighted_patristic_distance[taxon1][taxon2] = pdm.path_edge_count(taxon1, taxon2)
+	return (mrca,weighted_patristic_distance,unweighted_patristic_distance)
