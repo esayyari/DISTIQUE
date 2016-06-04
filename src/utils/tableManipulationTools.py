@@ -299,22 +299,6 @@ def findTrueAverageTableAnchoring(frq,anch,list_taxa,method):
 				vtt[q2] = sqrt(mean(square(v2)))
 		TotalKeyf[q] = vtt
 	return TotalKeyf
-<<<<<<< HEAD
-def listQuartetsAroundBipartitions(sp):
-    leaves = sp.leaf_nodes()
-    setLeaves = set(leaves)
-    newRoot = random.sample(leaves)
-    sp.reroot_at_edge(newRoot.edge,update_bipartitions=True)
-    for nd in sp.postorder_node_iter():
-        if nd == root:
-            break
-        if nd.parent == root
-            siblingNodes = nd.sibling_nodes()
-            for sibl in siblingNodes:
-                if size(sibl.leaf_nodes())>v
-    
-    return
-=======
 def filterFrq(frq):
 	freq = dict()
 	diffList = list()
@@ -339,4 +323,19 @@ def filterFrq(frq):
 				else:
 					frq[key][top] = sum(tmp)-2*mi
 	return frq
->>>>>>> 3d4c5300e83e1f95796a1d60f2642d8e03e83ac0
+
+def patristicDistanceAndMRCA(tree):
+	pdm = tree.phylogenetic_distance_matrix()
+	mrca = dict()
+	weighted_patristic_distance = dict()
+	unweighted_patristic_distance = dict()
+	for idx1, taxon1 in enumerate(tree.taxon_namespace):
+	    for taxon2 in tree.taxon_namespace:
+		if taxon1 not in weighted_patristic_distance:
+			weighted_patristic_distance[taxon1] = dict()
+			unweighted_patristic_distance[taxon1] = dict()
+			mrca[taxon1] = dict()		
+		
+        	mrca[taxon1][taxon2] = pdm.mrca(taxon1, taxon2)
+	       	weighted_patristic_distance[taxon1][taxon2] = pdm.patristic_distance(taxon1, taxon2)
+        	unweighted_patristic_distance[taxon1][taxon2] = pdm.path_edge_count(taxon1, taxon2)
