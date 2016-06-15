@@ -36,35 +36,48 @@ usage = "usage: %prog [options]"
 parser = OptionParser(usage)
 parser.add_option("-t","--strategy",dest="strat",type="int",
 		help="The version of DISTIQUE to be run 1 (all-paris, prod), 2 (all-paris, max), 3 (Distance-sum), and 4 (Tree-sum), default is DISTIQUE Distance-SUM (3)",default=3)
+parser.add_option("-f", "--file", dest="filename", type="string",
+	        help="read quartet table from FILENAME")
+parser.add_option("-g","--gene",dest="gt",type="string",
+		help="read genetrees from FILENAME")
+parser.add_option("-o","--output",dest="out",type="string",
+		help="the PATH to write the generated files")
+parser.add_option("-y","--threshold",dest="thr",type=float,
+		help="the minimum frequency that consensus will use. Default is 0.5",default=0.5)
+parser.add_option("-v","--verbose",dest="verbose",
+		help="Verbose",default=1)
+parser.add_option("-u",dest="sumProg",
+		help = "The summerize method program to find species tree from distance matrix. The options are ninja, fastme, phydstar. Default is fastme ",default="fastme") 
+parser.add_option("-z",dest="sumProgOption",
+		help = "The distance method to build the tree. If sumProg is set to fastme the options are TaxAdd_(B)alME (-s), TaxAdd_(B2)alME (-n), TaxAdd_(O)LSME (-s), TaxAdd_(O2)LSME (-n), B(I)ONJ (default), (N)J. The default in this case is B(I)ONJ. if the  sumProg is set to phydstar, the options are BioNJ, MVR, and NJ. The default is TaxAdd_(B)alME.",default="B")
+parser.add_option("-s","--sp",dest="sp",
+		help="species tree")
+parser.add_option("-n","--numStep",dest="num",
+		help="The number of anchors, default is 2",default=2)
+parser.add_option("-d",dest="debug",
+		help = "The flag for indicating that this run is for debugging!", default = False)
+parser.add_option("-r",dest="outlier",
+		help = "The strategy for outlier removal. The options are pairwise1, pairwise2, consensus10, or consensus3. Default is None", default = "consensus3")
+parser.add_option("-x",dest="summary",
+		help = "The summary method that will be used to summarize inferred species trees. Default is mrl",default = "mrl")
+parser.add_option("-a","--averagemethod",dest="av",
+		help="The average method to find the average quartet table. Default is mean.", default="mean")
 
+parser.add_option("-e","--method",dest="am",
+		help="The averaging method for finding average quartet table",default="mean")
+parser.add_option("-m",dest="met",
+		help="The method to summerize quartet results around each node, freq, or log, Default is freq", default="freq")
+
+parser.add_option("-l",dest="fillmethod",
+		help="The method to fill empty cells in distance tables, const, rand, or normConst. Default is const", default="const")
+parser.add_option("-p","--distmethod",dest="method",type=str,
+		help="The method to compute the distance of taxa. The default is prod.",default="prod")
+		
 (options,args) = parser.parse_args()
 strat = options.strat
 
 if (strat == 1):
 
-	parser.add_option("-f", "--file", dest="filename", type="string",
-		      help="read quartet table from FILENAME")
-	parser.add_option("-g","--gene",dest="gt",type="string",
-			help="read genetrees from FILENAME")
-	parser.add_option("-o","--output",dest="out",type="string",
-			help="the PATH to write the generated files")
-	parser.add_option("-y","--threshold",dest="thr",type=float,
-			help="the minimum frequency that consensus will use. Default is 0.5",default=0.5)
-	parser.add_option("-m","--method",dest="method",type=str,
-			help="The method to compute the distance of taxa. The default is prod.",default="prod")
-	parser.add_option("-v","--verbose",dest="verbose",
-			help="Verbose",default=1)
-	parser.add_option("-r","--readFromFile",dest="readFromFile",
-			help="Set it to 1 if you already computed the quartet table. If you want the code to compute the quartet tables set it to 0. Default is 0",default=0)
-	parser.add_option("-a","--averagemethod",dest="av",
-			help="The average method to find the average quartet table. Default is mean.", default="mean")
-	parser.add_option("-l",dest="met",
-			help = "The method to summerize quartet results around each node, freq, or log", default="log")
-	parser.add_option("-u",dest="sumProg",
-		help = "The summerize method program to find species tree from distance matrix. The options are ninja, fastme, phydstar. Default is fastme ",default="fastme") 
-	parser.add_option("-z",dest="sumProgOption",
-			  help = "The distance method to build the tree. If sumProg is set to fastme the options are TaxAdd_(B)alME (-s), TaxAdd_(B2)alME (-n), TaxAdd_(O)LSME (-s), TaxAdd_(O2)LSME (-n), B(I)ONJ (default), (N)J. The default in this case is B(I)ONJ. if the  sumProg is set to phydstar, the options are BioNJ, MVR, and NJ. The default is TaxAdd_(B)alME.",default="B")
-	(options,args) = parser.parse_args()
 	filename = options.filename
 	gt = options.gt
 	outpath = options.out
@@ -80,9 +93,7 @@ if (strat == 1):
 
 	met = options.met
 	verbose=options.verbose
-	if options.readFromFile == 1:
-		readFromFile = True
-	elif options.filename:
+	if options.filename:
 		readFromFile = True
 	else:
 		readFromFile = False
@@ -158,29 +169,6 @@ if (strat == 1):
             print "writing the resulting tree as: "+outfile
         con_tree.write(path=outfile,schema="newick",suppress_rooting=True,suppress_internal_node_labels=True)
 if (strat == 2):
-	parser.add_option("-f", "--file", dest="filename", type="string",
-		      help="read quartet table from FILENAME")
-	parser.add_option("-g","--gene",dest="gt",type="string",
-			help="read genetrees from FILENAME")
-	parser.add_option("-o","--output",dest="out",type="string",
-			help="the PATH to write the generated files")
-	parser.add_option("-y","--threshold",dest="thr",type=float,
-			help="the minimum frequency that consensus will use. Default is 0.5",default=0.5)
-	parser.add_option("-m","--method",dest="method",type=str,
-			help="The method to compute the distance of taxa. The default is prod.",default="prod")
-	parser.add_option("-v","--verbose",dest="verbose",
-			help="Verbose",default=1)
-	parser.add_option("-r","--readFromFile",dest="readFromFile",
-			help="Set it to 1 if you already computed the quartet table. If you want the code to compute the quartet tables set it to 0. Default is 0",default=0)
-	parser.add_option("-a","--averagemethod",dest="av",
-			help="The average method to find the average quartet table. Default is mean.", default="mean")
-	parser.add_option("-l",dest="met",
-			help = "The method to summerize quartet results around each node, freq, or log", default="log")
-	parser.add_option("-u",dest="sumProg",
-		help = "The summerize method program to find species tree from distance matrix. The options are ninja, fastme, phydstar. Default is fastme ",default="fastme") 
-	parser.add_option("-z",dest="sumProgOption",
-			  help = "The distance method to build the tree. If sumProg is set to fastme the options are TaxAdd_(B)alME (-s), TaxAdd_(B2)alME (-n), TaxAdd_(O)LSME (-s), TaxAdd_(O2)LSME (-n), B(I)ONJ (default), (N)J. The default in this case is B(I)ONJ. if the  sumProg is set to phydstar, the options are BioNJ, MVR, and NJ. The default is TaxAdd_(B)alME.",default="B")
-	(options,args) = parser.parse_args()
 	filename = options.filename
 	gt = options.gt
 	outpath = options.out
@@ -196,9 +184,7 @@ if (strat == 2):
 
 	met = options.met
 	verbose=options.verbose
-	if options.readFromFile == 1:
-		readFromFile = True
-	elif options.filename:
+	if options.filename:
 		readFromFile = True
 	else:
 		readFromFile = False
@@ -275,38 +261,7 @@ if (strat == 2):
             print "writing the resulting tree as: "+outfile
         con_tree.write(path=outfile,schema="newick",suppress_rooting=True,suppress_internal_node_labels=True)
 if (strat == 3):
-	usage = "usage: %prog [options]"
-	parser = OptionParser(usage)
-	parser.add_option("-f", "--file", dest="filename", type="string",
-		      help="read quartet table from FILENAME")
-	parser.add_option("-g","--gene",dest="gt",type="string",
-		help="read genetrees from FILENAME")
-	parser.add_option("-o","--output",dest="out",type="string",
-		help="the PATH to write the generated files")
-	parser.add_option("-t","--threshold",dest="thr",type=float,
-		help="the minimum frequency that consensus will use. Default is 0.5",default=0.5)
-	parser.add_option("-v","--verbose",dest="verbose",
-		help="Verbose",default=1)
-	parser.add_option("-a","--achs",dest="a",type="string",
-		help="Anchors that the table will be based on")
-	parser.add_option("-s","--sp",dest="sp",
-		help="species tree")
-	parser.add_option("-n","--numStep",dest="num",
-		help="The number of anchors, default is 2",default=2)
-	parser.add_option("-e","--method",dest="am",
-		help="The averaging method for finding average quartet table",default="mean")
-	parser.add_option("-m",dest="met",
-		help="The method to summerize quartet results around each node, freq, or log, Default is freq", default="freq")
-	parser.add_option("-l",dest="fillmethod",
-		help="The method to fill empty cells in distance tables, const, rand, or normConst. Default is const", default="const")
-	parser.add_option("-d",dest="debug",
-		help = "The flag for indicating that this run is for debugging!", default = False)
-	parser.add_option("-u",dest="sumProg",
-		help = "The summerize method program to find species tree from distance matrix. The options are ninja, fastme, phydstar. Default is fastme ",default="fastme") 
-	parser.add_option("-z",dest="sumProgOption",
-			  help = "The distance method to build the tree. If sumProg is set to fastme the options are TaxAdd_(B)alME (-s), TaxAdd_(B2)alME (-n), TaxAdd_(O)LSME (-s), TaxAdd_(O2)LSME (-n), B(I)ONJ (default), (N)J. The default in this case is B(I)ONJ. if the  sumProg is set to phydstar, the options are BioNJ, MVR, and NJ. The default is TaxAdd_(B)alME.",default="B")
 	tm.tic()
-	(options,args) = parser.parse_args()
 	filename = options.filename
 	gt = options.gt
 	outpath = options.out
@@ -327,12 +282,7 @@ if (strat == 3):
 	    num = int(num)
 	method = options.am
 	am = options.am
-	if (options.a):
-	    ac = sorted(options.a.split(','))
-	    ac = [(ac[i],ac[i+1])for i in range(0,len(ac)/2)]
-	    randomSample=False
-	else:
-	    randomSample=True
+	randomSample=True
 	if options.filename:
 	    readFromFile = True
 	    frqT=tbsa.readTable(filename)
@@ -582,39 +532,7 @@ if (strat == 3):
 	print "The overall time to infer the species tree is: "
 	tm.toc()
 if (strat == 4):
-	usage = "usage: %prog [options]"
-	parser = OptionParser(usage)
-	parser.add_option("-f", "--file", dest="filename", type="string",
-		      help="read quartet table from FILENAME")
-	parser.add_option("-g","--gene",dest="gt",type="string",
-		help="read genetrees from FILENAME")
-	parser.add_option("-o","--output",dest="out",type="string",
-		help="the PATH to write the generated files")
-	parser.add_option("-t","--threshold",dest="thr",type=float,
-		help="the minimum frequency that consensus will use. Default is 0.5",default=0.5)
-	parser.add_option("-v","--verbose",dest="verbose",
-		help="Verbose",default=1)
-	parser.add_option("-a","--achs",dest="a",type="string",
-		help="Anchors that the table will be based on")
-	parser.add_option("-s","--sp",dest="sp",
-		help="species tree")
-	parser.add_option("-n","--numStep",dest="num",
-		help="The number of anchors, default is 2",default=2)
-	parser.add_option("-e","--method",dest="am",
-		help="The averaging method for finding average quartet table",default="mean")
-	parser.add_option("-m",dest="met",
-		help="The method to summerize quartet results around each node, freq, or log. Default is freq", default="freq")
-	parser.add_option("-d",dest="debug",
-		help = "The debug flag",default = False)
-	parser.add_option("-r",dest="outlier",
-		help = "The strategy for outlier removal. The options are pairwise1, pairwise2, consensus10, or consensus3. Default is None", default = "consensus3")
-	parser.add_option("-u",dest="sumProg",
-		help = "The summerize method program to find species tree from distance matrix. The options are ninja, fastme, phydstar. Default is fastme ",default="fastme") 
-	parser.add_option("-z",dest="sumProgOption",
-			  help = "The distance method to build the tree. If sumProg is set to fastme the options are TaxAdd_(B)alME (-s), TaxAdd_(B2)alME (-n), TaxAdd_(O)LSME (-s), TaxAdd_(O2)LSME (-n), B(I)ONJ (default), (N)J. The default in this case is B(I)ONJ. if the  sumProg is set to phydstar, the options are BioNJ, MVR, and NJ. The default is TaxAdd_(B)alME.",default="B")
-	parser.add_option("-x",dest="summary",
-			  help = "The summary method that will be used to summarize inferred species trees. Default is mrl",default = "mrl")
-	(options,args) = parser.parse_args()
+
 	filename = options.filename
 	gt = options.gt
 	debugFlag = (options.debug == "1")
@@ -640,12 +558,7 @@ if (strat == 4):
 	if (num != "all"):
 	    num = int(num)
 	am = options.am
-	if (options.a):
-	    ac = options.a.split(',')
-	    ac = [(ac[i],ac[i+1])for i in range(0,len(ac)/2)]
-	    randomSample=False
-	else:
-	    randomSample=True
+	randomSample=True
 	if options.filename:
 	    readFromFile = True
 	    frqT=tbsa.readTable(filename)
