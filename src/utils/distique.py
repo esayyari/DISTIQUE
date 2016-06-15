@@ -148,20 +148,15 @@ if (strat == 1):
 			subprocess.call([WS_LOC_FM+"/fastme", "-i",ftmp3[1],"-w","none","-o",ftmp4[1],"-I","/dev/null"],stdout=FNULL,stderr=subprocess.STDOUT)
 			os.close(ftmp4[0])
 
-	#        	tstt.buildTreeFromDistanceMatrix(ftmp3[1],ftmp4[1],sumProg,sumProgOption)
-	#	        os.close(ftmp3[0])
-	 #       	os.close(ftmp4[0])
 			if verbose:
 				print "starting to resolve polytomy"	
 			res= tstt.resolvePolytomy(ftmp4[1],e,verbose)	
 	print "resolving polytomies takes about: "
 	tm.toc()
-	ftmp=tempfile.mkstemp(suffix='.nwk', prefix="distance.d_distique_tree.nwk", dir=outpath, text=None)
-	con_tree.write(path=ftmp[1],schema="newick",suppress_rooting=True,suppress_internal_node_labels=True)
-	if verbose:
-		print "writing the resulting tree as: "+outpath+"/distance.d_distique_tree.nwk"
-
-	os.close(ftmp[0])
+	outfile = outpath+"/distique_all_pairs_prod.nwk"
+        if verbose:
+            print "writing the resulting tree as: "+outfile
+        con_tree.write(path=outfile,schema="newick",suppress_rooting=True,suppress_internal_node_labels=True)
 if (strat == 2):
 	parser.add_option("-f", "--file", dest="filename", type="string",
 		      help="read quartet table from FILENAME")
@@ -269,20 +264,16 @@ if (strat == 2):
 			subprocess.call([WS_LOC_FM+"/fastme", "-i",ftmp3[1],"-w","none","-o",ftmp4[1],"-I","/dev/null"],stdout=FNULL,stderr=subprocess.STDOUT)
 			os.close(ftmp4[0])
 
-	#        	tstt.buildTreeFromDistanceMatrix(ftmp3[1],ftmp4[1],sumProg,sumProgOption)
-	#	        os.close(ftmp3[0])
-	 #       	os.close(ftmp4[0])
 			if verbose:
 				print "starting to resolve polytomy"	
 			res= tstt.resolvePolytomy(ftmp4[1],e,verbose)	
 	print "resolving polytomies takes about: "
 	tm.toc()
-	ftmp=tempfile.mkstemp(suffix='.nwk', prefix="distance.d_distique_tree.nwk", dir=outpath, text=None)
-	con_tree.write(path=ftmp[1],schema="newick",suppress_rooting=True,suppress_internal_node_labels=True)
-	if verbose:
-		print "writing the resulting tree as: "+outpath+"/distance.d_distique_tree.nwk"
-
-	os.close(ftmp[0])
+	
+	outfile = outpath+"/distique_all_pairs_max.nwk"
+        if verbose:
+            print "writing the resulting tree as: "+outfile
+        con_tree.write(path=outfile,schema="newick",suppress_rooting=True,suppress_internal_node_labels=True)
 if (strat == 3):
 	usage = "usage: %prog [options]"
 	parser = OptionParser(usage)
@@ -368,8 +359,6 @@ if (strat == 3):
 	tstt.labelNodes(con_tree)
 	tm.toc()
 	ftmp=tempfile.mkstemp(suffix='.nwk', prefix="consensusTree", dir=outpath, text=None)
-	#con_tree.write(path=ftmp[1],schema="newick",suppress_rooting=True)
-	#os.close(ftmp[0])
 	print con_tree
 
 	taxa = list()
@@ -572,8 +561,6 @@ if (strat == 3):
 
 	for e in con_tree.postorder_node_iter():
 		if e in to_resolve:
-	#             if e not in skippedPoly:
-	#                 continue
 		    z=listPoly.index(e)
 		    keyDict = sorted(list(np.unique((" ".join(normalizedD[z].keys())).split(" "))))
 		    fileDistance = "distancet-"+str(e.label)+".d"
@@ -588,10 +575,10 @@ if (strat == 3):
 			print "starting to resolve polytomy"
 		    res=atbs.resolvePolytomy(ftmp4[1],e,verbose)
 	tstt.prune_tree_trivial_nodes(con_tree)
-	print "writing the resulting tree as: "+outpath+"/distance.d_distique_anchoring_tree.nwk"
-	ftmp=tempfile.mkstemp(suffix='.nwk', prefix="distance.d_distique_anchoring_tree.nwk", dir=outpath, text=None)
-	con_tree.write(path=ftmp[1],schema="newick",suppress_rooting=True,suppress_internal_node_labels=True)
-	os.close(ftmp[0])
+	outfile = outpath+"/distique_distance-sum.nwk"
+        if verbose:
+            print "writing the resulting tree as: "+outfile
+        con_tree.write(path=outfile,schema="newick",suppress_rooting=True,suppress_internal_node_labels=True)	
 	print "The overall time to infer the species tree is: "
 	tm.toc()
 if (strat == 4):
@@ -869,9 +856,9 @@ if (strat == 4):
 		res=atbs.resolvePolytomy(ftmp4,e,verbose) 
 	tstt.prune_tree_trivial_nodes(con_tree)
 
-	ftmp=tempfile.mkstemp(suffix='.nwk', prefix="distique_anchoring_tree.nwk", dir=outpath, text=None)
+
+	outfile = outpath+"/distique_tree-sum.nwk"
 	if verbose:    
-	    print "writing the resulting tree as: "+ftmp[1]
-	con_tree.write(path=ftmp[1],schema="newick",suppress_rooting=True,suppress_internal_node_labels=True)
-	os.close(ftmp[0])
+	    print "writing the resulting tree as: "+outfile
+	con_tree.write(path=outfile,schema="newick",suppress_rooting=True,suppress_internal_node_labels=True)
 
