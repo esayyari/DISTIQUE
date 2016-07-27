@@ -171,7 +171,7 @@ def distanceTable(frq,method,outfile,met):
 	keyDict = sorted(np.unique(("/".join(frq.keys())).split("/")));
 	mapDict = dict()       	
 	if method == 'min':
-		mapDict =minDistance(frq,met)
+		mapDict =minDistance(frq)
 	elif method == 'prod':
 		mapDict =prodDistance(frq,met)
 	pr.printDistanceTableToFile(mapDict,keyDict,outfile)
