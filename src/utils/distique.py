@@ -65,12 +65,12 @@ parser.add_option("-a","--averagemethod",dest="av",
 
 parser.add_option("-e","--method",dest="am",
 		help="The averaging method for finding average quartet table",default="mean")
-parser.add_option("-m",dest="met",
+parser.add_option("-p",dest="met",
 		help="The method to summerize quartet results around each node, freq, or log, Default is freq", default="freq")
 
 parser.add_option("-l",dest="fillmethod",
 		help="The method to fill empty cells in distance tables, const, rand, or normConst. Default is const", default="const")
-parser.add_option("-p","--distmethod",dest="method",type=str,
+parser.add_option("-m","--distmethod",dest="method",type=str,
 		help="The method to compute the distance of taxa. The default is prod.",default="prod")
 		
 (options,args) = parser.parse_args()
