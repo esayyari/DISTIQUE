@@ -25,7 +25,7 @@ import dendropy
 import gc
 from compiler.ast import Node
 import prodDistance as pd
-
+import copy
 
 
 WS_LOC_SHELL= os.environ['WS_HOME']+'/DISTIQUE/src/shell'
@@ -135,7 +135,10 @@ con_tree = trees.consensus(min_freq=thr)
 tm.toc()
 
 ftmpt=tempfile.mkstemp(suffix='.nwk', prefix="consensusTree", dir=outpath, text=None)
-con_tree.write(path=ftmpt[1],schema="newick",suppress_rooting=True)
+con_tree2 = copy.deepcopy(con_tree)
+tstt.changeLabelsToNames(con_tree2,new_labels,verbose)
+
+con_tree2.write(path=ftmpt[1],schema="newick",suppress_rooting=True)
 
 os.close(ftmpt[0])
 tstt.labelNodes(con_tree)
