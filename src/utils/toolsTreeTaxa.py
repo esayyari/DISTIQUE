@@ -6,7 +6,7 @@ import numpy as np
 import random
 import tempfile
 from scipy.spatial import distance
-#from dendropy.calculate import treecompare
+from dendropy.calculate import treecompare
 import itertools
 from scipy.stats import mstats
 import subprocess
@@ -531,3 +531,27 @@ def buildTreeFromDistanceMatrix(distPath,outPath,sumProg,sumProgOption):
     elif sumProg == "ninja":
         subprocess.call([WS_LOC_NJ+"/ninja","--in",distPath,"--out",outPath,"--in_type","d"],stdout=FNULL,stderr=subprocess.STDOUT)
     return
+
+def changeLabelsToNumbers(gene_trees,verbose):
+	converted_labels = dict()
+	new_labels = dict()
+	i = 0
+	if verbose:
+		print("Taxon namespace: {}".format(", ".join(taxon.label for taxon in gene_trees.taxon_namespace)))
+	for taxon in gene_trees.taxon_namespace:
+		if taxon.label is not None:
+			converted_labels[str(taxon.label)] = "l"+str(i)			 
+			new_labels["l"+str(i)] = str(taxon.label)
+            		i += 1
+    	tree = gene_trees[0]
+	for node in tree.leaf_node_iter():
+        	node.taxon.label = converted_labels[str(node.taxon.label)]
+	return (converted_labels,new_labels)
+def changeLabelsToNames(tree,new_labels,verbose):
+        for node in tree.leaf_node_iter():
+                print node.taxon.label + ": "+ new_labels[str(node.taxon.label)]
+                node.taxon.label = new_labels[str(node.taxon.label)]
+        if verbose:
+                print("Taxon namespace: {}".format(", ".join(taxon.label for taxon in tree.taxon_namespace)))
+
+        return

@@ -76,54 +76,85 @@ parser.add_option("-m","--distmethod",dest="method",type=str,
 (options,args) = parser.parse_args()
 strat = options.strat
 
+filename = options.filename
+gt = options.gt
+outpath = options.out
+thr = options.thr
+thr=options.thr
+av = options.av
+sumProg = options.sumProg
+sumProgOption = options.sumProgOption
+verbose = options.verbose
+debugFlag = (options.debug == "1")
+sp = options.sp
+num = options.num
+summary = options.summary	
+met = options.met
+strategy = options.outlier
+fillmethod = options.fillmethod
+if verbose:
+	print strategy
+if strategy is not None:
+	removeOutliers = True
+else:
+	removeOutliers = False
+	
+am = options.am
+randomSample=True
+if options.filename:
+	readFromFile = True
+	frqT=tbsa.readTable(filename)
+else:
+	readFromFile = False
+
+	
+	
+
+
+if sumProg == "phydstar" and sumProgOption == "":
+    sumProgOption = "BioNJ"
+elif sumProg == "phydstar":
+    sumProgOption = options.sumProgOption
+
+if options.filename:
+	readFromFile = True
+else:
+	readFromFile = False
+if ( not options.gt  or not options.out):
+	sys.exit("Please enter genetrees file, and output folder location")
+
+src_fpath = os.path.expanduser(os.path.expandvars(gt))
+
+trees = dendropy.TreeList.get_from_path(src_fpath, 'newick')
+
+(converted_labels,new_labels) = tstt.changeLabelsToNumbers(trees,verbose)
+
+print "time to compute consensus is: "
+tm.tic()
+con_tree = trees.consensus(min_freq=thr)   
+tm.toc()
+
+ftmpt=tempfile.mkstemp(suffix='.nwk', prefix="consensusTree", dir=outpath, text=None)
+con_tree.write(path=ftmpt[1],schema="newick",suppress_rooting=True)
+
+os.close(ftmpt[0])
+tstt.labelNodes(con_tree)
+
+(to_resolve,maxPolyOrder) = tstt.findPolytomies(con_tree)
+taxa = list()
+for e in con_tree.leaf_nodes():
+	taxa.append(e.taxon.label)
+n = len(con_tree.leaf_nodes())
+num_taxa = len(trees[0].leaf_nodes())
+method = "prod"
+
+
+	
+
+
 if (strat == 1):
-
-	filename = options.filename
-	gt = options.gt
-	outpath = options.out
-	thr = options.thr
-	thr=options.thr
-	av = options.av
-	sumProg = options.sumProg
-	sumProgOption = options.sumProgOption
-	if sumProg == "phydstar" and sumProgOption == "":
-	    sumProgOption = "BioNJ"
-	elif sumProg == "phydstar":
-	    sumProgOption = options.sumProgOption
-
-	met = options.met
-	verbose=options.verbose
-	if options.filename:
-		readFromFile = True
-	else:
-		readFromFile = False
 	method = "prod"
-
-	if ( not options.gt  or not options.out):
-		sys.exit("Please enter genetrees file, and output folder location")
-	if readFromFile:
-		frq = tbs.readTable(filename)
-
-	src_fpath = os.path.expanduser(os.path.expandvars(gt))
-
-	trees = dendropy.TreeList.get_from_path(src_fpath, 'newick')
-	print "time to compute consensus is: "
-	tm.tic()
-	con_tree = trees.consensus(min_freq=thr)   
-	tm.toc()
-
-	ftmpt=tempfile.mkstemp(suffix='.nwk', prefix="consensusTree", dir=outpath, text=None)
-	con_tree.write(path=ftmpt[1],schema="newick",suppress_rooting=True)
-
-	os.close(ftmpt[0])
-
-	tstt.labelNodes(con_tree)
-
-	(to_resolve,maxPolyOrder) = tstt.findPolytomies(con_tree)
-	taxa = list()
-	for e in con_tree.leaf_nodes():
-		taxa.append(e.taxon.label)
-	n = len(con_tree.leaf_nodes())
+	
 	if verbose:
 	    print "The summary program is: "+sumProg
 	    print "The option for this summary program is: "+sumProgOption
@@ -167,60 +198,11 @@ if (strat == 1):
 	outfile = outpath+"/distique_all_pairs_prod.nwk"
         if verbose:
             print "writing the resulting tree as: "+outfile
-        con_tree.write(path=outfile,schema="newick",suppress_rooting=True,suppress_internal_node_labels=True)
+	tstt.changeLabelsToNames(con_tree,new_labels,verbose)
+	con_tree.write(path=outfile,schema="newick",suppress_rooting=True,suppress_internal_node_labels=True)
 if (strat == 2):
-	filename = options.filename
-	gt = options.gt
-	outpath = options.out
-	thr = options.thr
-	thr=options.thr
-	av = options.av
-	sumProg = options.sumProg
-	sumProgOption = options.sumProgOption
-	if sumProg == "phydstar" and sumProgOption == "":
-	    sumProgOption = "BioNJ"
-	elif sumProg == "phydstar":
-	    sumProgOption = options.sumProgOption
-
-	met = options.met
-	verbose=options.verbose
-	if options.filename:
-		readFromFile = True
-	else:
-		readFromFile = False
 	method = "min"
 
-	if ( not options.gt  or not options.out):
-		sys.exit("Please enter genetrees file, and output folder location")
-	if readFromFile:
-		frq = tbs.readTable(filename)
-
-	src_fpath = os.path.expanduser(os.path.expandvars(gt))
-
-	trees = dendropy.TreeList.get_from_path(src_fpath, 'newick')
-	print "time to compute consensus is: "
-	tm.tic()
-	con_tree = trees.consensus(min_freq=thr)   
-	tm.toc()
-
-	ftmpt=tempfile.mkstemp(suffix='.nwk', prefix="consensusTree", dir=outpath, text=None)
-	con_tree.write(path=ftmpt[1],schema="newick",suppress_rooting=True)
-
-	os.close(ftmpt[0])
-
-	tstt.labelNodes(con_tree)
-
-	(to_resolve,maxPolyOrder) = tstt.findPolytomies(con_tree)
-	taxa = list()
-	for e in con_tree.leaf_nodes():
-		taxa.append(e.taxon.label)
-	n = len(con_tree.leaf_nodes())
-	if verbose:
-	    print "The summary program is: "+sumProg
-	    print "The option for this summary program is: "+sumProgOption
-	    print "Number of taxa is: " + str(n)
-	    print "the number of polytomies is: "+str(len(to_resolve))
-	    print "the maximum order of polytomies is: "+str(maxPolyOrder)
 	if verbose:
 		print "computing the total quartet table"
 	if readFromFile:
@@ -259,64 +241,16 @@ if (strat == 2):
 	outfile = outpath+"/distique_all_pairs_max.nwk"
         if verbose:
             print "writing the resulting tree as: "+outfile
-        con_tree.write(path=outfile,schema="newick",suppress_rooting=True,suppress_internal_node_labels=True)
+	tstt.changeLabelsToNames(con_tree,new_labels,verbose)
+	con_tree.write(path=outfile,schema="newick",suppress_rooting=True,suppress_internal_node_labels=True)
+        
 if (strat == 3):
-	tm.tic()
-	filename = options.filename
-	gt = options.gt
-	outpath = options.out
-	fillmethod = options.fillmethod
-	thr = float(options.thr)
-	sp = options.sp
-	num = options.num
-	met = options.met
-	sumProg = options.sumProg
-	sumProgOption = options.sumProgOption
-	if sumProg == "phydstar" and sumProgOption == "":
-	    sumProgOption = "BioNJ"
-	elif sumProg == "phydstar":
-	    sumProgOption = options.sumProgOption
-
-	debugFlag = (options.debug == "1")
-	if (num != "all"):
-	    num = int(num)
-	method = options.am
-	am = options.am
-	randomSample=True
-	if options.filename:
-	    readFromFile = True
-	    frqT=tbsa.readTable(filename)
-	else:
-	    readFromFile = False
-	print readFromFile
-	verbose=options.verbose
-	if ( not options.gt  or not options.out):
-	    sys.exit("Please enter genetrees file, and output folder location")
-
-	src_fpath = os.path.expanduser(os.path.expandvars(gt))
+	
 
 	tm.tic()
-	print "reading trees"
-	trees = dendropy.TreeList.get_from_path(src_fpath, 'newick')
-	num_taxa = len(trees[0].leaf_nodes())
-	if (num == "all"):
-	    num = num_taxa*(num_taxa-1)/2
-	tm.toc()
 
-	tm.tic()
-	print "majority consensus"
-	con_tree = trees.consensus(min_freq=thr)
-	tstt.labelNodes(con_tree)
-	tm.toc()
-	ftmp=tempfile.mkstemp(suffix='.nwk', prefix="consensusTree", dir=outpath, text=None)
-	print con_tree
-
-	taxa = list()
-	for e in con_tree.leaf_nodes():
-	    taxa.append(e.taxon.label)
 	notEnoughSample = True
 	skippedPoly = set()
-	(to_resolve, _) = tstt.findPolytomies(con_tree)
 
 	acSmall = dict()
 	(to_resolvettt,_)= tstt.findPolytomies_with_names(con_tree)
@@ -526,75 +460,21 @@ if (strat == 3):
 		    res=atbs.resolvePolytomy(ftmp4[1],e,verbose)
 	tstt.prune_tree_trivial_nodes(con_tree)
 	outfile = outpath+"/distique_distance-sum.nwk"
-        if verbose:
-            print "writing the resulting tree as: "+outfile
-        con_tree.write(path=outfile,schema="newick",suppress_rooting=True,suppress_internal_node_labels=True)	
+    	if verbose:
+        	print "writing the resulting tree as: "+outfile
+	tstt.changeLabelsToNames(con_tree,new_labels,verbose)
+	con_tree.write(path=outfile,schema="newick",suppress_rooting=True,suppress_internal_node_labels=True)	
 	print "The overall time to infer the species tree is: "
 	tm.toc()
+	
+	
+	
 if (strat == 4):
-
-	filename = options.filename
-	gt = options.gt
-	debugFlag = (options.debug == "1")
-	outpath = options.out
-	thr = float(options.thr)
-	sp = options.sp
-	num = options.num
-	summary = options.summary
-	sumProg = options.sumProg
-	sumProgOption = options.sumProgOption
-	if sumProg == "phydstar" and sumProgOption == "":
-	    sumProgOption = "BioNJ"
-	elif sumProg == "phydstar":
-	    sumProgOption = options.sumProgOption
-
-	met = options.met
-	strategy = options.outlier
-	print strategy
-	if strategy is not None:
-	    removeOutliers = True
-	else:
-	    removeOutliers = False
-	if (num != "all"):
-	    num = int(num)
-	am = options.am
-	randomSample=True
-	if options.filename:
-	    readFromFile = True
-	    frqT=tbsa.readTable(filename)
-	else:
-	    readFromFile = False
-	verbose=options.verbose
-	if ( not options.gt  or not options.out):
-	    sys.exit("Please enter genetrees file, and output folder location")
-
-	src_fpath = os.path.expanduser(os.path.expandvars(gt))
-
-	tm.tic()
-	print "reading trees"
-	trees = dendropy.TreeList.get_from_path(src_fpath, 'newick')
-	num_taxa = len(trees[0].leaf_nodes())
-	if (num == "all"):
-	    num = num_taxa*(num_taxa-1)/2
-	tm.toc()
-
-	tm.tic()
-	print "majority consensus"
-	con_tree = trees.consensus(min_freq=thr)   
-	tstt.labelNodes(con_tree)
-
-	ftmp=tempfile.mkstemp(suffix='.nwk', prefix="consensusTree", dir=outpath, text=None)
-	con_tree.write(path=ftmp[1],schema="newick",suppress_rooting=True) 
-
-	os.close(ftmp[0])
-	taxa = list()
-	for e in con_tree.leaf_nodes():
-	    taxa.append(e.taxon.label)
 
 
 	notEnoughSample = True
 	skippedPoly = set()
-	(to_resolve, _) = tstt.findPolytomies(con_tree)
+
 
 	acSmall = dict()
 	(to_resolvettt,_)= tstt.findPolytomies_with_names(con_tree)
@@ -773,5 +653,6 @@ if (strat == 4):
 	outfile = outpath+"/distique_tree-sum.nwk"
 	if verbose:    
 	    print "writing the resulting tree as: "+outfile
+	tstt.changeLabelsToNames(con_tree,new_labels,verbose)
 	con_tree.write(path=outfile,schema="newick",suppress_rooting=True,suppress_internal_node_labels=True)
 

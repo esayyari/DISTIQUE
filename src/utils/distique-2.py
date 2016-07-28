@@ -112,6 +112,10 @@ for e in con_tree.postorder_node_iter():
 		(taxa_list,taxa_inv) =  tstt.getTaxaList(to_resolve[e])
 		if verbose:
 			print "computing the partial quartet table"	
+		print frq.keys()
+		print taxa_list
+		print av
+		print met
 		quartTable = tbs.findTrueAverageTable(frq,taxa_list,av,met)
 		if verbose:
 			print "computing distance table using the method: "+str(method)

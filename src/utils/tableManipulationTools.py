@@ -92,6 +92,7 @@ def findTrueAverageTable(frq,list_taxa,method,met):
 									tmp_dict[lst_taxa[j]] = lab_taxon_j
 									tmp_dict[lst_taxa[k]] = lab_taxon_k
 									tmp_dict[lst_taxa[z]] = lab_taxon_z
+								
 									key_orig = "/".join(sorted([lab_taxon_i,lab_taxon_j,lab_taxon_k,lab_taxon_z]))
 									l = sorted([lst_taxa[i],lst_taxa[j],lst_taxa[k],lst_taxa[z]])
 									key_inv = "/".join(l)
