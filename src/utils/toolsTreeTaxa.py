@@ -508,6 +508,8 @@ def buildTreeFromDistanceMatrix(distPath,outPath,sumProg,sumProgOption):
                 
         elif sumProgOption == "I" or sumProgOption == "N":
             subprocess.call([WS_LOC_FM+"/fastme", "-i",distPath,"-o",outPath,"-m",sumProgOption,"-I","/dev/null"],stdout=FNULL,stderr=subprocess.STDOUT)
+	elif sumProgOption == "D":
+		 subprocess.call([WS_LOC_FM+"/fastme", "-i",distPath,"-o",outPath,"-I","/dev/null"],stdout=FNULL,stderr=subprocess.STDOUT)
         else:
             subprocess.call([WS_LOC_FM+"/fastme", "-i",distPath,"-o",outPath,"-s","-m",sumProgOption,"-I","/dev/null"],stdout=FNULL,stderr=subprocess.STDOUT)
 

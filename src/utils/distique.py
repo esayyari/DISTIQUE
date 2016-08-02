@@ -49,7 +49,7 @@ parser.add_option("-v","--verbose",dest="verbose",
 parser.add_option("-u",dest="sumProg",
 		help = "The summerize method program to find species tree from distance matrix. The options are ninja, fastme, phydstar. Default is fastme ",default="fastme") 
 parser.add_option("-z",dest="sumProgOption",
-		help = "The distance method to build the tree. If sumProg is set to fastme the options are TaxAdd_(B)alME (-s), TaxAdd_(B2)alME (-n), TaxAdd_(O)LSME (-s), TaxAdd_(O2)LSME (-n), B(I)ONJ (default), (N)J. The default in this case is B(I)ONJ. if the  sumProg is set to phydstar, the options are BioNJ, MVR, and NJ. The default is TaxAdd_(B)alME.",default="B")
+		help = "The distance method to build the tree. If sumProg is set to fastme the options are TaxAdd_(B)alME (-s) (Default), TaxAdd_(B2)alME (-n), (D) default of fastme, TaxAdd_(O)LSME (-s), TaxAdd_(O2)LSME (-n), B(I)ONJ, (N)J. The default in this case is TaxAdd_(B)alME. if the  sumProg is set to phydstar, the options are BioNJ, MVR, and NJ. The default is TaxAdd_(B)alME.",default="B")
 parser.add_option("-s","--sp",dest="sp",
 		help="species tree")
 parser.add_option("-n","--numStep",dest="num",
@@ -61,7 +61,7 @@ parser.add_option("-r",dest="outlier",
 parser.add_option("-x",dest="summary",
 		help = "The summary method that will be used to summarize inferred species trees. Default is mrl",default = "mrl")
 parser.add_option("-a","--averagemethod",dest="av",
-		help="The average method to find the average quartet table. Default is mean.", default="mean")
+		help="The average method to find the average quartet table. Options are geometric mean (gmean), averaging (mean), or root mean square (otherwise). Default is mean.", default="mean")
 
 parser.add_option("-e","--method",dest="am",
 		help="The averaging method for finding average quartet table",default="mean")
@@ -71,7 +71,7 @@ parser.add_option("-p",dest="met",
 parser.add_option("-l",dest="fillmethod",
 		help="The method to fill empty cells in distance tables, const, rand, or normConst. Default is const", default="const")
 parser.add_option("-m","--distmethod",dest="method",type=str,
-		help="The method to compute the distance of taxa. The default is prod.",default="prod")
+		help="The method to compute the distance of taxa. Options are prod or min. The default is prod.",default="prod")
 		
 (options,args) = parser.parse_args()
 strat = options.strat

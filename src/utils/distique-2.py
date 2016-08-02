@@ -33,13 +33,13 @@ parser.add_option("-v","--verbose",dest="verbose",
 parser.add_option("-r","--readFromFile",dest="readFromFile",
 		help="Set it to 1 if you already computed the quartet table. If you want the code to compute the quartet tables set it to 0. Default is 0",default=0)
 parser.add_option("-a","--averagemethod",dest="av",
-		help="The average method to find the average quartet table. Default is mean.", default="mean")
+		help="The average method to find the average quartet table. Options are geometric mean (gmean), and root mean square (everything else). Default is mean.", default="mean")
 parser.add_option("-l",dest="met",
-		help = "The method to summerize quartet results around each node, freq, or log", default="log")
+		help = "The method to summerize quartet results around each node, freq, or log. Default is freq", default="freq")
 parser.add_option("-u",dest="sumProg",
         help = "The summerize method program to find species tree from distance matrix. The options are ninja, fastme, phydstar. Default is fastme ",default="fastme") 
 parser.add_option("-z",dest="sumProgOption",
-                  help = "The distance method to build the tree. If sumProg is set to fastme the options are TaxAdd_(B)alME (-s), TaxAdd_(B2)alME (-n), TaxAdd_(O)LSME (-s), TaxAdd_(O2)LSME (-n), B(I)ONJ (default), (N)J. The default in this case is B(I)ONJ. if the  sumProg is set to phydstar, the options are BioNJ, MVR, and NJ. The default is BioNJ.",default="I")
+                  help = "The distance method to build the tree. If sumProg is set to fastme the options are TaxAdd_(B)alME (-s), TaxAdd_(B2)alME (-n), TaxAdd_(O)LSME (-s), TaxAdd_(O2)LSME (-n), B(I)ONJ (default), (N)J. If you path D, the fastme will run without any option (default of fastme). If the  sumProg is set to phydstar, the options are BioNJ, MVR, and NJ. The default is TaxAdd_(B)alME.",default="B")
 (options,args) = parser.parse_args()
 filename = options.filename
 gt = options.gt
@@ -125,12 +125,13 @@ for e in con_tree.postorder_node_iter():
 		os.close(ftmp3[0])
 		ftmp4=tempfile.mkstemp(suffix='.nwk',prefix="distance.d_fastme_tree.nwk",dir=outpath,text=None)
 		FNULL = open(os.devnull,'w')
-		subprocess.call([WS_LOC_FM+"/fastme", "-i",ftmp3[1],"-w","none","-o",ftmp4[1],"-I","/dev/null"],stdout=FNULL,stderr=subprocess.STDOUT)
-		os.close(ftmp4[0])
+		
+		#subprocess.call([WS_LOC_FM+"/fastme", "-i",ftmp3[1],"-w","none","-o",ftmp4[1],"-I","/dev/null"],stdout=FNULL,stderr=subprocess.STDOUT)
+		#os.close(ftmp4[0])
 
-#        	tstt.buildTreeFromDistanceMatrix(ftmp3[1],ftmp4[1],sumProg,sumProgOption)
+        	tstt.buildTreeFromDistanceMatrix(ftmp3[1],ftmp4[1],sumProg,sumProgOption)
 #	        os.close(ftmp3[0])
- #       	os.close(ftmp4[0])
+        	os.close(ftmp4[0])
 	        if verbose:
             		print "starting to resolve polytomy"	
 	        res= tstt.resolvePolytomy(ftmp4[1],e,verbose)	

@@ -53,7 +53,7 @@ sp=$dir/s_tree.trees
 res1000half=`mktemp -d $tmpDIR/"$n"genes.half.XXXXX` || exit 1
 
 if [ -s $gt1000half ]; then
-/usr/bin/time -p $WS_LOC_UTIL/distique.py -g $gt1000half -o $res1000half -f $f -u fastme -z $z > $res1000half/results.log 2>&1
+/usr/bin/time -p $WS_LOC_UTIL/distique.py -t 1 -m prod -a mean -g $gt1000half -o $res1000half  > $res1000half/results.log 2>&1
 echo "working on $dir/estimatedgenetre.halfresolved$n has been finished!"
 fi
 
