@@ -80,7 +80,7 @@ for r in `find $i -maxdepth 1 -type d -name "R*"`; do
 	 tmptmptmpDIR=`mktemp -d $tmptmpDIR/tmp-fastme-TaxAdd_BalME2-$l-$a-"$m".XXXXX`
 	 /usr/bin/time -p $WS_LOC_UTIL/distique-2.py -g $r/genetrees.gt -o $tmptmptmpDIR -f $q/$R/quartets.q -u fastme -z B2  -l $l -a $a -m $m> $tmptmptmpDIR/results.log 2>&1
 	 tmptmptmpDIR=`mktemp -d $tmptmpDIR/tmp-fastme-TaxAdd_OLSME2-$l-$a-"$m".XXXXX`
-	 /usr/bin/time -p $WS_LOC_UTIL/distique-2.py-g $r/genetrees.gt -o $tmptmptmpDIR -f $q/$R/quartets.q -u fastme -z O2 -l $l -a $a -m $m > $tmptmptmpDIR/results.log 2>&1
+	 /usr/bin/time -p $WS_LOC_UTIL/distique-2.py -g $r/genetrees.gt -o $tmptmptmpDIR -f $q/$R/quartets.q -u fastme -z O2 -l $l -a $a -m $m > $tmptmptmpDIR/results.log 2>&1
 	 tmptmptmpDIR=`mktemp -d $tmptmpDIR/tmp-PhyDstar-MVR-$l-$a-"$m".XXXXX`
 	 /usr/bin/time -p $WS_LOC_UTIL/distique-2.py -g $r/genetrees.gt -o $tmptmptmpDIR -f $q/$R/quartets.q -u phydstar -z MVR -l $l -a $a -m $m > $tmptmptmpDIR/results.log 2>&1
 	 tmptmptmpDIR=`mktemp -d $tmptmpDIR/tmp-PhyDstar-BioNJ-$l-$a-"$m".XXXXX`
@@ -102,7 +102,7 @@ for r in `find $i -maxdepth 1 -type d -name "R*"`; do
 	 tmptmptmpDIR=`mktemp -d $tmptmpDIR/tmp-fastme-TaxAdd_BalME2-$l-$a-"$m".XXXXX`
 	 /usr/bin/time -p $WS_LOC_UTIL/distique-2.py -g $r/genetrees.gt -o $tmptmptmpDIR -f $q/$R/quartets.q -u fastme -z B2  -l $l -a $a -m $m> $tmptmptmpDIR/results.log 2>&1
 	 tmptmptmpDIR=`mktemp -d $tmptmpDIR/tmp-fastme-TaxAdd_OLSME2-$l-$a-"$m".XXXXX`
-	 /usr/bin/time -p $WS_LOC_UTIL/distique-2.py-g $r/genetrees.gt -o $tmptmptmpDIR -f $q/$R/quartets.q -u fastme -z O2 -l $l -a $a -m $m > $tmptmptmpDIR/results.log 2>&1
+	 /usr/bin/time -p $WS_LOC_UTIL/distique-2.py -g $r/genetrees.gt -o $tmptmptmpDIR -f $q/$R/quartets.q -u fastme -z O2 -l $l -a $a -m $m > $tmptmptmpDIR/results.log 2>&1
 	 tmptmptmpDIR=`mktemp -d $tmptmpDIR/tmp-PhyDstar-MVR-$l-$a-"$m".XXXXX`
 	 /usr/bin/time -p $WS_LOC_UTIL/distique-2.py -g $r/genetrees.gt -o $tmptmptmpDIR -f $q/$R/quartets.q -u phydstar -z MVR -l $l -a $a -m $m > $tmptmptmpDIR/results.log 2>&1
 	 tmptmptmpDIR=`mktemp -d $tmptmpDIR/tmp-PhyDstar-BioNJ-$l-$a-"$m".XXXXX`
