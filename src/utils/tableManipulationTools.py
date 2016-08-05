@@ -155,7 +155,7 @@ def findTrueAverageTable(frq,list_taxa,method,met):
 					vtt[q2] = (sqrt(mean(square(v2))))
 		TotalKeyf[q] = vtt
 	
-	TotalKeyf = filterFrq(TotalKeyf)
+#	TotalKeyf = filterFrq(TotalKeyf)
 	return TotalKeyf
 										
 									
