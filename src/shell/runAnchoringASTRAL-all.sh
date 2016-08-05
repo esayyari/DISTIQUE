@@ -50,13 +50,13 @@ gt1000half=`mktemp  ${tmpDIR}/genetrees"$n".half.XXXXX` || exit 1
 
 head -n $n $g > $gt1000half
 sp=$dir/s_tree.trees
-quart=$(find $dir/distique-all/distique-all/"$n".genes.half* -name "quartet_tmp.q" || exit 1)
+quart=$(find $dir/distique-all/distique-all/"$n"genes.half* -name "quartet_tmp.q" || exit 1)
 
 res1000half=`mktemp -d $tmpDIR/"$n"genes.half.XXXXX` || exit 1
 
 if [ -s $gt1000half ]; then
-/usr/bin/time -p $WS_LOC_UTIL/distique.py -t 1 -m prod -a mean -l freq -g $gt1000half -f $quart -o $res1000half  > $res1000half/results.log 2>&1
-echo "/usr/bin/time -p $WS_LOC_UTIL/distique.py -t 1 -m prod -a mean -l freq -g $gt1000half -f $quart -o $res1000half" >> $res1000half/results.log
+/usr/bin/time -p $WS_LOC_UTIL/distique-allPairs.py -u fastme -z B -m prod -a mean -l freq -g $gt1000half -f $quart -o $res1000half  > $res1000half/results.log 2>&1
+echo "/usr/bin/time -p $WS_LOC_UTIL/distique-allPairs.py -m prod -a mean -l freq -g $gt1000half -f $quart -o $res1000half" >> $res1000half/results.log
 DATE=`date +%Y-%m-%d:%H:%M:%S`;  info=$(cd ${WS_HOME}/DISTIQUE; git show-ref  --head --tags);
 echo $DATE >> $res1000half/results.log
 echo version info: >> $res1000half/results.log
@@ -64,9 +64,10 @@ echo $info >> $res1000half/results.log
 echo "working on $dir/estimatedgenetre.halfresolved$n has been finished!"
 fi
 done
-for x in `find $tmpDIR -name "distique_*"`; do
+for x in `find $tmpDIR -name "distance.d_dis*"`; do
 	y=$(dirname $x)
-	$WS_HOME/DISTIQUE/src/shell/compare.tree.sh -s $sp -g $x > $y/results-score.sc
+	mv $x $y/distique-all-pairs-prod-mean-freq-fastme-B.nwk
+	$WS_HOME/DISTIQUE/src/shell/compare.tree.sh -s $sp -g $y/distique-all-pairs-prod-mean-freq-fastme-B.nwk > $y/results-score.sc
 done
 
 y=$(echo $o | sed -e 's/^.*\///')
