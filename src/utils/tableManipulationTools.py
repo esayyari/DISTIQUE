@@ -118,7 +118,7 @@ def findTrueAverageTable(frq,list_taxa,method,met):
 												prob = float(v_inv[keyt])/sz
 												if prob >=1.:
 													prob = 1. - 10.**(-10)
-													vt[keyt].append(-np.log(prob))
+												vt[keyt].append(-np.log(prob))
 									else:
 										vt = dict()
 										for q in v_inv:
