@@ -45,6 +45,7 @@ def parseQuartetList(filename):
 			c = c.replace("\n","")
 			c = c.replace(" ","")
 			b2.append(c.split(","))
+		print b1,b2
 		b = (b1,b2)
 		lq.append(b)
 	f.close()
@@ -130,6 +131,7 @@ if __name__ == '__main__':
 		frqAlterTmp1 = list()	
 		frqAlterTmp2 = list()
 		(bName,b1Name,b2Name) = generateBranchName(c1,c2,sister,remain)
+		print bName,b1Name,b2Name
 		a1 = sorted(b1Name.split("|"))
 		
 		for t1 in c1:
@@ -187,21 +189,4 @@ if __name__ == '__main__':
 		for nt in frqAlter[bName]:
 			for val in frqAlter[bName][nt]:
 				print >> f, dictMKeys[bName], dictAlTop[nt]+":",str(val)
-	#	for val in frqDist[bName]:
-	#		bName = bName.replace(",","-")
-		
-	#		print >> f, bName+":",val
-	#		print >> f, bName+",",bName+":",val
-	#		for n in frqAlter[bName]:
-	#			val2 = frqAlter[bName][n]
-	#			n = n.replace(",","-")
-	#			print >> f,bName+",",n+":",val2
-				
-	#	print >>f, "\n"
-#>>>>>>> 3d4c5300e83e1f95796a1d60f2642d8e03e83ac0
 	f.close()
-#		for b1 in frqAlter[bName]:
-#			print bName, b1,
-#			for val in frqAlter[bName][b1]:
-#				print val,
-#			print

@@ -76,7 +76,8 @@ qfile="quartets.q"
 for x in `cat $filename`; do 
   echo -n "$x" >$tmp; 
   $WS_GLB_BIN/quart_bin fancy printQuartets $tmp;
-done |sed -e 's/^.*, //'| sed -e 's/://'  |  python $WS_LOC_PUTIL/quartetTable.py> $o/$qfile
+done |sed -e 's/^.*, //'| sed -e 's/://' > $o/quartets_original.q;
+cat $o/quartets_original.q  |  python $WS_LOC_PUTIL/quartetTable.py> $o/$qfile
  
-python $WS_LOC_PUTIL/distance.py -m $m -c $c -p $p -f $o/$qfile
+#python $WS_LOC_PUTIL/distance.py -m $m -c $c -p $p -f $o/$qfile
 rm $tmp
