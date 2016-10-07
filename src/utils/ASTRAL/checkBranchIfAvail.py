@@ -27,7 +27,7 @@ def checkBranchIfAvail(g,sp):
 		y = re.search(':',line)
 		if y:
 			qtInfo=re.sub('\[.*','',line)
-			qtInfo=re.sub(' ','',qtInfo)
+			qtInfo=re.sub(' ','@',qtInfo)
 			bpInfo=re.sub('.*\[','[',line)
 			bpInfo=re.sub('[\[\]{}]','',bpInfo)
 			bpInfo=re.sub(' :.*','',bpInfo)
@@ -78,7 +78,7 @@ if __name__ == '__main__':
 		y = re.search(':',line)
 		if y:
 			qtInfo=re.sub('\[.*','',line)
-			qtInfo=re.sub(' ','',qtInfo)
+			qtInfo=re.sub(' ','@',qtInfo)
 			bpInfo=re.sub('.*\[','[',line)
 			bpInfo=re.sub('[\[\]{}]','',bpInfo)
 			bpInfo=re.sub(' :.*','',bpInfo)
