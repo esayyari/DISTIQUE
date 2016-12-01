@@ -3,7 +3,7 @@ DIR=$( cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd)
 set -x
 show_help() {
 cat << EOF
-USAGE: ${0##*/} [-h] [-p FILEDIRECTORY] [-g GENETREES FILENAME ] [ -o OUTPUT FOLDER ] [ -x TRUE SPECIES TREE ] [ -s ESTIMATED SPECIES TREE ] [-d QUARTET RESOLUTION] [-m SUMMERIZATION METHOD]
+USAGE: ${0##*/} [-h] [-p FILEDIRECTORY] [-g GENETREES FILENAME ] [ -o OUTPUT FOLDER ] [ -x TRUE SPECIES TREE ] [ -s ESTIMATED SPECIES TREE ] [ -d QUARTET RESOLUTION ] [ -m SUMMERIZATION METHOD ] [ -n NUMBER OF GENES ]
 Generates a pool of branches with their posterior probabilities using Astral.
 
 	-h	HELP			     display help and exit
@@ -14,6 +14,7 @@ Generates a pool of branches with their posterior probabilities using Astral.
 	-s 	ESTIMATED SPECIES TREE 	     The estimated species tree filename.
 	-d	QUARTET RESOLUTION	     The depth of quartets to be annotated by the ASTRAL
 	-m 	SUMMERIZATION METHOD	     The method to summerize the localpp values
+	-n 	NUMBER OF GENES 	     Number of genes required to calculate localpp. Default is all (n=0)
 EOF
 }
 
@@ -24,7 +25,8 @@ fi
 
 d=0;
 m=0;
-while getopts "hp:g:o:x:s:d:m:" opt; do
+n=0;
+while getopts "hp:g:o:x:s:d:m:n:" opt; do
         case $opt in
         h)
                 show_help
@@ -51,6 +53,9 @@ while getopts "hp:g:o:x:s:d:m:" opt; do
 	m)
 		m=$OPTARG
 		;;
+	n)
+		n=$OPTARG
+		;;
 	?)
 		show_help
 		exit 1;
@@ -73,7 +78,11 @@ tmptmp=`mktemp`
 tmpmysp=`mktemp`
 
 cp $p/$s $sp
-cp $p/$g $gt
+if [ "$n" -eq "0" ]; then
+	cp $p/$g $gt
+else
+	head -n $n $p/$g > $gt
+fi
 cp $p/$x $tsp
 
 java -Xmx4000M -jar $WS_HOME/ASTRAL/astral.$version.jar -i $gt -q $sp -t 6 -j $d --summerization-method $m > $spScored  2>$spStat ;
@@ -89,7 +98,7 @@ res=$TmpFolder/ppOfBranches_species_tree
 $DIR/extractPPofPoolOfBranches.py -i $spStat -s $tspStat -o $res
 echo "pp of branches computed"
 
-tar czvf $o/ppAnalysis-$version.tar.gz $TmpFolder
+tar czvf $o/ppAnalysis-"$n"_genes-depth_"$d"-summMethod_"$m"-"$version".tar.gz $TmpFolder
 
 rm -r $TmpFolder
 rm $tmptmp
