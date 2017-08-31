@@ -149,49 +149,30 @@ class analyze:
         if self.opt.verbose:
             self.printInfo(n, skippedPoly, numAnchors, smallAnchs)
 
-        count_distance_table = dict()
-        distance_tables = []
         listPoly = self.opt.to_resolve.keys()
-        for z in range(len(listPoly)):
-            distance_tables.append([])
-        self.count_distance_table = count_distance_table
-        self.distance_tables = distance_tables
+
+        self.initializeTables(listPoly)
+
         if len(ac) != 0:
             self.computeAllFinalDistanceTablesBigPoly(listPoly, skippedPoly, ac)
-
         self.computeAllFinalDistanceTablesSmallPoly(listPoly,skippedPoly,acSmall)
 
-        normalizedD = self.distance_tables
-        normalizedC = self.count_distance_table
-        for z in range(len(listPoly)):
-            atbs.normalizeDistanceTable(normalizedD[z], normalizedC[z])
+        (normalizedD,normalizedC) = self.normalizeTables(listPoly)
 
         self.writeAnchorsTofile( ac, acSmall)
-
-        for e in self.opt.con_tree.postorder_node_iter():
-            if e in self.opt.to_resolve:
-                z = listPoly.index(e)
-                keyDict = sorted(list(np.unique((" ".join(normalizedD[z].keys())).split(" "))))
-                fileDistance = "distancet-" + str(e.label) + ".d"
-                ftmp3 = tempfile.mkstemp(suffix='.d', prefix=fileDistance, dir=self.opt.outpath, text=None)
-                pr.printDistanceTableToFile(normalizedD[z], keyDict, ftmp3[1])
-                print "writing distance table to " + str(ftmp3[1])
-                os.close(ftmp3[0])
-                ftmp4 = tempfile.mkstemp(suffix='.nwk', prefix=fileDistance + "_fastme_tree.nwk", dir=self.opt.outpath,
-                                         text=None)
-                tstt.buildTreeFromDistanceMatrix(ftmp3[1], ftmp4[1], self.opt.sumProg, self.opt.sumProgOption)
-                os.close(ftmp4[0])
-                if self.opt.verbose:
-                    print "starting to resolve polytomy"
-                    atbs.resolvePolytomy(ftmp4[1], e, self.opt.verbose)
+        self.resolveAllPolytomies(listPoly, normalizedD)
         tstt.prune_tree_trivial_nodes(self.opt.con_tree)
+
         outfile = self.opt.outpath + "/distique_distance-sum.nwk"
+
         if self.opt.verbose:
             print "writing the resulting tree as: " + outfile
+        
         tstt.changeLabelsToNames(self.opt.con_tree, self.opt.new_labels, self.opt.verbose)
         self.opt.con_tree.write(path=outfile, schema="newick", suppress_rooting=True, suppress_internal_node_labels=True)
-        print "The overall time to infer the species tree is: "
-        tm.toc()
+        if self.opt.verbose:
+            print "The overall time to infer the species tree is: "
+            tm.toc()
 
 
 
@@ -387,7 +368,7 @@ class analyze:
                 os.close(ftmp3[0])
                 ftmp4 = tempfile.mkstemp(suffix='.nwk', prefix=fileDistance + "_fastme_tree.nwk", dir=self.opt.outpath,
                                          text=None)
-                tstt.buildTreeFromDistanceMatrix(ftmp3[1], ftmp4[1], self.opt.sumProg, self.opt.sumProg)
+                tstt.buildTreeFromDistanceMatrix(ftmp3[1], ftmp4[1], self.opt.sumProg, self.opt.sumProgOption)
                 os.close(ftmp4[0])
                 if self.opt.verbose:
                     print "starting to resolve polytomy"
@@ -550,3 +531,21 @@ class analyze:
             for achList in acSmall[e.label]:
                 (countT) = self.computeDistancesForAllAnchors(achList,taxa_list,taxa_inv,z, e,countT)
         return
+
+    def initializeTables(self,listPoly):
+        count_distance_table = dict()
+
+        distance_tables = []
+
+        for z in range(len(listPoly)):
+            distance_tables.append([])
+        self.count_distance_table = count_distance_table
+        self.distance_tables = distance_tables
+
+    def normalizeTables(self,listPoly):
+        normalizedD = self.distance_tables
+        normalizedC = self.count_distance_table
+
+        for z in range(len(listPoly)):
+            atbs.normalizeDistanceTable(normalizedD[z], normalizedC[z])
+        return (normalizedD,normalizedC)
