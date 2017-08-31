@@ -492,14 +492,13 @@ def findTrueAverageTableAnchoringOnDifferentSidesOverall(frq,anch,list_taxa,N1,N
                 vtt = (sqrt(mean(square(v2))))
         TotalKeyf[q] = vtt
     return TotalKeyf
-def findTrueAverageTableAnchoringOnDifferentSidesSmallPolytomiesOverall(frq,TotalKeyf,anch,list_taxa,N1,N2,method,met):
+def findTrueAverageTableAnchoringOnDifferentSidesSmallPolytomiesOverall(frq,anch,list_taxa,N1,N2,met):
     anch = sorted(list(anch))
     lst_taxa = list(list_taxa.keys())
     TotalKey = dict()
     n = len(lst_taxa)
     
     N = {N1,N2}
-    NL = sorted(list(N))
     for i in range(0,n):
         if lst_taxa[i] in N:
             continue
@@ -528,6 +527,7 @@ def findTrueAverageTableAnchoringOnDifferentSidesSmallPolytomiesOverall(frq,Tota
                     vt = list()
                     vt.append(-np.log(1.*v_inv))
             TotalKey[key_inv] = vt
+    return TotalKey
     for q,v2 in TotalKey.iteritems():
         l = sorted(list(q.split("/")))
         O = sorted(list(set(l)-N))
@@ -594,14 +594,13 @@ def findTrueAverageTableAnchoringOnDifferentSidesOverallFromFile(frq,anch,list_t
     return TotalKeyf
 
 
-def findTrueAverageTableAnchoringOnDifferentSidesSmallPolytomiesOverallFromFile(frq,TotalKeyf,anch,list_taxa,N1,N2,method,met):
+def findTrueAverageTableAnchoringOnDifferentSidesSmallPolytomiesOverallFromFile(frq,anch,list_taxa,N1,N2):
     anch = sorted(list(anch))
     lst_taxa = list(list_taxa.keys())
     TotalKey = dict()
     n = len(lst_taxa)
     
     N = {N1,N2}
-    NL = sorted(list(N))
     for i in range(0,n):
         if lst_taxa[i] in N:
             continue
@@ -627,9 +626,9 @@ def findTrueAverageTableAnchoringOnDifferentSidesSmallPolytomiesOverallFromFile(
                             vt[0] += v[0]
                             vt[1] += v[1]
                     else:
-                            vt = list()
                             vt = v
                     TotalKey[key_inv] = vt
+    return TotalKey
                     
 
     for q,v2 in TotalKey.iteritems():
