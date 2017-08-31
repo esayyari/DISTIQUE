@@ -43,15 +43,6 @@ def anchoredDistanceFromFrq(frq,achs):
             s = sorted(list(set(kt)-anchSet))
             if len(s) == 1:
                 raise Exception(" Anchos shouldn't be in inverse keys more than onece!")
-#                 c0 = kt.count(achs[0])
-#                 c1 = kt.count(achs[1])
-#                 if c0 == 2:
-#                     s.append(achs[0])
-#                 elif c1 == 2:
-#                     s.append(achs[1])
-#             elif len(s) == 0:
-#                 s.append(achs[0])
-#                 s.append(achs[1])
             key1 = s[0]+" "+s[1]
             key2 = s[1]+" "+s[0]
             D[key1] = -np.log(frq[k])
@@ -1101,3 +1092,14 @@ def findAnchoredQuartetsOverallp(e,N,anch,taxa_list,taxa_inv, trees,taxa, outpat
         tm.toc()
     
     return frq
+def initializeDistanceAnchoreTables(Dtmp,Ctmp,fillmethod):
+
+    if fillmethod == "normConst":
+        Dmax = max(np.abs(Dtmp.values())) * 1.
+        if Dmax == 0:
+            Dmax = 1.
+        for kttDtmp in Dtmp:
+            Dtmp[kttDtmp] = Dtmp[kttDtmp] / Dmax
+        return (Dtmp, Ctmp)
+    else:
+        return (Dtmp, Ctmp)

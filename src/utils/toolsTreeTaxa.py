@@ -12,15 +12,10 @@ from scipy.stats import mstats
 import subprocess
 import shutil
 from numpy.lib.index_tricks import nd_grid
-#WS_HOME='/Users/Erfan/Documents/Research/'
 WS_LOC_SHELL= os.environ['WS_HOME']+'/DISTIQUE/src/shell'
-WS_LOC_FM = os.environ['WS_HOME']+'/fastme-2.1.4/src'
+WS_LOC_FM = os.environ['WS_HOME']+'/DISTIQUE/bin'
 WS_LOC_PH = os.environ['WS_HOME']+'/PhyDstar/'
 WS_LOC_NJ = os.environ['WS_HOME']+'/ninja'
-#WS_LOC_SHELL= WS_HOME+'/DISTIQUE/src/shell'
-#WS_LOC_FM = WS_HOME+'/fastme-2.1.4/src'
-#WS_LOC_PH = WS_HOME+'/PhyDstar/'
-#WS_LOC_NJ = WS_HOME+'/ninja'
 def buildTree(setNodeLabels,tree,center):
     inferedTree = tree.clone(2)
     taxa = dendropy.TaxonNamespace()
@@ -432,34 +427,37 @@ def findPolytomiesNames(con_tree):
 
 
     return (to_resolve,maxPolyOrder)
-def pickAnchors(taxa,to_resolve,num,debugFlag):
+
+
+def pickAnchors(taxa, to_resolve, num, debugFlag):
     c = num
     anchs = list()
     taxa = set(taxa)
-    for _ in range(0,c):
-        for e,v in to_resolve.iteritems():
-            if len(v.keys())<6:
+    for _ in range(0, c):
+        for e, v in to_resolve.iteritems():
+            if len(v.keys()) < 6:
                 continue
             S = set(v.keys())
             N = set(v.keys())
-            while len(N)>0:
-                if len(N)>1:
-                    nodes=random.sample(N,2)
+            while len(N) > 0:
+                if len(N) > 1:
+                    nodes = random.sample(N, 2)
                 else:
                     Ntmp = list(N)
                     S = S - N
-                    ntmp = random.sample(S,1)
-                    nodes=[Ntmp[0],ntmp[0]]
+                    ntmp = random.sample(S, 1)
+                    nodes = [Ntmp[0], ntmp[0]]
                 if debugFlag:
-                    "the nodes we picked around polytomy "+e.label+" are: "+nodes[0]+" " +nodes[1]
-                a1 = random.sample(v[nodes[0]],1)
-                a2 = random.sample(v[nodes[1]],1)
+                    "the nodes we picked around polytomy " + e.label + " are: " + nodes[0] + " " + nodes[1]
+                a1 = random.sample(v[nodes[0]], 1)
+                a2 = random.sample(v[nodes[1]], 1)
 
                 if debugFlag:
-                    print "the anchors for these choice of nodes are: "+a1[0].taxon.label+", and "+a2[0].taxon.label
-                anchs.append((a1[0].taxon.label,a2[0].taxon.label))
+                    print "the anchors for these choice of nodes are: " + a1[0].taxon.label + ", and " + a2[
+                        0].taxon.label
+                anchs.append((a1[0].taxon.label, a2[0].taxon.label))
                 N = N - set(nodes)
-                
+
     return anchs
 def chooseAnchoresAll(list_taxa,num,debugFlag):
     ac = list()
@@ -557,3 +555,25 @@ def changeLabelsToNames(tree,new_labels,verbose):
                 print("Taxon namespace: {}".format(", ".join(taxon.label for taxon in tree.taxon_namespace)))
 
         return
+def sampleSmallAnchs(to_resolvettt,ac,debugFlag):
+    acSmall = dict()
+    smallAnchs = set()
+    for e in to_resolvettt:
+        if len(to_resolvettt[e].keys()) < 6:
+            val = to_resolvettt[e]
+            (taxa_list, taxa_inv) = getTaxaList(val)
+            acSmall[e] = chooseAnchoresAll(taxa_list, 1, debugFlag)
+            for acList in acSmall[e]:
+                for anch in acList:
+                    smallAnchs.add(anch)
+
+                    if len(ac) == 0:
+                        continue
+                    ac.append(anch)
+    numAnchors = 0
+    if len(ac) == 0:
+        for e in acSmall:
+            numAnchors += len(acSmall[e][0]) * 1
+    else:
+        numAnchors = len(ac)
+    return (set(ac), set(smallAnchs), numAnchors, acSmall)
