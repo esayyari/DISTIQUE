@@ -138,173 +138,35 @@ class analyze:
         self.opt.con_tree.write(path=outfile, schema="newick", suppress_rooting=True, suppress_internal_node_labels=True)
 
     def distancesum(self):
-        tm.tic()
+        if self.opt.verbose:
+            tm.tic()
 
         skippedPoly = set()
 
-        acSmall = dict()
         (to_resolvettt, _) = tstt.findPolytomies_with_names(self.opt.con_tree)
-        numAnchors = 0
-        if self.opt.randomSample:
-            ac = tstt.pickAnchors(self.opt.taxa, self.opt.to_resolve, self.opt.num, self.opt.debugFlag)
-        smallAnchs = set()
-        for e in to_resolvettt:
-            if len(to_resolvettt[e].keys()) < 6:
-                val = to_resolvettt[e]
-                (taxa_list, taxa_inv) = tstt.getTaxaList(val)
-                acSmall[e] = tstt.chooseAnchoresAll(taxa_list, 1, self.opt.debugFlag)
-                for acList in acSmall[e]:
-                    for anch in acList:
-                        smallAnchs.add(anch)
+        (ac, acSmall, smallAnchs, numAnchors, n) = self.pickAnchors(to_resolvettt)
 
-                        if len(ac) == 0:
-                            continue
-                        ac.append(anch)
-
-        n = len(self.opt.con_tree.leaf_nodes())
-        ac = set(ac)
-        if len(ac) == 0:
-            for e in acSmall:
-                numAnchors += len(acSmall[e][0]) * 1
-        else:
-            numAnchors = len(ac)
         if self.opt.verbose:
-            print "Number of taxa is: " + str(n)
-            print "Number of polytomies is: " + str(len(self.opt.to_resolve))
-            for k in self.opt.to_resolve:
-                print "The size of polytomy around node " + k.label + " is: " + str(len(self.opt.to_resolve[k].keys()))
-                if len(self.opt.to_resolve[k].keys()) < 6:
-                    skippedPoly.add(k)
-            print "Filling method is: " + self.opt.fillmethod
-            print "Distance method is: " + self.opt.method
-            print "Averaging distances around polytomies using method: " + self.opt.met
-            print "The number of anchors are: " + str(numAnchors)
-            print "The number of anchors for small polytomies is: " + str(len(smallAnchs))
+            self.printInfo(n, skippedPoly, numAnchors, smallAnchs)
+
         count_distance_table = dict()
-        k = 0
         distance_tables = []
         listPoly = self.opt.to_resolve.keys()
         for z in range(len(listPoly)):
             distance_tables.append([])
+        self.count_distance_table = count_distance_table
+        self.distance_tables = distance_tables
         if len(ac) != 0:
-            count = 1
-            for z in range(len(listPoly)):
-                e = listPoly[z]
-                if e in skippedPoly:
-                    continue
-                val = self.opt.to_resolve[e]
-                (taxa_list, taxa_inv) = tstt.getTaxaList(val)
-                for anch in ac:
-                    N1 = taxa_inv[anch[0]]
-                    N2 = taxa_inv[anch[1]]
-                    if N1 == N2:
-                        continue
-                    N = {N1, N2}
-                    if self.opt.verbose:
-                        print "The size of polytomy is: " + str(len(taxa_list))
-                    tm.tic()
-                    anch = sorted(anch)
+            self.computeAllFinalDistanceTablesBigPoly(listPoly, skippedPoly, ac)
 
-                    (quartTable, frq) = self.computeFrqandQuartTables(anch, e, N, taxa_list, taxa_inv)
-                    [Dtmp, Ctmp] = atbs.anchoredDistanceFromFrqAddDistances(quartTable, anch, taxa_list)
-                    atbs.fillEmptyElementsDistanceTable(Dtmp, Ctmp, self.opt.fillmethod)
-                    del quartTable
-                    del frq
+        self.computeAllFinalDistanceTablesSmallPoly(listPoly,skippedPoly,acSmall)
 
-                    if len(distance_tables[z]) == 0:
-                        if self.opt.fillmethod == "normConst":
-                            Dmax = max(np.abs(Dtmp.values())) * 1.
-                            if Dmax == 0:
-                                Dmax = 1.
-                            for kttDtmp in Dtmp:
-                                Dtmp[kttDtmp] = Dtmp[kttDtmp] / Dmax
-                            distance_tables[z] = Dtmp
-                            count_distance_table[z] = Ctmp
-                        else:
-                            distance_tables[z] = Dtmp
-                            count_distance_table[z] = Ctmp
-                    else:
-                        atbs.addDistanceAnchores(distance_tables[z], Dtmp, count_distance_table[z], Ctmp, self.opt.fillmethod)
-
-                    print "Computing distance table using anchors " + anch[0] + " and " + anch[
-                        1] + " has been finished!"
-                    print "The anchor " + str(count) + " out of " + str(len(ac)) + " anchors has been finished!"
-                    count += 1
-                    if (count % 50) == 0:
-                        gc.collect()
-                    tm.toc()
-        countT = 1
-        skippedPolyList = list(skippedPoly)
-        for e in skippedPolyList:
-            z = listPoly.index(e)
-            val = self.opt.to_resolve[e]
-            (taxa_list, taxa_inv) = tstt.getTaxaList(val)
-            for achList in acSmall[e.label]:
-                if self.opt.verbose:
-                    tm.tic()
-                for anch in achList:
-
-                    anch = sorted(list(anch))
-                    if self.opt.verbose:
-                        print anch
-                    N1 = taxa_inv[anch[0]]
-                    N2 = taxa_inv[anch[1]]
-                    if N1 == N2:
-                        continue
-                    N = {N1, N2}
-                    if self.opt.verbose:
-                        print "The size of polytomy is: " + str(len(taxa_list))
-                    (quartTable, frq) = self.computeFrqandQuartTables(anch, e, N, taxa_list, taxa_inv)
-                    [Dtmp, Ctmp] = atbs.anchoredDistanceFromFrqAddDistances(quartTable, anch, taxa_list)
-                    atbs.fillEmptyElementsDistanceTable(Dtmp, Ctmp, self.opt.fillmethod)
-                    if len(distance_tables[z]) == 0:
-                        if self.opt.fillmethod == "normConst":
-                            Dmax = max(np.abs(Dtmp.values())) * 1.
-                            if Dmax == 0:
-                                Dmax = 1.
-                            for kttDtmp in Dtmp:
-                                Dtmp[kttDtmp] = Dtmp[kttDtmp] / Dmax
-                            distance_tables[z] = Dtmp
-                            count_distance_table[z] = Ctmp
-                        else:
-                            distance_tables[z] = Dtmp
-                            count_distance_table[z] = Ctmp
-                    else:
-                        atbs.addDistanceAnchores(distance_tables[z], Dtmp, count_distance_table[z], Ctmp, self.opt.fillmethod)
-                    if self.opt.verbose:
-                        print "The anchor " + str(countT) + " out of " + str(
-                            len(smallAnchs)) + " anchors has been finished!"
-                    countT += 1
-                    del quartTable
-                    del frq
-                print "Computing distance table using anchors " + anch[0] + " and " + anch[1] + " has been finished!"
-
-                if (countT % 50 == 0):
-                    gc.collect()
-                print "time elapsing  for counting number of quartets for this anchors is: "
-                tm.toc()
-
-        if self.opt.verbose:
-            print "Number of anchors is: " + str(len(ac))
-        normalizedD = distance_tables
-        normalizedC = count_distance_table
+        normalizedD = self.distance_tables
+        normalizedC = self.count_distance_table
         for z in range(len(listPoly)):
             atbs.normalizeDistanceTable(normalizedD[z], normalizedC[z])
 
-        fileAnch = "listAnchors"
-        ftmp3 = tempfile.mkstemp(suffix='.txt', prefix=fileAnch, dir=self.opt.outpath, text=None)
-        f = open(ftmp3[1], 'w')
-        for anch in ac:
-            anch = sorted(list(anch))
-            anch_temp = "|".join(anch)
-            print >> f, anch_temp
-        for achList in acSmall:
-            for anch in achList:
-                anch = sorted(list(anch))
-                anch_temp = "|".join(anch)
-                print >> f, anch_temp
-        f.close()
-        os.close(ftmp3[0])
+        self.writeAnchorsTofile( ac, acSmall)
 
         for e in self.opt.con_tree.postorder_node_iter():
             if e in self.opt.to_resolve:
@@ -336,24 +198,8 @@ class analyze:
     def treesum(self):
         skippedPoly = set()
 
-        acSmall = dict()
         (to_resolvettt, _) = tstt.findPolytomies_with_names(self.opt.con_tree)
-        numAnchors = 0
-        if self.opt.randomSample:
-            ac = tstt.pickAnchors(self.opt.taxa, self.opt.to_resolve, self.opt.num, self.opt.debugFlag)
-        for e in to_resolvettt:
-            if len(to_resolvettt[e].keys()) < 6:
-                val = to_resolvettt[e]
-                (taxa_list, taxa_inv) = tstt.getTaxaList(val)
-                acSmall[e] = tstt.chooseAnchoresAll(taxa_list, 1, self.opt.debugFlag)
-                for acList in acSmall[e]:
-                    for anch in acList:
-                        if len(ac) == 0:
-                            continue
-                        ac.append(anch)
-
-        n = len(self.opt.con_tree.leaf_nodes())
-        ac = set(ac)
+        (ac, acSmall, smallAnchs, numAnchors, n) = self.pickAnchors(to_resolvettt)
         numSmallAnchors = 0
         if len(ac) == 0:
             for e in acSmall:
@@ -599,3 +445,108 @@ class analyze:
                                                                                self.opt.met)
         return (quartTable, frq)
 
+    def addDistances(self,z,Dtmp,Ctmp):
+        if len(self.distance_tables[z]) == 0:
+            if self.opt.fillmethod == "normConst":
+                Dmax = max(np.abs(Dtmp.values())) * 1.
+                if Dmax == 0:
+                    Dmax = 1.
+                for kttDtmp in Dtmp:
+                    Dtmp[kttDtmp] = Dtmp[kttDtmp] / Dmax
+                self.distance_tables[z] = Dtmp
+                self.count_distance_table[z] = Ctmp
+            else:
+                self.distance_tables[z] = Dtmp
+                self.count_distance_table[z] = Ctmp
+        else:
+            atbs.addDistanceAnchores(self.distance_tables[z], Dtmp, self.count_distance_table[z], Ctmp, self.opt.fillmethod)
+        return
+
+    def pickAnchors(self,to_resolvettt):
+        acSmall = dict()
+        numAnchors = 0
+        if self.opt.randomSample:
+            ac = tstt.pickAnchors(self.opt.taxa, self.opt.to_resolve, self.opt.num, self.opt.debugFlag)
+        smallAnchs = set()
+        for e in to_resolvettt:
+            if len(to_resolvettt[e].keys()) < 6:
+                val = to_resolvettt[e]
+                (taxa_list, taxa_inv) = tstt.getTaxaList(val)
+                acSmall[e] = tstt.chooseAnchoresAll(taxa_list, 1, self.opt.debugFlag)
+                for acList in acSmall[e]:
+                    for anch in acList:
+                        smallAnchs.add(anch)
+
+                        if len(ac) == 0:
+                            continue
+                        ac.append(anch)
+
+        n = len(self.opt.con_tree.leaf_nodes())
+        ac = set(ac)
+        if len(ac) == 0:
+            for e in acSmall:
+                numAnchors += len(acSmall[e][0]) * 1
+        else:
+            numAnchors = len(ac)
+        return (ac, acSmall, smallAnchs, numAnchors,n)
+
+    def computeDistancesForOneAnchor(self,anch,taxa_list,taxa_inv, z,e):
+        anch = sorted(list(anch))
+
+        N1 = taxa_inv[anch[0]]
+        N2 = taxa_inv[anch[1]]
+        if N1 == N2:
+            contFlag = False
+            return(None, None, contFlag)
+        N = {N1, N2}
+        if self.opt.verbose:
+            print "The size of polytomy is: " + str(len(taxa_list))
+        (quartTable, frq) = self.computeFrqandQuartTables(anch, e, N, taxa_list, taxa_inv)
+        [Dtmp, Ctmp] = atbs.anchoredDistanceFromFrqAddDistances(quartTable, anch, taxa_list)
+        atbs.fillEmptyElementsDistanceTable(Dtmp, Ctmp, self.opt.fillmethod)
+        contFlag = True
+        self.addDistances(z, Dtmp, Ctmp)
+        del quartTable
+        del frq
+        return (contFlag)
+
+
+    def computeDistancesForAllAnchors(self,ac,taxa_list,taxa_inv,z,e,count):
+        for anch in ac:
+            (contFlag) = self.computeDistancesForOneAnchor(anch, taxa_list,taxa_inv,z,e)
+            if not contFlag:
+                continue
+
+            if self.opt.verbose:
+                print "Computing distance table using anchors " + anch[0] + " and " + anch[
+                    1] + " has been finished!"
+                print "The anchor " + str(count) + " out of " + str(len(ac)) + " anchors has been finished!"
+            count += 1
+            if (count % 50) == 0:
+                gc.collect()
+
+        return (count)
+
+
+
+    def computeAllFinalDistanceTablesBigPoly(self,listPoly,skippedPoly,ac):
+        count = 1
+        for z in range(len(listPoly)):
+            e = listPoly[z]
+            if e in skippedPoly:
+                continue
+            val = self.opt.to_resolve[e]
+            (taxa_list, taxa_inv) = tstt.getTaxaList(val)
+            (count) = self.computeDistancesForAllAnchors(ac, taxa_list,taxa_inv,z,e, count)
+        return
+
+    def computeAllFinalDistanceTablesSmallPoly(self,listPoly,skippedPoly,acSmall):
+        countT = 1
+        skippedPolyList = list(skippedPoly)
+        for e in skippedPolyList:
+            z = listPoly.index(e)
+            val = self.opt.to_resolve[e]
+            (taxa_list, taxa_inv) = tstt.getTaxaList(val)
+            for achList in acSmall[e.label]:
+                (countT) = self.computeDistancesForAllAnchors(achList,taxa_list,taxa_inv,z, e,countT)
+        return
