@@ -492,51 +492,53 @@ def findTrueAverageTableAnchoringOnDifferentSidesOverall(frq,anch,list_taxa,N1,N
                 vtt = (sqrt(mean(square(v2))))
         TotalKeyf[q] = vtt
     return TotalKeyf
-def findTrueAverageTableAnchoringOnDifferentSidesSmallPolytomiesOverall(frq,anch,list_taxa,N1,N2,met):
+
+
+def findTrueAverageTableAnchoringOnDifferentSidesSmallPolytomiesOverall(frq, TotalKeyf, anch, list_taxa, N1, N2,met):
     anch = sorted(list(anch))
     lst_taxa = list(list_taxa.keys())
     TotalKey = dict()
     n = len(lst_taxa)
-    
-    N = {N1,N2}
-    for i in range(0,n):
+
+    N = {N1, N2}
+    NL = sorted(list(N))
+    for i in range(0, n):
         if lst_taxa[i] in N:
             continue
-        for j in range(i+1,n):
+        for j in range(i + 1, n):
             if lst_taxa[j] in N:
                 continue
-            p=sorted([lst_taxa[i],lst_taxa[j]])
+            p = sorted([lst_taxa[i], lst_taxa[j]])
             key_orig = genKey(p, anch)
 
-            l = sorted([lst_taxa[i],lst_taxa[j],N1,N2])
+            l = sorted([lst_taxa[i], lst_taxa[j], N1, N2])
             key_inv = "/".join(l)
             v = frq[key_orig]
-            v_inv = float(v[0])/v[1]
+            v_inv = float(v[0]) / v[1]
             if key_inv in TotalKey:
-                if (met=="freq"):
+                if (met == "freq"):
                     vt = TotalKey[key_inv]
                     vt.append(v_inv)
                 elif met == "log":
                     vt = TotalKey[key_inv]
-                    vt.append(-np.log(1.*v_inv))
+                    vt.append(-np.log(1. * v_inv))
             else:
                 if (met == "freq"):
                     vt = list()
                     vt.append(v_inv)
                 elif met == "log":
                     vt = list()
-                    vt.append(-np.log(1.*v_inv))
+                    vt.append(-np.log(1. * v_inv))
             TotalKey[key_inv] = vt
-    return TotalKey
-    for q,v2 in TotalKey.iteritems():
+    for q, v2 in TotalKey.iteritems():
         l = sorted(list(q.split("/")))
-        O = sorted(list(set(l)-N))
+        O = sorted(list(set(l) - N))
         if l[0] == NL[0]:
             key = NL[1]
         elif l[0] == O[0]:
             key = O[1]
         if q in TotalKeyf:
-            vtmp=TotalKeyf[q]
+            vtmp = TotalKeyf[q]
             if key in vtmp:
                 for x in v2:
                     vtmp[key].append(x)
@@ -544,7 +546,7 @@ def findTrueAverageTableAnchoringOnDifferentSidesSmallPolytomiesOverall(frq,anch
                 vtmp[key] = v2
         else:
             vtmp = dict()
-            vtmp[key] = v2 
+            vtmp[key] = v2
             TotalKeyf[q] = vtmp
     return TotalKeyf
 
@@ -593,14 +595,14 @@ def findTrueAverageTableAnchoringOnDifferentSidesOverallFromFile(frq,anch,list_t
         TotalKeyf[q] = (v2[0]+0.5)/(v2[1]+1.5)
     return TotalKeyf
 
-
-def findTrueAverageTableAnchoringOnDifferentSidesSmallPolytomiesOverallFromFile(frq,anch,list_taxa,N1,N2):
+def findTrueAverageTableAnchoringOnDifferentSidesSmallPolytomiesOverallFromFile(frq,TotalKeyf,anch,list_taxa,N1,N2):
     anch = sorted(list(anch))
     lst_taxa = list(list_taxa.keys())
     TotalKey = dict()
     n = len(lst_taxa)
-    
+
     N = {N1,N2}
+    NL = sorted(list(N))
     for i in range(0,n):
         if lst_taxa[i] in N:
             continue
@@ -614,22 +616,22 @@ def findTrueAverageTableAnchoringOnDifferentSidesSmallPolytomiesOverallFromFile(
                     p = sorted([lab_taxon_i,lab_taxon_j])
                     key_orig = genKey(p,anch)
                     l = sorted([lst_taxa[i], lst_taxa[j],N1,N2])
-                    key_inv = "/".join(l)        
+                    key_inv = "/".join(l)
                     v = frq[key_orig]
                     if len(v) == 1:
                         v.append(1)
                     else:
                         v[0] -= 0.5
-                        v[1] -= 1.5   
+                        v[1] -= 1.5
                     if key_inv in TotalKey:
                             vt = TotalKey[key_inv]
                             vt[0] += v[0]
                             vt[1] += v[1]
                     else:
+                            vt = list()
                             vt = v
                     TotalKey[key_inv] = vt
-    return TotalKey
-                    
+
 
     for q,v2 in TotalKey.iteritems():
         l = sorted(list(q.split("/")))
@@ -649,6 +651,6 @@ def findTrueAverageTableAnchoringOnDifferentSidesSmallPolytomiesOverallFromFile(
         else:
             vtmp = dict()
             vtmp[key] = list()
-            vtmp[key].append(vtt) 
+            vtmp[key].append(vtt)
         TotalKeyf[q] = vtmp
     return TotalKeyf
