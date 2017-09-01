@@ -4,14 +4,12 @@ import sys
 import os
 import numpy as np
 import random
+random.seed(28643)
 import tempfile
 from scipy.spatial import distance
 from dendropy.calculate import treecompare
 import itertools
-from scipy.stats import mstats
 import subprocess
-import shutil
-from numpy.lib.index_tricks import nd_grid
 WS_LOC_SHELL= os.environ['WS_HOME']+'/DISTIQUE/src/shell'
 WS_LOC_FM = os.environ['WS_HOME']+'/DISTIQUE/bin'
 WS_LOC_PH = os.environ['WS_HOME']+'/PhyDstar/'
@@ -294,7 +292,6 @@ def remove_outliers(treeList,strategy,outpath,e,summary):
         return treeList
     if strategy == "consensus10" or strategy == "consensus3":
         ftmp=findMRL(treeList,e,outpath,summary)
-        print ftmp
         ref_tree = dendropy.Tree.get(path=ftmp,schema="newick")
         treeList.append(ref_tree)
         d = list()
@@ -318,13 +315,9 @@ def remove_outliers(treeList,strategy,outpath,e,summary):
                     del treeList[i]
         else:
             sortIdx = np.argsort(d,0)
-            print len(sortIdx)
-            print sortIdx
             m = int(len(sortIdx)/4.)
             print "deleting "+str(m)+" of the trees"
             idx = sorted([x for x in sortIdx[len(sortIdx)-m:len(sortIdx)]],reverse=True)
-            print idx
-            print d
             for i in idx:
                 print "deleting the tree "+str(i)+"the. The distance to consensus tree was: "+str(d[i])
                 del treeList[i]
@@ -345,7 +338,6 @@ def remove_outliers(treeList,strategy,outpath,e,summary):
             
             C = np.cov(D)
             v =[distance.mahalanobis(D[:,i],d,C) for i in range(0,len(treeList))]
-            print v
             sortIdx = np.argsort(v,0)
             m = int(len(sortIdx)*0.15)
             idx = sorted([x for x in sortIdx[len(sortIdx)-m:len(sortIdx)]],reverse=True)
@@ -356,19 +348,14 @@ def remove_outliers(treeList,strategy,outpath,e,summary):
             d = np.mean(D,0)
             
             sortIdx = np.argsort(d,0)
-            print len(sortIdx)
-            print sortIdx
             m = int(len(sortIdx)/5.)
             print "deleting "+str(m)+" of the trees"
             idx = sorted([x for x in sortIdx[len(sortIdx)-m:len(sortIdx)]],reverse=True)
-            print idx
-            print d
             for i in idx:
                 print "deleting the tree "+str(i)+"the. The distance to consensus tree was: "+str(d[i])
                 del treeList[i]
         else:
             d = np.mean(D,0)
-            print d
             mean = np.mean(d)
             st = np.std(d)
             idx = list()
@@ -482,7 +469,7 @@ def chooseAnchoresAll(list_taxa,num,debugFlag):
             print "printing another list!"
             for a in actmp:
                 print "printing taxa in list"
-                print a 
+                print a
     return ac
 def findMRL(treeList,e,outpath,summary):
     ftmp3=tempfile.mkstemp(suffix='.nwk', prefix="distancet-allTreesAroundPoly-"+e+".nwk", dir=outpath, text=None)
@@ -491,7 +478,6 @@ def findMRL(treeList,e,outpath,summary):
     ftmp4=tempfile.mkstemp(suffix='.nwk', prefix="distancet-allTreesAroundPoly_MRL_tree"+e+".nwk",dir=outpath,text=None)
     FNULL = open(os.devnull, 'w')
     if summary == "mrl":
-        print ("MRL_AroundPoly.sh -i "+ftmp3[1]+" -o "+ftmp4[1] )
         subprocess.call([WS_LOC_SHELL+"/MRL_AroundPoly.sh", "-i",ftmp3[1],"-o",ftmp4[1]],stdout=FNULL,stderr=subprocess.STDOUT)
     elif summary == "astral":
         subprocess.call([WS_LOC_SHELL+"/ASTRAL_AroundPoly.sh", "-i",ftmp3[1],"-o",ftmp4[1]],stdout=FNULL,stderr=subprocess.STDOUT)        
@@ -538,8 +524,6 @@ def changeLabelsToNumbers(gene_trees,verbose):
 	converted_labels = dict()
 	new_labels = dict()
 	i = 0
-	if verbose:
-		print("Taxon namespace: {}".format(", ".join(taxon.label for taxon in gene_trees.taxon_namespace)))
 	for taxon in gene_trees.taxon_namespace:
 		if taxon.label is not None:
 			converted_labels[str(taxon.label)] = "l"+str(i)			 
@@ -551,10 +535,7 @@ def changeLabelsToNumbers(gene_trees,verbose):
 	return (converted_labels,new_labels)
 def changeLabelsToNames(tree,new_labels,verbose):
         for node in tree.leaf_node_iter():
-                print node.taxon.label + ": "+ new_labels[str(node.taxon.label)]
                 node.taxon.label = new_labels[str(node.taxon.label)]
-        if verbose:
-                print("Taxon namespace: {}".format(", ".join(taxon.label for taxon in tree.taxon_namespace)))
 
         return
 def sampleSmallAnchs(to_resolvettt,ac,debugFlag):

@@ -57,8 +57,7 @@ class analyze:
                 self.opt.to_resolve[e]
                 (self.opt.taxa_list, taxa_inv) = tstt.getTaxaList(self.opt.to_resolve[e])
 
-                if self.opt.verbose:
-                    print "computing the partial quartet table"
+
 
                 quartTable = tbs.findTrueAverageTable(frq, self.opt.taxa_list, self.opt.av, self.opt.met)
 
@@ -75,8 +74,6 @@ class analyze:
                     stdout=FNULL, stderr=subprocess.STDOUT)
                 os.close(ftmp4[0])
 
-                if self.opt.verbose:
-                    print "starting to resolve polytomy"
 
                 tstt.resolvePolytomy(ftmp4[1], e, self.opt.verbose)
 
@@ -111,8 +108,7 @@ class analyze:
             if e in self.opt.to_resolve:
                 val = self.opt.to_resolve[e]
                 (self.opt.taxa_list, taxa_inv) = tstt.getTaxaList(self.opt.to_resolve[e])
-                if self.opt.verbose:
-                    print "computing the partial quartet table"
+
                 quartTable = tbs.findTrueAverageTable(frq, self.opt.taxa_list, self.opt.av, self.opt.met)
                 if self.opt.verbose:
                     print "computing distance table using the method: " + str(method)
@@ -126,8 +122,7 @@ class analyze:
                     stdout=FNULL, stderr=subprocess.STDOUT)
                 os.close(ftmp4[0])
 
-                if self.opt.verbose:
-                    print "starting to resolve polytomy"
+
                 res = tstt.resolvePolytomy(ftmp4[1], e, self.opt.verbose)
         if self.opt.verbose:
             print "resolving polytomies takes about: "
@@ -184,7 +179,7 @@ class analyze:
         if self.opt.verbose:
             tm.tic()
         skippedPoly = self.printInfo(n,numAnchors,smallAnchs)
-
+        self.writeAnchorsTofile( ac, acSmall)
         self.TreeList = dict()
 
         if ac is not None:
@@ -201,8 +196,7 @@ class analyze:
         for e in self.opt.con_tree.postorder_node_iter():
             if e in self.opt.to_resolve:
                 ftmp4 = tstt.findMRL(self.TreeList[e.label], e.label, self.opt.outpath, self.opt.summary)
-                if self.opt.verbose:
-                    print "starting to resolve polytomy"
+
                 atbs.resolvePolytomy(ftmp4, e, self.opt.verbose)
         tstt.prune_tree_trivial_nodes(self.opt.con_tree)
 
@@ -231,9 +225,7 @@ class analyze:
                                          text=None)
                 tstt.buildTreeFromDistanceMatrix(ftmp3[1], ftmp4[1], self.opt.sumProg, self.opt.sumProgOption)
                 os.close(ftmp4[0])
-                if self.opt.verbose:
-                    print "starting to resolve polytomy"
-                    atbs.resolvePolytomy(ftmp4[1], e, self.opt.verbose)
+                atbs.resolvePolytomy(ftmp4[1], e, self.opt.verbose)
 
     def writeAnchorsTofile(self, ac, acSmall):
         fileAnch = "listAnchors"
@@ -243,12 +235,13 @@ class analyze:
             anch = sorted(list(anch))
             anch_temp = "|".join(anch)
             print >> f, anch_temp
-
-        for achList in acSmall:
-            for anch in achList:
-                anch = sorted(list(anch))
-                anch_temp = "|".join(anch)
-                print >> f, anch_temp
+        for key in acSmall.keys():
+            achList = acSmall[key]
+            for ac in achList:
+                for anch in ac:
+                    anch = sorted(list(anch))
+                    anch_temp = "|".join(anch)
+                    print >> f, anch_temp
 
         f.close()
         os.close(ftmp3[0])
@@ -341,8 +334,6 @@ class analyze:
             contFlag = False
             return(None, None, contFlag)
         N = {N1, N2}
-        if self.opt.verbose:
-            print "The size of polytomy is: " + str(len(taxa_list))
         (quartTable, frq) = self.computeFrqandQuartTables(anch, e, N, taxa_list, taxa_inv)
         [Dtmp, Ctmp] = atbs.anchoredDistanceFromFrqAddDistances(quartTable, anch, taxa_list)
         atbs.fillEmptyElementsDistanceTable(Dtmp, Ctmp, self.opt.fillmethod)
@@ -421,8 +412,6 @@ class analyze:
                                                          self.opt.outpath,
                                                          self.opt.debugFlag)
 
-        if self.opt.verbose:
-            print "computing the partial quartet table"
         if self.opt.readFromFile:
             quartTable = tbsa.findTrueAverageTableAnchoringOnDifferentSidesOverallFromFile(frq, anch,
                                                                                            taxa_list,
@@ -445,8 +434,6 @@ class analyze:
                                                          self.opt.outpath,
                                                          self.opt.debugFlag)
 
-        if self.opt.verbose:
-            print "computing the partial quartet table"
         if self.opt.readFromFile:
             quartTable = tbsa.findTrueAverageTableAnchoringOnDifferentSidesSmallPolytomiesOverallFromFile(frq, quartTable, anch, taxa_list,
                                                                                         N1, N2)
@@ -494,6 +481,7 @@ class analyze:
         val = self.opt.to_resolve[e]
         (taxa_list, taxa_inv) = tstt.getTaxaList(val)
         for achList in acSmall[e.label]:
+
             if self.opt.verbose:
                 tm.tic()
             for anch in achList:
@@ -526,12 +514,9 @@ class analyze:
         if N1 == N2:
             contFlag = True
             return contFlag
-        if self.opt.verbose:
-            print "The size of polytomy is: " + str(len(taxa_list))
         (quartTable, frq) = self.computeFrqandQuartTablesTreesum(anch, e, N1, N2, taxa_list, taxa_inv)
 
-        if self.opt.verbose:
-            print "computing distance table using the method: " + str(self.opt.am)
+
         self.makeTreeInTreesum(quartTable, anch, e)
         return contFlag
 
@@ -545,8 +530,6 @@ class analyze:
                 if contFlag:
                     continue
 
-            if self.opt.verbose:
-                print "The anchor " + str(count) + " out of " + str(len(ac)) + " anchors has been finished!"
             count += 1
 
     def updateTreeListSmallAllPolytomies(self,skippedPoly,acSmall):
