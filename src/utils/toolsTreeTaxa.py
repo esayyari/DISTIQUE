@@ -294,6 +294,7 @@ def remove_outliers(treeList,strategy,outpath,e,summary):
         return treeList
     if strategy == "consensus10" or strategy == "consensus3":
         ftmp=findMRL(treeList,e,outpath,summary)
+        print ftmp
         ref_tree = dendropy.Tree.get(path=ftmp,schema="newick")
         treeList.append(ref_tree)
         d = list()
@@ -490,6 +491,7 @@ def findMRL(treeList,e,outpath,summary):
     ftmp4=tempfile.mkstemp(suffix='.nwk', prefix="distancet-allTreesAroundPoly_MRL_tree"+e+".nwk",dir=outpath,text=None)
     FNULL = open(os.devnull, 'w')
     if summary == "mrl":
+        print ("MRL_AroundPoly.sh -i "+ftmp3[1]+" -o "+ftmp4[1] )
         subprocess.call([WS_LOC_SHELL+"/MRL_AroundPoly.sh", "-i",ftmp3[1],"-o",ftmp4[1]],stdout=FNULL,stderr=subprocess.STDOUT)
     elif summary == "astral":
         subprocess.call([WS_LOC_SHELL+"/ASTRAL_AroundPoly.sh", "-i",ftmp3[1],"-o",ftmp4[1]],stdout=FNULL,stderr=subprocess.STDOUT)        

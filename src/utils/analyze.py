@@ -143,13 +143,11 @@ class analyze:
         if self.opt.verbose:
             tm.tic()
 
-        skippedPoly = set()
 
         (to_resolvettt, _) = tstt.findPolytomies_with_names(self.opt.con_tree)
         (ac, acSmall, smallAnchs, numAnchors, n) = self.pickAnchors(to_resolvettt)
 
-        if self.opt.verbose:
-            self.printInfo(n, skippedPoly, numAnchors, smallAnchs)
+        skippedPoly = self.printInfo(n, numAnchors, smallAnchs)
 
         listPoly = self.opt.to_resolve.keys()
 
@@ -180,14 +178,12 @@ class analyze:
 
     def treesum(self):
 
-        skippedPoly = set()
 
         (to_resolvettt, _) = tstt.findPolytomies_with_names(self.opt.con_tree)
         (ac, acSmall, smallAnchs, numAnchors, n) = self.pickAnchors(to_resolvettt)
         if self.opt.verbose:
             tm.tic()
-            self.printInfo(n,skippedPoly,numAnchors,smallAnchs)
-
+        skippedPoly = self.printInfo(n,numAnchors,smallAnchs)
 
         self.TreeList = dict()
 
@@ -257,7 +253,8 @@ class analyze:
         f.close()
         os.close(ftmp3[0])
 
-    def printInfo(self, n, skippedPoly, numAnchors, smallAnchs):
+    def printInfo(self, n, numAnchors, smallAnchs):
+            skippedPoly = set()
             print "Number of taxa is: " + str(n)
             print "Number of polytomies is: " + str(len(self.opt.to_resolve))
             for k in self.opt.to_resolve:
@@ -269,6 +266,7 @@ class analyze:
             print "Averaging distances around polytomies using method: " + self.opt.met
             print "The number of anchors are: " + str(numAnchors)
             print "The number of anchors for small polytomies is: " + str(len(smallAnchs))
+            return skippedPoly
     def computeFrqandQuartTables(self,anch,e,N,taxa_list,taxa_inv):
         if self.opt.readFromFile:
             frq = atbs.findAnchoredDistanceTableFromFile(anch, self.opt.frqT, self.opt.taxa, self.opt.outpath)
@@ -489,7 +487,6 @@ class analyze:
 
     def updateTreeListSmallPolyForOnePolytomy(self,acSmall,e,count):
         quartTable = dict()
-
         if e.label not in self.TreeList:
             self.TreeList[e.label] = dendropy.TreeList()
 
@@ -536,7 +533,7 @@ class analyze:
         if self.opt.verbose:
             print "computing distance table using the method: " + str(self.opt.am)
         self.makeTreeInTreesum(quartTable, anch, e)
-        return(contFlag)
+        return contFlag
 
     def updateTreeListBigPolyAllPolytomies(self,ac,skippedPoly):
         count = 1
@@ -552,7 +549,7 @@ class analyze:
                 print "The anchor " + str(count) + " out of " + str(len(ac)) + " anchors has been finished!"
             count += 1
 
-    def updateTreeListSmallAllPolytomies(self,acSmall,skippedPoly):
+    def updateTreeListSmallAllPolytomies(self,skippedPoly,acSmall):
         count = 1
         for e in skippedPoly:
             self.updateTreeListSmallPolyForOnePolytomy(acSmall, e, count)

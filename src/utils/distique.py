@@ -3,7 +3,8 @@ import os
 from optparse import OptionParser
 from analyze import analyze
 from reader import asllOptions
-
+import random
+random.seed(28643)
 
 usage = "usage: %prog [options]"
 parser = OptionParser(usage)

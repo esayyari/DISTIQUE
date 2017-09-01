@@ -27,7 +27,7 @@ from compiler.ast import Node
 import prodDistance as pd
 import copy
 
-
+random.seed(28643)
 WS_LOC_SHELL= os.environ['WS_HOME']+'/DISTIQUE/src/shell'
 WS_LOC_FM = os.environ['WS_HOME']+'/fastme-2.1.4/src'
 
@@ -613,7 +613,7 @@ if (strat == 4):
 		    if readFromFile:
 			tbsa.findTrueAverageTableAnchoringOnDifferentSidesSmallPolytomiesOverallFromFile(frq,quartTable,anch,taxa_list,N1,N2,am,met)
 		    else:
-			tbsa.findTrueAverageTableAnchoringOnDifferentSidesSmallPolytomiesOverall(frq,quartTable,anch,taxa_list,N1,N2,am,met)
+			tbsa.findTrueAverageTableAnchoringOnDifferentSidesSmallPolytomiesOverall(frq,quartTable,anch,taxa_list,N1,N2,met)
 		    if verbose:
 			print "The anchor "+str(count)+" out of "+str(numSmallAnchors)+" anchors has been finished!"
 		    count += 1

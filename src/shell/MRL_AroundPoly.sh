@@ -42,7 +42,7 @@ fi
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 export FASTMRP=$WS_HOME/mrpmatrix
-raxml="$WS_HOME/standard-RAxML/raxmlHPC"
+raxml="raxmlHPC"
 ot=$(dirname "$o")
 outdir="$(cd "$ot" && pwd)"
 cat $i > $outdir/trees.nwk
