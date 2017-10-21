@@ -186,6 +186,8 @@ def reroot(tree,anch):
         if tree.seed_node.taxon.label in anch:
             if nodes[0] is not tree.seed_node:
                 return [nodes[0],tree.seed_node]
+            elif nodes[1] is not tree.seed_node:
+                return [nodes[1],tree.seed_node]
             else:
                 raise Exception("Oops! there is not leaf with the same label as one of the anchors!")
     node = nodes[1]
@@ -196,7 +198,7 @@ def reroot(tree,anch):
 #     print "This is the main rerooting!"
 #     tm.tic()
 
-    tree.reroot_at_node(root, update_bipartitions=False, suppress_unifurcations=False)
+    root = tree.reroot_at_node(root, update_bipartitions=False, suppress_unifurcations=False)
 #     tm.toc()
     return [node,root]
 def genKey(p1,p2):
@@ -804,7 +806,7 @@ def findAnchoredQuartetsOverall(anchPoly, trees,taxa, outpath,debugFlag):
     C = list()
     for s in range(len(anchPoly)):
         [ett,Ctt,anch,taxa_listtt,taxa_invtt]  = anchPoly[s]
-        [Qt,Tt,taxaDictt,cladest,L1t,L2t,mt,listPolyt] = buildEmptyQuartetsOverall(anch,taxa_listtt,taxa_invtt,Ctt,ett,taxa,n)
+        [Qt,Tt,taxaDictt,cladest,L1t,L2t,mt,listPolyt] = buildEmptyQuartetsOverall(taxa_listtt,taxa_invtt,Ctt,taxa,n)
         Q.append(Qt)
         T.append(Tt)
         taxa_inv.append(taxa_invtt)
@@ -817,12 +819,8 @@ def findAnchoredQuartetsOverall(anchPoly, trees,taxa, outpath,debugFlag):
         m.append(mt)
         C.append(Ctt)
         listPoly.append(listPolyt)
-    if debugFlag:
-        print "Initializing arrays takes: "
-        tm.toc()
     for tree in trees:
         rerooted=reroot(tree,anch)
-#         tm.toc()
         node = rerooted[0]
         root = rerooted[1]
         
@@ -959,7 +957,7 @@ def addQuartetsAnchoredOverall(listTaxa,Q,taxaDict,e,anch,L1,L2,m,debugFlag):
     return 
     
     return
-def buildEmptyQuartetsOverall(anch,taxa_list,taxa_inv,C,e,taxa,k):
+def buildEmptyQuartetsOverall(taxa_list,taxa_inv,C,taxa,k):
     taxaDict = dict()
     N1 = list(C)[0]
     N2 = list(C)[1]
@@ -1005,21 +1003,20 @@ def findAnchoredDistanceTableOverall(anchPoly, trees,taxa, outpath,debugFlag):
     frq=findAnchoredQuartetsOverall(anchPoly, trees,taxa, outpath,debugFlag)
 
     return frq
-def findAnchoredDistanceTableOverallp(e,N,anch,taxa_list,taxa_inv, trees,taxa, outpath,debugFlag):
-    frq=findAnchoredQuartetsOverallp(e,N,anch,taxa_list,taxa_inv, trees,taxa, outpath,debugFlag)
+def findAnchoredDistanceTableOverallp(e,N,anch,taxa_list,taxa_inv, trees,taxa, outpath,debugFlag,mapSpeciesToIdx,mapping,A):
+    frq=findAnchoredQuartetsOverallp(e,N,anch,taxa_list,taxa_inv, trees,taxa, outpath,debugFlag,mapSpeciesToIdx,mapping,A)
 
     return frq
 
-def findAnchoredQuartetsOverallp(e,N,anch,taxa_list,taxa_inv, trees,taxa, outpath,debugFlag):
+def findAnchoredQuartetsOverallp(e,N,anch,taxa_list,taxa_inv, trees,taxa, outpath,debugFlag, mapSpeciesToIdx,mapping,A):
     n = len(trees)
-#     if debugFlag:
     anch = sorted(anch)
-    [Q,T,taxaDict,clades,L1,L2,m,listPoly] = buildEmptyQuartetsOverall(anch,taxa_list,taxa_inv,N,e,taxa,n)
+    [Q,T,taxaDict,clades,L1,L2,m,listPoly] = buildEmptyQuartetsOverall(taxa_list,taxa_inv,N,taxa,n)
       
     if debugFlag:
         print "Initializing arrays takes: "
         tm.toc()
-    for tree in trees:
+    for tidx,tree in enumerate(trees):
         rerooted=reroot(tree,anch)
 #         tm.toc()
         node = rerooted[0]
@@ -1086,7 +1083,7 @@ def findAnchoredQuartetsOverallp(e,N,anch,taxa_list,taxa_inv, trees,taxa, outpat
             if debugFlag:
                 print "finding quartets on this node is finished!"
                 tm.toc()
-    frq=makeTrueFrqOverall(Q,T,clades,anch,N,listPoly)
+    frq=makeTrueFrqOverall(Q,T,clades,A,N,listPoly)
     if debugFlag:
         print "time for counting is: "
         tm.toc()
@@ -1103,3 +1100,4 @@ def initializeDistanceAnchoreTables(Dtmp,Ctmp,fillmethod):
         return (Dtmp, Ctmp)
     else:
         return (Dtmp, Ctmp)
+

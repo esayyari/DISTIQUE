@@ -521,18 +521,18 @@ def buildTreeFromDistanceMatrix(distPath,outPath,sumProg,sumProgOption):
     return
 
 def changeLabelsToNumbers(gene_trees,verbose):
-	converted_labels = dict()
-	new_labels = dict()
-	i = 0
-	for taxon in gene_trees.taxon_namespace:
-		if taxon.label is not None:
-			converted_labels[str(taxon.label)] = "l"+str(i)			 
-			new_labels["l"+str(i)] = str(taxon.label)
-            		i += 1
-    	tree = gene_trees[0]
-	for node in tree.leaf_node_iter():
-        	node.taxon.label = converted_labels[str(node.taxon.label)]
-	return (converted_labels,new_labels)
+    converted_labels = dict()
+    new_labels = dict()
+    i = 0
+    for taxon in gene_trees.taxon_namespace:
+        if taxon.label is not None:
+            converted_labels[str(taxon.label)] = "l"+str(i)
+            new_labels["l"+str(i)] = str(taxon.label)
+            i += 1
+    tree = gene_trees[0]
+    for node in tree.leaf_node_iter():
+        node.taxon.label = converted_labels[str(node.taxon.label)]
+    return (converted_labels,new_labels)
 def changeLabelsToNames(tree,new_labels,verbose):
         for node in tree.leaf_node_iter():
                 node.taxon.label = new_labels[str(node.taxon.label)]
@@ -560,3 +560,63 @@ def sampleSmallAnchs(to_resolvettt,ac,debugFlag):
     else:
         numAnchors = len(ac)
     return (set(ac), set(smallAnchs), numAnchors, acSmall)
+
+def getTaxaList2(taxaDict,mapping,mappingSpToIdx):
+    inv_taxa=dict()
+    taxa_list=dict()
+    for key1,vals1 in taxaDict.iteritems():
+            v = list()
+            for t in vals1:
+                    if t.taxon is not None:
+                        k = t.taxon.label
+                        idx = mappingSpToIdx[k]
+                        inds = mapping[idx]
+                    else:
+                        k = t.label
+                        idx = mappingSpToIdx[k]
+                        inds = mapping[idx]
+                    v = v + inds
+            taxa_list[key1] = v
+    for k, v in taxa_list.iteritems():
+            for v2 in v:
+                    inv_taxa[v2] = k
+    return (taxa_list,inv_taxa)
+
+class CompileTree:
+
+    def __init__(self,trees):
+        self.trees = trees
+        self.taxon_namespace = trees.taxon_namespace
+        self._tree_length = 0.0
+        self._num_edges = 0
+        self._mrca = list()
+        for tree in trees:
+            self._mrca.append(self.compile_tree(tree))
+
+
+    def compile_tree(self,tree):
+        mrca = {}
+        for node in tree.postorder_node_iter():
+            self._num_edges += 1
+            children = node.child_nodes()
+            if len(children) == 0:
+                node.desc_paths = {node : (0,0)}
+            else:
+                node.desc_paths = {}
+                for cidx1, c1 in enumerate(children):
+                    for desc1, (_, _) in c1.desc_paths.items():
+                        assert desc1.taxon is not None
+                        if desc1.taxon not in self._mrca:
+                            mrca[desc1.taxon] = {desc1.taxon: desc1}
+                        for c2 in children[cidx1+1:]:
+                            for desc2, (_, _) in c2.desc_paths.items():
+                                mrca[desc1.taxon][desc2.taxon] = c1.parent_node
+        return mrca
+
+
+    def getMRCA(self):
+        return self._mrca
+
+
+
+

@@ -110,7 +110,7 @@ class asllOptions:
 
         for tree in self._trees:
             for leaf in tree.leaf_node_iter():
-                leaf.spidx = self.mapIndToSp[leaf.taxon.label]
+                leaf.spidx = self._mapIndToSpTrueLabels[leaf.taxon.label]
 
         for _, tree in enumerate(self._trees):
             tree.reroot_at_edge(tree.leaf_nodes()[0].edge, update_bipartitions=False)
@@ -165,7 +165,7 @@ class asllOptions:
     def makeMappings(self):
         idx = 0
         if self.multiInd:
-            allLines = open(self.annotation,'r').readlines()
+            self.readMappingFile()
         for e in self.con_tree.leaf_nodes():
             self.mapSpeciesToIdx[e.taxon.label] = idx
             self.mapIdxTospecies.append(e.taxon.label)
@@ -175,13 +175,9 @@ class asllOptions:
             self.mapping.append([])
 
         if self.multiInd:
-            for line in allLines:
-                line = line.strip('\n')
-                line = line.strip()
-                listLine = line.split()
-                species = listLine[1]
-                spIdx = self.mapSpeciesToIdx[self.species_converted_labels[species]]
-                self.mapping[spIdx].append(self.converted_labels[listLine[0]])
+            for species in self.mapSpeciesToIdx:
+                spIdx = self.mapSpeciesToIdx[species]
+                self.mapping[spIdx].append(self.converted_labels[ind] for ind in self._listIndForSpecies[spIdx])
                 self.mapIndToSp[self.converted_labels[listLine[0]]] = spIdx
                 self.taxa.append(self.converted_labels[listLine[0]])
 
@@ -237,6 +233,6 @@ class asllOptions:
                 listLine = line.split()
                 species = listLine[1]
                 spIdx = self.mapSpeciesToIdx[self.species_converted_labels[species]]
-                self._mapIndToSpTrueLabels[self.converted_labels[self.listLine[0]]] = spIdx
+                self._mapIndToSpTrueLabels[listLine[0]] = spIdx
                 self._indTaxa.append(listLine[0])
                 self._listIndForSpecies[spIdx].append(listLine[0])

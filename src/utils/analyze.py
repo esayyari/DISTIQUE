@@ -138,7 +138,6 @@ class analyze:
         if self.opt.verbose:
             tm.tic()
 
-
         (to_resolvettt, _) = tstt.findPolytomies_with_names(self.opt.con_tree)
         (ac, acSmall, smallAnchs, numAnchors, n) = self.pickAnchors(to_resolvettt)
 
@@ -262,11 +261,15 @@ class analyze:
             return skippedPoly
     def computeFrqandQuartTables(self,anch,e,N,taxa_list,taxa_inv):
         if self.opt.readFromFile:
-            frq = atbs.findAnchoredDistanceTableFromFile(anch, self.opt.frqT, self.opt.taxa, self.opt.outpath)
+            frq = atbs.findAnchoredDistanceTableFromFile(anch, self.opt.frqT, self.opt.taxa, self.opt.outpath,self.opt.mapSpeciesToIdx,self.opt.mapping)
         else:
+            anch1 = taxa_inv[anch[0]]
+            anch2 = taxa_inv[anch[1]]
+            A = sorted([anch1, anch2])
             frq = atbs.findAnchoredDistanceTableOverallp(e, N, anch, taxa_list, taxa_inv, self.opt.trees, self.opt.taxa,
                                                          self.opt.outpath,
-                                                         self.opt.debugFlag)
+                                                         self.opt.debugFlag,self.opt.mapSpeciesToIdx,self.opt.mapping,A)
+
         if self.opt.verbose:
             print "time elapsing time for counting number of quartets for anch " + anch[0] + " " + anch[1]
 
@@ -275,6 +278,9 @@ class analyze:
                                                                                        N,
                                                                                        self.opt.method, self.opt.met)
         else:
+            anch1 = taxa_inv[anch[0]]
+            anch2 = taxa_inv[anch[1]]
+            anch = sorted([anch1,anch2])
             quartTable = tbsa.findTrueAverageTableAnchoringAddDistancesOverall(frq, anch, taxa_list, N,
                                                                                self.opt.method,
                                                                                self.opt.met)
@@ -334,8 +340,9 @@ class analyze:
             contFlag = False
             return(None, None, contFlag)
         N = {N1, N2}
+
         (quartTable, frq) = self.computeFrqandQuartTables(anch, e, N, taxa_list, taxa_inv)
-        [Dtmp, Ctmp] = atbs.anchoredDistanceFromFrqAddDistances(quartTable, anch, taxa_list)
+        [Dtmp, Ctmp] = atbs.anchoredDistanceFromFrqAddDistances(quartTable, sorted(list(N)), taxa_list)
         atbs.fillEmptyElementsDistanceTable(Dtmp, Ctmp, self.opt.fillmethod)
         contFlag = True
         self.addDistances(z, Dtmp, Ctmp)
@@ -346,17 +353,25 @@ class analyze:
 
     def computeDistancesForAllAnchors(self,ac,taxa_list,taxa_inv,z,e,count):
         for anch in ac:
-            (contFlag) = self.computeDistancesForOneAnchor(anch, taxa_list,taxa_inv,z,e)
-            if not contFlag:
-                continue
+            idx1 = self.opt.mapSpeciesToIdx[anch[0]]
+            idx2 = self.opt.mapSpeciesToIdx[anch[1]]
+            inds1 = self.opt.mapping[idx1]
+            inds2 = self.opt.mapping[idx2]
+            for ind1 in inds1:
+                for ind2 in inds2:
+                    A = sorted([ind1,ind2])
 
-            if self.opt.verbose:
-                print "Computing distance table using anchors " + anch[0] + " and " + anch[
-                    1] + " has been finished!"
-                print "The anchor " + str(count) + " out of " + str(len(ac)) + " anchors has been finished!"
-            count += 1
-            if (count % 50) == 0:
-                gc.collect()
+                    (contFlag) = self.computeDistancesForOneAnchor(A, taxa_list,taxa_inv,z,e)
+                    if not contFlag:
+                        continue
+
+                    if self.opt.verbose:
+                        print "Computing distance table using anchors " + anch[0] + " and " + anch[
+                         1] + " has been finished!"
+                        print "The anchor " + str(count) + " out of " + str(len(ac)) + " anchors has been finished!"
+                    count += 1
+                    if (count % 50) == 0:
+                        gc.collect()
 
         return (count)
 
@@ -369,7 +384,7 @@ class analyze:
             if e in skippedPoly:
                 continue
             val = self.opt.to_resolve[e]
-            (taxa_list, taxa_inv) = tstt.getTaxaList(val)
+            (taxa_list, taxa_inv) = tstt.getTaxaList2(val,self.opt.mapping,self.opt.mapSpeciesToIdx)
             (count) = self.computeDistancesForAllAnchors(ac, taxa_list,taxa_inv,z,e, count)
         return
 
@@ -379,7 +394,7 @@ class analyze:
         for e in skippedPolyList:
             z = listPoly.index(e)
             val = self.opt.to_resolve[e]
-            (taxa_list, taxa_inv) = tstt.getTaxaList(val)
+            (taxa_list, taxa_inv) = tstt.getTaxaList2(val,self.opt.mapping,self.opt.mapSpeciesToIdx)
             for achList in acSmall[e.label]:
                 (countT) = self.computeDistancesForAllAnchors(achList,taxa_list,taxa_inv,z, e,countT)
         return
@@ -405,12 +420,12 @@ class analyze:
     def computeFrqandQuartTablesTreesum(self,anch,e,N1,N2,taxa_list,taxa_inv):
         N = {N1,N2}
         if self.opt.readFromFile:
-            frq = atbs.findAnchoredDistanceTableFromFile(anch, self.opt.frqT, self.opt.taxa, self.opt.outpath)
+            frq = atbs.findAnchoredDistanceTableFromFile(anch, self.opt.frqT, self.opt.taxa, self.opt.outpath,self.opt.mapSpeciesToIdx,self.opt.mapping)
 
         else:
             frq = atbs.findAnchoredDistanceTableOverallp(e, N, anch, taxa_list, taxa_inv, self.opt.trees, self.opt.taxa,
                                                          self.opt.outpath,
-                                                         self.opt.debugFlag)
+                                                         self.opt.debugFlag,self.opt.mapSpeciesToIdx,self.opt.mapping)
 
         if self.opt.readFromFile:
             quartTable = tbsa.findTrueAverageTableAnchoringOnDifferentSidesOverallFromFile(frq, anch,
@@ -427,12 +442,12 @@ class analyze:
 
         N = {N1, N2}
         if self.opt.readFromFile:
-            frq = atbs.findAnchoredDistanceTableFromFile(anch, self.opt.frqT, self.opt.taxa, self.opt.outpath)
+            frq = atbs.findAnchoredDistanceTableFromFile(anch, self.opt.frqT, self.opt.taxa, self.opt.outpath,self.opt.mapSpeciesToIdx,self.opt.mapping)
 
         else:
             frq = atbs.findAnchoredDistanceTableOverallp(e, N, anch, taxa_list, taxa_inv, self.opt.trees, self.opt.taxa,
                                                          self.opt.outpath,
-                                                         self.opt.debugFlag)
+                                                         self.opt.debugFlag,self.opt.mapSpeciesToIdx,self.opt.mapping)
 
         if self.opt.readFromFile:
             quartTable = tbsa.findTrueAverageTableAnchoringOnDifferentSidesSmallPolytomiesOverallFromFile(frq, quartTable, anch, taxa_list,
@@ -536,3 +551,17 @@ class analyze:
         count = 1
         for e in skippedPoly:
             self.updateTreeListSmallPolyForOnePolytomy(acSmall, e, count)
+
+    def getSpfromInd(self, indSp):
+        return self.opt.mapIndToSp[indSp]
+
+    def getIndlistFromSp(self, species):
+        spIdx = self.opt.mapSpeciesToIdx[species]
+        return self.mapping[spIdx]
+
+    def addOne(self, indSp):
+        self.counts[self.getSpfromInd(indSp)] += 1
+        return
+
+    def taxaToIndlist(self,taxa_list ):
+        return
