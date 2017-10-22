@@ -149,7 +149,7 @@ class analyze:
 
         if len(ac) != 0:
             self.computeAllFinalDistanceTablesBigPoly(listPoly, skippedPoly, ac)
-        self.computeAllFinalDistanceTablesSmallPoly(listPoly,skippedPoly,acSmall)
+        self.computeAllFinalDistanceTablesSmallPoly(listPoly,skippedPoly,acSmall,smallAnchs)
 
         (normalizedD,normalizedC) = self.normalizeTables(listPoly)
 
@@ -268,7 +268,7 @@ class analyze:
             A = sorted([anch1, anch2])
             frq = atbs.findAnchoredDistanceTableOverallp(e, N, anch, taxa_list, taxa_inv, self.opt.trees, self.opt.taxa,
                                                          self.opt.outpath,
-                                                         self.opt.debugFlag,self.opt.mapSpeciesToIdx,self.opt.mapping,A)
+                                                         self.opt.debugFlag,self.opt.mapSpeciesToIdx,self.opt.mapping,A,self.opt.geneIndTable)
 
         if self.opt.verbose:
             print "time elapsing time for counting number of quartets for anch " + anch[0] + " " + anch[1]
@@ -340,7 +340,6 @@ class analyze:
             contFlag = False
             return(None, None, contFlag)
         N = {N1, N2}
-
         (quartTable, frq) = self.computeFrqandQuartTables(anch, e, N, taxa_list, taxa_inv)
         [Dtmp, Ctmp] = atbs.anchoredDistanceFromFrqAddDistances(quartTable, sorted(list(N)), taxa_list)
         atbs.fillEmptyElementsDistanceTable(Dtmp, Ctmp, self.opt.fillmethod)
@@ -353,25 +352,18 @@ class analyze:
 
     def computeDistancesForAllAnchors(self,ac,taxa_list,taxa_inv,z,e,count):
         for anch in ac:
-            idx1 = self.opt.mapSpeciesToIdx[anch[0]]
-            idx2 = self.opt.mapSpeciesToIdx[anch[1]]
-            inds1 = self.opt.mapping[idx1]
-            inds2 = self.opt.mapping[idx2]
-            for ind1 in inds1:
-                for ind2 in inds2:
-                    A = sorted([ind1,ind2])
+            A = anch
+            (contFlag) = self.computeDistancesForOneAnchor(A, taxa_list,taxa_inv,z,e)
+            if not contFlag:
+                continue
 
-                    (contFlag) = self.computeDistancesForOneAnchor(A, taxa_list,taxa_inv,z,e)
-                    if not contFlag:
-                        continue
-
-                    if self.opt.verbose:
-                        print "Computing distance table using anchors " + anch[0] + " and " + anch[
-                         1] + " has been finished!"
-                        print "The anchor " + str(count) + " out of " + str(len(ac)) + " anchors has been finished!"
-                    count += 1
-                    if (count % 50) == 0:
-                        gc.collect()
+            if self.opt.verbose:
+                print "Computing distance table using anchors " + anch[0] + " and " + anch[
+                 1] + " has been finished!"
+                print "The anchor " + str(count) + " out of " + str(len(ac)) + " anchors has been finished!"
+            count += 1
+            if (count % 100) == 0:
+                gc.collect()
 
         return (count)
 
@@ -388,15 +380,19 @@ class analyze:
             (count) = self.computeDistancesForAllAnchors(ac, taxa_list,taxa_inv,z,e, count)
         return
 
-    def computeAllFinalDistanceTablesSmallPoly(self,listPoly,skippedPoly,acSmall):
-        countT = 1
+    def computeAllFinalDistanceTablesSmallPoly(self,listPoly,skippedPoly,acSmall,smallAnchs):
+        countR = 1
         skippedPolyList = list(skippedPoly)
         for e in skippedPolyList:
             z = listPoly.index(e)
             val = self.opt.to_resolve[e]
             (taxa_list, taxa_inv) = tstt.getTaxaList2(val,self.opt.mapping,self.opt.mapSpeciesToIdx)
+            countT = 1
+
             for achList in acSmall[e.label]:
                 (countT) = self.computeDistancesForAllAnchors(achList,taxa_list,taxa_inv,z, e,countT)
+            print "Number of small polytomies finished is " + str(countR) + " out of " + str(len(acSmall.keys()))
+            countR += 1
         return
 
     def initializeTables(self,listPoly):

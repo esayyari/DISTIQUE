@@ -70,18 +70,20 @@ class asllOptions:
         self.WS_LOC_FM = os.environ['WS_HOME'] + '/DISTIQUE/bin'
         self.num_taxa = len(self.trees[0].leaf_nodes())
         self._mapIndToSpTrueLabels = dict()
-        self._indTaxa = list
+        self._indTaxa = list()
         self.geneIndTable = list()
         self._listIndForSpecies = list()
+        self.mapIndToSpNames = dict()
         self.reader()
 
 
     def reader(self):
-        (self.converted_labels, self.new_labels2) = tstt.changeLabelsToNumbers(self.trees, self.verbose)
+        #(self.converted_labels, self.new_labels2) = tstt.changeLabelsToNumbers(self.trees, self.verbose)
         self.makeBackBoneTree()
         (self.to_resolve, self.maxPolyOrder) = tstt.findPolytomies(self.con_tree)
-        self.makeMappings()
+        self.summerizeGeneTrees()
         self.simplifyGenes()
+        self.makeMappings()
 
 
     def mapNames(self):
@@ -102,54 +104,6 @@ class asllOptions:
         for node in tree.leaf_node_iter():
             node.taxon.label = converted_labels[str(node.taxon.label)]
         return (converted_labels,new_labels)
-
-
-
-    def simplifyGenes(self):
-        self._trees = copy.deepcopy(self.trees)
-
-        for tree in self._trees:
-            for leaf in tree.leaf_node_iter():
-                leaf.spidx = self.mapIndToSp[leaf.taxon.label]
-
-        for _, tree in enumerate(self._trees):
-            tree.reroot_at_edge(tree.leaf_nodes()[0].edge, update_bipartitions=False)
-            for node in tree.postorder_node_iter():
-                node.desc_paths = set()
-                if node.is_leaf():
-                    node.desc_paths.add(node.spidx)
-                else:
-                    children = node.child_nodes()
-                    flag = self.checkIfAllLeaf(children)
-
-                    for child in children:
-                        node.desc_paths = node.desc_paths.union(child.desc_paths)
-                    if len(node.desc_paths) == 1:
-                        c = len(children)
-                        taxon = children[0].taxon.label
-                        for chIdx in range(len(children)):
-                            node.remove_child(children[chIdx])
-                            node.taxon = dendropy.Taxon(label=taxon)
-                            node.label = node.taxon.label
-                            node.spidx = next(iter(node.desc_paths))
-                            node.mult = c
-                    elif flag:
-                        h = dict()
-                        h2 = set()
-                        for child in children:
-                            if child.spidx not in h:
-                                h[child.spidx] = 0
-                                h2.add(child)
-                            else:
-                                h[child.spidx] += 1
-                        for child in children:
-                            if child in h2:
-                                child.mult = h[child.spidx]
-                                continue
-                            else:
-                                node.remove_child(child, suppress_unifurcations=True)
-
-        self.makeGeneTable()
 
     def checkIfAllLeaf(self,children):
         for child in children:
@@ -174,24 +128,13 @@ class asllOptions:
         for idx in range(0, len(self.con_tree.leaf_nodes())):
             self.mapping.append([])
 
-        if self.multiInd:
-            for line in allLines:
-                line = line.strip('\n')
-                line = line.strip()
-                listLine = line.split()
-                species = listLine[1]
-                spIdx = self.mapSpeciesToIdx[self.species_converted_labels[species]]
-                self.mapping[spIdx].append(self.converted_labels[listLine[0]])
-                self.mapIndToSp[self.converted_labels[listLine[0]]] = spIdx
-                self.taxa.append(self.converted_labels[listLine[0]])
 
-        else:
-            for tx in self.con_tree.leaf_nodes():
-                self.taxa.append(tx.taxon.label)
-                species = tx.taxon.label
-                spIdx = self.mapSpeciesToIdx[species]
-                self.mapIndToSp[self.converted_labels[species]] = spIdx
-                self.mapping[spIdx].append(species)
+        for tx in self.con_tree.leaf_nodes():
+            self.taxa.append(tx.taxon.label)
+            species = tx.taxon.label
+            spIdx = self.mapSpeciesToIdx[species]
+            self.mapIndToSp[species] = spIdx
+            self.mapping[spIdx].append(species)
 
     def makeBackBoneTree(self):
         if self.initTree is not None:
@@ -215,28 +158,103 @@ class asllOptions:
 
 
     def makeGeneTable(self):
-        for gIdx in range(len(self._trees)):
+        for gIdx in range(len(self.trees)):
             self.geneIndTable.append(list())
             for _ in range(len(self.new_labels)):
                 self.geneIndTable[gIdx].append(list())
 
-        for gIdx in range(len(self._trees)):
-            for leaf in self._trees[gIdx].leaf_nodes():
-                self.geneIndTable[gIdx][leaf.spidx].append(leaf)
+        for gIdx in range(len(self.trees)):
+            for leaf in self.trees[gIdx].leaf_nodes():
+                self.geneIndTable[gIdx][self.mapSpeciesToIdx[leaf.spidx]].append(leaf)
 
     def readMappingFile(self):
+        for _ in range(len(self.mapSpeciesToIdx.keys())):
+            self._listIndForSpecies.append(list())
         if self.multiInd:
             allLines = open(self.annotation,'r').readlines()
-        for _ in range(len(self.mapSpeciesToIdx())):
-            self._listIndForSpecies.append(list())
-
-        if self.multiInd:
             for line in allLines:
                 line = line.strip('\n')
                 line = line.strip()
                 listLine = line.split()
                 species = listLine[1]
                 spIdx = self.mapSpeciesToIdx[self.species_converted_labels[species]]
-                self._mapIndToSpTrueLabels[self.converted_labels[self.listLine[0]]] = spIdx
+                self.mapIndToSp[listLine[0]] = spIdx
+                self.mapIndToSpNames[listLine[0]] = self.species_converted_labels[species]
                 self._indTaxa.append(listLine[0])
                 self._listIndForSpecies[spIdx].append(listLine[0])
+
+
+
+
+    def summerizeGeneTrees(self):
+        self._speciesList = [leaf.taxon.label for leaf in self.con_tree.leaf_nodes()]
+        for idx,sp in enumerate(self._speciesList):
+            self.mapSpeciesToIdx[sp] = idx
+        self.readMappingFile()
+
+        for tree in self.trees:
+            for leaf in tree.leaf_nodes():
+                leaf.spidx = self.mapIndToSpNames[leaf.taxon.label]
+                leaf.label = leaf.spidx
+
+        for t in self.trees[0].leaf_nodes():
+            t.taxon.label =  self.mapIndToSpNames[t.taxon.label]
+
+
+    def simplifyGenes(self):
+        rootSp = self.con_tree.leaf_nodes()[1].label
+        otherRootSp = self.con_tree.leaf_nodes()[2].label
+
+
+        self.iterateAndSimplify(rootSp)
+        self.iterateAndSimplify(otherRootSp)
+        self._trees = copy.deepcopy(self.trees)
+        # for tree in self._trees:
+        #     print tree.leaf_nodes()
+        #     tstt.changeLabelsToNames(tree, self.new_labels, self.verbose)
+        # self._trees.write(path='~/Desktop/tree.nwk',schema="newick")
+        self.makeGeneTable()
+
+    def iterateAndSimplify(self,rootLabel):
+
+        filter_fn = lambda n: n.taxon is not None and n.taxon.label == rootLabel
+
+        for tIdx,tree in enumerate(self.trees):
+            rootNd = tree.find_nodes(filter_fn=filter_fn)
+            tree.reroot_at_edge(rootNd[0].edge, update_bipartitions=False)
+            for node in tree.postorder_node_iter():
+                node.desc_paths = set()
+                if node.is_leaf():
+                    node.desc_paths.add(node.spidx)
+                    if not hasattr(node,'mult'):
+                        node.mult = 1
+                else:
+                    children = node.child_nodes()
+                    flag = self.checkIfAllLeaf(children)
+
+                    for child in children:
+                        node.desc_paths = node.desc_paths.union(child.desc_paths)
+                    if len(node.desc_paths) == 1:
+                        c = sum([child.mult for child in children])
+                        children[0].mult = c
+
+                        for chIdx in range(1,len(children)):
+                            node.remove_child(children[chIdx],suppress_unifurcations=True)
+
+                    elif flag:
+                        h = dict()
+                        h2 = set()
+                        for child in children:
+                            if hasattr(child,'spidx') and child.spidx not in h:
+                                h[child.spidx] = child.mult
+                                h2.add(child)
+                            elif hasattr(child,'spidx'):
+                                h[child.spidx] += child.mult
+                        for child in children:
+                            if hasattr(child,'spidx') and child in h2:
+                                child.mult = h[child.spidx]
+                            elif hasattr(child,'spidx'):
+                                node.remove_child(child, suppress_unifurcations=True)
+
+
+

@@ -177,6 +177,20 @@ def chooseTaxa(taxa):
             List.append(([taxa[i],taxa[j]])) 
 #     return itertools.combinations(taxa,2)
     return List
+def rerootGivenNodes(tree,anchNodes):
+    if tree.seed_node is not None and tree.seed_node.taxon is not None:
+        if tree.seed_node in anchNodes:
+            if anchNodes[0] is not tree.seed_node:
+                return [anchNodes[0], tree.seed_node]
+            elif anchNodes[1] is not tree.seed_node:
+                return [anchNodes[1], tree.seed_node]
+            else:
+                raise Exception("Oops! there is not leaf with the same label as one of the anchors!")
+    node = anchNodes[1]
+    root = anchNodes[0]
+    root = tree.reroot_at_node(root, update_bipartitions=False, suppress_unifurcations=False)
+
+    return [node,root]
 def reroot(tree,anch):
     #tstt.labelNodes(tree)
 #     tm.tic()
@@ -897,12 +911,12 @@ def findAnchoredQuartetsOverall(anchPoly, trees,taxa, outpath,debugFlag):
         tm.toc()
     
     return frq
-def removeFromQuartetLentreeshAnchoredOverall(T,listTaxa,taxaDict,e,m):
+def removeFromQuartetLentreeshAnchoredOverall(T,listTaxa,taxaDict,e,m,mult):
     x = list()
     for et in listTaxa:
         L = list()
         for t in et:
-            L.append(taxaDict[t.taxon.label])
+            L.append((taxaDict[t.taxon.label],t.mult*mult))
         l = countNum(L,m)
         x.append(l)
     for i in range(0,len(x)):
@@ -915,28 +929,28 @@ def removeFromQuartetLentreeshAnchoredOverall(T,listTaxa,taxaDict,e,m):
                 for z in range(k+1,len(l2)):
                     if l2[z] == 0:
                         continue
-                        T[k][z] -= l1[k]*l2[z]
+                    T[k][z] -= l1[k]*l2[z]
     return
 
 
 
-def findAllChildrenPairsOverall(listTaxa,taxaDict,L1,L2,debugFlag):
+def findAllChildrenPairsOverall(listTaxa,taxaDict,L1,L2,debugFlag,mult):
     listTaxaLabels = list()
     if debugFlag:
         tm.tic()
     for t in listTaxa:
         
-        listTaxaLabels.append(taxaDict[t.taxon.label])
+        listTaxaLabels.append((taxaDict[t.taxon.label],t.mult*mult))
     if debugFlag:
         print "Time to find indeces"
         tm.toc()
     return listTaxaLabels
 
 
-def addQuartetsAnchoredOverall(listTaxa,Q,taxaDict,e,anch,L1,L2,m,debugFlag):
+def addQuartetsAnchoredOverall(listTaxa,Q,taxaDict,e,anch,L1,L2,m,debugFlag,mult):
     if debugFlag:
         tm.tic()
-    pairs = findAllChildrenPairsOverall(listTaxa,taxaDict,L1,L2,debugFlag)
+    pairs = findAllChildrenPairsOverall(listTaxa,taxaDict,L1,L2,debugFlag,mult)
     if debugFlag:
         print "Time to find all pairs: "
         tm.toc()
@@ -956,8 +970,7 @@ def addQuartetsAnchoredOverall(listTaxa,Q,taxaDict,e,anch,L1,L2,m,debugFlag):
         tm.toc()
     return 
     
-    return
-def buildEmptyQuartetsOverall(taxa_list,taxa_inv,C,taxa,k):
+def buildEmptyQuartetsOverall(taxa_list,taxa_inv,C,taxa,k,geneIndTable,mapSpeciesToIdx):
     taxaDict = dict()
     N1 = list(C)[0]
     N2 = list(C)[1]
@@ -968,15 +981,26 @@ def buildEmptyQuartetsOverall(taxa_list,taxa_inv,C,taxa,k):
     dictClade = dict()
     N = len(taxa_list.keys())
     listPoly = taxa_list.keys()
+    mults = dict()
+    for key in taxa_list:
+        mults[key] = 0
+    for gIdx in range(0,k):
+        for key in taxa_list.keys():
+            for sp in taxa_list[key]:
+                for l in range(0,len(geneIndTable[gIdx][mapSpeciesToIdx[sp]])):
+                    mults[key] += geneIndTable[gIdx][mapSpeciesToIdx[sp]][l].mult
+
     for j in range(len(listPoly)):
         dictClade[listPoly[j]] = j
 
     for t in taxa:
         taxaDict[t] = dictClade[taxa_inv[t]]
     Q = [[0.5 for _ in range(0,N)] for _ in range(0,N)]
+    T = list()
+    T = [[ 1.5+k*mults[listPoly[i]]*mults[listPoly[j]] for j in range(0,N)] for i in range(0,N)]
 
-    T = [[1.5+k*len(taxa_list[listPoly[i]])*len(taxa_list[listPoly[j]]) for i in range(0,N)] for j in range(0,N)]
-    return  [Q,T,taxaDict,clades,L1,L2,m,listPoly] 
+#   T = [[1.5+k*len(taxa_list[listPoly[i]])*len(taxa_list[listPoly[j]])
+    return  [Q,T,taxaDict,clades,L1,L2,m,listPoly]
 def makeTrueFrqOverall(Q,T,clades,anch,C,listPoly):
     frq = dict()
     
@@ -997,97 +1021,104 @@ def countNum(L,n):
     l = [0 for _ in range(n)]
     
     for j in range(0,len(L)):
-            l[L[j]] += 1
+            l[L[j][0]] += L[j][1]
     return l
 def findAnchoredDistanceTableOverall(anchPoly, trees,taxa, outpath,debugFlag):
     frq=findAnchoredQuartetsOverall(anchPoly, trees,taxa, outpath,debugFlag)
 
     return frq
-def findAnchoredDistanceTableOverallp(e,N,anch,taxa_list,taxa_inv, trees,taxa, outpath,debugFlag,mapSpeciesToIdx,mapping,A):
-    frq=findAnchoredQuartetsOverallp(e,N,anch,taxa_list,taxa_inv, trees,taxa, outpath,debugFlag,mapSpeciesToIdx,mapping,A)
+def findAnchoredDistanceTableOverallp(e,N,anch,taxa_list,taxa_inv, trees,taxa, outpath,debugFlag,mapSpeciesToIdx,mapping,A,geneIndTable):
+    frq=findAnchoredQuartetsOverallp(e,N,anch,taxa_list,taxa_inv, trees,taxa, outpath,debugFlag,mapSpeciesToIdx,mapping,A,geneIndTable)
 
     return frq
 
-def findAnchoredQuartetsOverallp(e,N,anch,taxa_list,taxa_inv, trees,taxa, outpath,debugFlag, mapSpeciesToIdx,mapping,A):
+def findAnchoredQuartetsOverallp(e,N,anch,taxa_list,taxa_inv, trees,taxa, outpath,debugFlag, mapSpeciesToIdx,mapping,A,geneIndTable):
     n = len(trees)
     anch = sorted(anch)
-    [Q,T,taxaDict,clades,L1,L2,m,listPoly] = buildEmptyQuartetsOverall(taxa_list,taxa_inv,N,taxa,n)
+
+    [Q,T,taxaDict,clades,L1,L2,m,listPoly] = buildEmptyQuartetsOverall(taxa_list,taxa_inv,N,taxa,n,geneIndTable,mapSpeciesToIdx)
       
     if debugFlag:
         print "Initializing arrays takes: "
         tm.toc()
     for tidx,tree in enumerate(trees):
-        rerooted=reroot(tree,anch)
-#         tm.toc()
-        node = rerooted[0]
-        root = rerooted[1]
-        
-        if debugFlag:
-            tm.tic()
-#         listTaxaTmp=list()
-        while(node.parent_node is not root):
-            if debugFlag:
-                tm.tic()
-            node_pre = node
-#             if node_pre.is_leaf():
-#                 listTaxaTmp.append(node_pre)
-#                 
-            node = node.parent_node
-            if debugFlag:
-                print "finding children of this node takes: "
-                tm.tic()
-            chs = node.child_nodes()
-            if debugFlag:
-                tm.toc()
-            chs_n = len(chs)
-            
-            if len(chs)>2:
-                for i in range(0,chs_n):
-                    ch = chs[i]
-                    if (ch == node_pre):
-                        continue
+        nodes1= geneIndTable[tidx][mapSpeciesToIdx[anch[0]]]
+        nodes2 = geneIndTable[tidx][mapSpeciesToIdx[anch[1]]]
+        for node1 in nodes1:
+            for node2 in nodes2:
+                rerooted=rerootGivenNodes(tree,[node1,node2])
+        #         tm.toc()
+                node = rerooted[0]
+                root = rerooted[1]
+                mult1 = node.mult
+                mult2 = root.mult
+
+                if debugFlag:
+                    tm.tic()
+        #         listTaxaTmp=list()
+                while(node.parent_node is not root):
+                    if debugFlag:
+                        tm.tic()
+                    node_pre = node
+        #             if node_pre.is_leaf():
+        #                 listTaxaTmp.append(node_pre)
+        #
+                    node = node.parent_node
+                    if debugFlag:
+                        print "finding children of this node takes: "
+                        tm.tic()
+                    chs = node.child_nodes()
+                    if debugFlag:
+                        tm.toc()
+                    chs_n = len(chs)
+
+                    if len(chs)>2:
+                        for i in range(0,chs_n):
+                            ch = chs[i]
+                            if (ch == node_pre):
+                                continue
+                            else:
+                                if debugFlag:
+                                    tm.tic()
+                                listTaxa = ch.leaf_nodes()
+                                if debugFlag:
+                                    print "adding quartets around this node takes (more than 2 children): "
+                                addQuartetsAnchoredOverall(listTaxa,Q,taxaDict,e,anch,L1,L2,m,debugFlag,mult1*mult2)
+                                if debugFlag:
+                                    tm.toc()
+                            for j in range(i+1,chs_n):
+                                if (chs[i] == chs[j]) or (chs[j]==node_pre):
+                                    continue
+                                else:
+                                    if debugFlag:
+                                        tm.tic()
+                                    listTaxatmp = [listTaxa,chs[j].leaf_nodes()]
+                                    removeFromQuartetLentreeshAnchoredOverall(T,listTaxatmp,taxaDict,e,m,mult1*mult2)
+                                    if debugFlag:
+                                        print "adding quartets around this node takes (more than 2 children): "
+                                        tm.toc()
                     else:
-                        if debugFlag:
-                            tm.tic()    
-                        listTaxa = ch.leaf_nodes()
-                        if debugFlag:
-                            print "adding quartets around this node takes (more than 2 children): "
-                        addQuartetsAnchoredOverall(listTaxa,Q,taxaDict,e,anch,L1,L2,m,debugFlag)
-                        if debugFlag:
-                            tm.toc()
-                    for j in range(i+1,chs_n):
-                        if (chs[i] == chs[j]) or (chs[j]==node_pre):
-                            continue
-                        else:
-                            if debugFlag:
-                                tm.tic()
-                            listTaxatmp = [listTaxa,chs[j].leaf_nodes()]
-                            removeFromQuartetLentreeshAnchoredOverall(T,listTaxatmp,taxaDict,e,m)
-                            if debugFlag:
-                                print "adding quartets around this node takes (more than 2 children): "
-                                tm.toc()
-            else:
-                for ch in chs:
-                    if (ch==node_pre):
-                        continue
-                    else:
-                        if debugFlag:
-                            tm.tic()
-                        listTaxa = ch.leaf_nodes()
-                        if len(listTaxa) == 1:
-                            continue
-                        addQuartetsAnchoredOverall(listTaxa,Q,taxaDict,e,anch,L1,L2,m,debugFlag)
-                        if debugFlag:
-                            print "adding quartets around this node takes (less than two children): "
-                            tm.toc()
-            if debugFlag:
-                print "finding quartets on this node is finished!"
-                tm.toc()
+                        for ch in chs:
+                            if (ch==node_pre):
+                                continue
+                            else:
+                                if debugFlag:
+                                    tm.tic()
+                                listTaxa = ch.leaf_nodes()
+                                if len(listTaxa) == 1:
+                                    continue
+                                addQuartetsAnchoredOverall(listTaxa,Q,taxaDict,e,anch,L1,L2,m,debugFlag,mult1*mult2)
+                                if debugFlag:
+                                    print "adding quartets around this node takes (less than two children): "
+                                    tm.toc()
+                    if debugFlag:
+                        print "finding quartets on this node is finished!"
+                        tm.toc()
     frq=makeTrueFrqOverall(Q,T,clades,A,N,listPoly)
     if debugFlag:
         print "time for counting is: "
         tm.toc()
-    
+
     return frq
 def initializeDistanceAnchoreTables(Dtmp,Ctmp,fillmethod):
 
