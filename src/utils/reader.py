@@ -6,6 +6,7 @@ import timer as tm
 import copy
 import tempfile
 import sys
+
 class asllOptions:
     def __init__(self,options):
         self.strat = options.strat
@@ -26,6 +27,7 @@ class asllOptions:
         self.fillmethod = options.fillmethod
         self.initTree = options.initTree
         self.annotation = options.annotation
+        self.seedNum = 121089923
         if self.verbose:
             print self.strategy
         if self.strategy is not None:
@@ -75,8 +77,7 @@ class asllOptions:
         self._listIndForSpecies = list()
         self.mapIndToSpNames = dict()
         self.reader()
-
-
+        self.tempFold = tempfile.mkdtemp(prefix="distique-temp", dir=self.outpath)
     def reader(self):
         #(self.converted_labels, self.new_labels2) = tstt.changeLabelsToNumbers(self.trees, self.verbose)
         self.makeBackBoneTree()
@@ -86,11 +87,6 @@ class asllOptions:
         self.makeMappings()
 
 
-    def mapNames(self):
-        print self.converted_labels
-        for node in self.con_tree.leaf_node_iter():
-            node.taxon.label = self.converted_labels[str(node.taxon.label)]
-        return
 
     def changeLabelsToNumbers(self,tree):
         converted_labels = dict()

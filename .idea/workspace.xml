@@ -6,6 +6,7 @@
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/utils/analyze.py" afterPath="$PROJECT_DIR$/src/utils/analyze.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/utils/anchoredTableTools.py" afterPath="$PROJECT_DIR$/src/utils/anchoredTableTools.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/utils/reader.py" afterPath="$PROJECT_DIR$/src/utils/reader.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/utils/toolsTreeTaxa.py" afterPath="$PROJECT_DIR$/src/utils/toolsTreeTaxa.py" />
     </list>
     <ignored path="DISTIQUE.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -20,7 +21,7 @@
   <component name="CoverageDataManager">
     <SUITE FILE_PATH="coverage/DISTIQUE$testmultiind.coverage" NAME="testSum Coverage Results" MODIFIED="1508495028686" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/DISTIQUE$Unnamed.coverage" NAME="testDiscoVista Coverage Results" MODIFIED="1504155421705" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/utils" />
-    <SUITE FILE_PATH="coverage/DISTIQUE$testDiscoVista.coverage" NAME="testDiscoVista Coverage Results" MODIFIED="1508710737866" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/utils" />
+    <SUITE FILE_PATH="coverage/DISTIQUE$testDiscoVista.coverage" NAME="testDiscoVista Coverage Results" MODIFIED="1508801967489" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/utils" />
   </component>
   <component name="CreatePatchCommitExecutor">
     <option name="PATCH_PATH" value="" />
@@ -30,10 +31,20 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file leaf-file-name="printTools.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/utils/printTools.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="189">
+              <caret line="21" column="23" lean-forward="true" selection-start-line="21" selection-start-column="23" selection-end-line="21" selection-end-column="23" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="distique.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/utils/distique.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="242">
+            <state relative-caret-position="282">
               <caret line="63" column="0" lean-forward="false" selection-start-line="63" selection-start-column="0" selection-end-line="63" selection-end-column="0" />
               <folding>
                 <element signature="e#22#31#0" expanded="true" />
@@ -42,11 +53,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="analyze.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="analyze.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/utils/analyze.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="125">
-              <caret line="352" column="8" lean-forward="false" selection-start-line="352" selection-start-column="8" selection-end-line="352" selection-end-column="8" />
+            <state relative-caret-position="690">
+              <caret line="46" column="37" lean-forward="false" selection-start-line="46" selection-start-column="37" selection-end-line="46" selection-end-column="37" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
               </folding>
@@ -57,33 +68,9 @@
       <file leaf-file-name="anchoredTableTools.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/utils/anchoredTableTools.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="112">
-              <caret line="989" column="16" lean-forward="false" selection-start-line="989" selection-start-column="16" selection-end-line="989" selection-end-column="16" />
+            <state relative-caret-position="158">
+              <caret line="1028" column="25" lean-forward="true" selection-start-line="1028" selection-start-column="25" selection-end-line="1028" selection-end-column="25" />
               <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="toolsTreeTaxa.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/utils/toolsTreeTaxa.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-963">
-              <caret line="537" column="0" lean-forward="false" selection-start-line="537" selection-start-column="0" selection-end-line="537" selection-end-column="0" />
-              <folding>
-                <element signature="e#22#37#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="reader.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/utils/reader.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="274">
-              <caret line="212" column="37" lean-forward="true" selection-start-line="212" selection-start-column="37" selection-end-line="212" selection-end-column="37" />
-              <folding>
-                <element signature="e#0#9#0" expanded="true" />
-              </folding>
             </state>
           </provider>
         </entry>
@@ -101,8 +88,32 @@
       <file leaf-file-name="reader2.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/utils/reader2.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1837">
-              <caret line="238" column="0" lean-forward="true" selection-start-line="238" selection-start-column="0" selection-end-line="238" selection-end-column="0" />
+            <state relative-caret-position="1935">
+              <caret line="129" column="48" lean-forward="false" selection-start-line="129" selection-start-column="48" selection-end-line="129" selection-end-column="48" />
+              <folding>
+                <element signature="e#0#9#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="toolsTreeTaxa.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/utils/toolsTreeTaxa.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="109">
+              <caret line="482" column="88" lean-forward="false" selection-start-line="482" selection-start-column="88" selection-end-line="482" selection-end-column="88" />
+              <folding>
+                <element signature="e#22#37#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="reader.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/utils/reader.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-1683">
+              <caret line="59" column="67" lean-forward="false" selection-start-line="59" selection-start-column="58" selection-end-line="59" selection-end-column="67" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
               </folding>
@@ -114,27 +125,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>taxa_list</find>
-      <find>mrl</find>
-      <find>WS_LOC_SHELL</find>
-      <find>taxaDict</find>
-      <find>self.taxa</find>
-      <find>new_label</find>
-      <find>self.new_labels</find>
-      <find>changeLabelsToNumbers</find>
-      <find>mrca</find>
-      <find>deep</find>
-      <find>__init</find>
-      <find>post_</find>
-      <find>speciesMap</find>
-      <find>spMap</find>
-      <find>preprocessGenes</find>
-      <find>node.spidx</find>
-      <find>spidx</find>
-      <find>mapIndToSp</find>
-      <find>Idx</find>
-      <find>new_labels</find>
-      <find>filter_fn</find>
       <find>next(iter(</find>
       <find>_tree</find>
       <find>self.converted_labels</find>
@@ -143,7 +133,28 @@
       <find>makeGeneTable</find>
       <find>genkey</find>
       <find>geneIndTable</find>
+      <find>anchors has been finished</find>
+      <find>anchors</find>
+      <find>seed_num</find>
+      <find>self.seed</find>
+      <find>print anch</find>
+      <find>pickAnchors</find>
+      <find>print 0j</find>
+      <find>list(sorted(list_taxa.keys(), key=lambda x: x.label))</find>
+      <find>0j</find>
+      <find>tm.tic</find>
+      <find>tm.tic()</find>
+      <find>pick</find>
+      <find>tm.toc()</find>
+      <find>buil</find>
+      <find>distancesum</find>
+      <find>tic()</find>
+      <find>self.mults</find>
       <find>print</find>
+      <find>mkstemp</find>
+      <find>.write</find>
+      <find>self.te</find>
+      <find>self.opt.outpath</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -159,9 +170,9 @@
         <option value="$PROJECT_DIR$/../../oasis/multiind/testSumm.py" />
         <option value="$PROJECT_DIR$/src/utils/reader2.py" />
         <option value="$PROJECT_DIR$/src/utils/anchoredTableTools.py" />
-        <option value="$PROJECT_DIR$/src/utils/toolsTreeTaxa.py" />
         <option value="$PROJECT_DIR$/src/utils/reader.py" />
         <option value="$PROJECT_DIR$/src/utils/analyze.py" />
+        <option value="$PROJECT_DIR$/src/utils/toolsTreeTaxa.py" />
       </list>
     </option>
   </component>
@@ -172,9 +183,10 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="y" value="23" />
-    <option name="width" value="1400" />
-    <option name="height" value="753" />
+    <option name="x" value="418" />
+    <option name="y" value="36" />
+    <option name="width" value="1920" />
+    <option name="height" value="1057" />
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
@@ -243,6 +255,7 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="settings.editor.selected.configurable" value="Errors" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="SearchEverywhereHistoryKey" value="&#9;FILE&#9;file:///Users/erfan/Main/repository/DISTIQUE/src/utils/analyze.py" />
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -472,7 +485,7 @@
       <module name="DISTIQUE" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/utils/distique.py" />
-      <option name="PARAMETERS" value="-g $PROJECT_DIR$/../../oasis/multiind/028/estimatedgenetre.gtr -o $PROJECT_DIR$/../../oasis/multiind/028/test -t 3 -i $PROJECT_DIR$/../../oasis/multiind/028/score-RAxML_bestTree.mrl.tree.contracted -c $PROJECT_DIR$/../../oasis/multiind/028/mapping028.txt -n 10" />
+      <option name="PARAMETERS" value="-g $PROJECT_DIR$/../../oasis/multiind/090/estimatedgenetre.gtr -o $PROJECT_DIR$/../../oasis/multiind/090/test -t 3 -i $PROJECT_DIR$/../../oasis/multiind/090/score-RAxML_bestTree.mrl.tree.contracted -c $PROJECT_DIR$/../../oasis/multiind/090/mapping090.txt -n 5" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
     </configuration>
@@ -519,20 +532,19 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="23" width="1400" height="753" extended-state="0" />
-    <editor active="true" />
+    <frame x="418" y="36" width="1920" height="1057" extended-state="0" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18229167" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.34067547" sideWeight="0.50285715" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.34067547" sideWeight="0.49714285" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.235533" sideWeight="0.49714285" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3979442" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.39695433" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -578,7 +590,7 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="27" />
+      <option name="time" value="28" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -845,19 +857,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/utils/printTools.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="46" column="26" lean-forward="false" selection-start-line="46" selection-start-column="26" selection-end-line="46" selection-end-column="26" />
-          <folding>
-            <element signature="e#0#15#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/utils/distique.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="242">
+        <state relative-caret-position="282">
           <caret line="63" column="0" lean-forward="false" selection-start-line="63" selection-start-column="0" selection-end-line="63" selection-end-column="0" />
           <folding>
             <element signature="e#22#31#0" expanded="true" />
@@ -909,28 +911,10 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/utils/reader2.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1837">
-          <caret line="238" column="0" lean-forward="true" selection-start-line="238" selection-start-column="0" selection-end-line="238" selection-end-column="0" />
+        <state relative-caret-position="1935">
+          <caret line="129" column="48" lean-forward="false" selection-start-line="129" selection-start-column="48" selection-end-line="129" selection-end-column="48" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/utils/anchoredTableTools.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="112">
-          <caret line="989" column="16" lean-forward="false" selection-start-line="989" selection-start-column="16" selection-end-line="989" selection-end-column="16" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/utils/toolsTreeTaxa.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-963">
-          <caret line="537" column="0" lean-forward="false" selection-start-line="537" selection-start-column="0" selection-end-line="537" selection-end-column="0" />
-          <folding>
-            <element signature="e#22#37#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -943,10 +927,26 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/utils/anchoredTableTools.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="158">
+          <caret line="1028" column="25" lean-forward="true" selection-start-line="1028" selection-start-column="25" selection-end-line="1028" selection-end-column="25" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/utils/printTools.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="189">
+          <caret line="21" column="23" lean-forward="true" selection-start-line="21" selection-start-column="23" selection-end-line="21" selection-end-column="23" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/utils/reader.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="274">
-          <caret line="212" column="37" lean-forward="true" selection-start-line="212" selection-start-column="37" selection-end-line="212" selection-end-column="37" />
+        <state relative-caret-position="-1683">
+          <caret line="59" column="67" lean-forward="false" selection-start-line="59" selection-start-column="58" selection-end-line="59" selection-end-column="67" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
           </folding>
@@ -955,10 +955,20 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/utils/analyze.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="125">
-          <caret line="352" column="8" lean-forward="false" selection-start-line="352" selection-start-column="8" selection-end-line="352" selection-end-column="8" />
+        <state relative-caret-position="690">
+          <caret line="46" column="37" lean-forward="false" selection-start-line="46" selection-start-column="37" selection-end-line="46" selection-end-column="37" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/utils/toolsTreeTaxa.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="109">
+          <caret line="482" column="88" lean-forward="false" selection-start-line="482" selection-start-column="88" selection-end-line="482" selection-end-column="88" />
+          <folding>
+            <element signature="e#22#37#0" expanded="true" />
           </folding>
         </state>
       </provider>

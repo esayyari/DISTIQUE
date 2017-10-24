@@ -4,11 +4,9 @@ import sys
 import os
 import numpy as np
 import random
-random.seed(28643)
 import tempfile
 from scipy.spatial import distance
 from dendropy.calculate import treecompare
-import itertools
 import subprocess
 WS_LOC_SHELL= os.environ['WS_HOME']+'/DISTIQUE/src/shell'
 WS_LOC_FM = os.environ['WS_HOME']+'/DISTIQUE/bin'
@@ -416,54 +414,104 @@ def findPolytomiesNames(con_tree):
 
     return (to_resolve,maxPolyOrder)
 
+def samples(lst, k):
+    n = len(lst)
+    indices = []
+    while len(indices) < k:
+         index = random.randrange(n)
+         if index not in indices:
+             indices.append(index)
+    return [lst[i] for i in indices]
 
-def pickAnchors(taxa, to_resolve, num, debugFlag):
+def pickAnchors(taxa, to_resolve, num, debugFlag, seedNum):
     c = num
     anchs = list()
-    taxa = set(taxa)
+    random.seed(seedNum)
+
+    # for e in sorted(to_resolve.keys(),key=lambda x: x.label):
+    #     v = to_resolve[e]
+    #     if len(v)<6:
+    #         continue
+    #     for l in sorted(v.keys()):
+    #         h = list()
+    #         for k in sorted(v[l]):
+    #             h.append(k.label)
+    #         for x in sorted(h):
+    #             print x,
+    #         print
+    # exit(0)
     for _ in range(0, c):
-        for e, v in to_resolve.iteritems():
+        for e in sorted(to_resolve.keys(),key=lambda x: x.label):
+            v = to_resolve[e]
             if len(v.keys()) < 6:
                 continue
-            S = set(v.keys())
-            N = set(v.keys())
-            while len(N) > 0:
-                if len(N) > 1:
-                    nodes = random.sample(N, 2)
-                else:
-                    Ntmp = list(N)
-                    S = S - N
-                    ntmp = random.sample(S, 1)
-                    nodes = [Ntmp[0], ntmp[0]]
-                if debugFlag:
-                    "the nodes we picked around polytomy " + e.label + " are: " + nodes[0] + " " + nodes[1]
-                a1 = random.sample(v[nodes[0]], 1)
-                a2 = random.sample(v[nodes[1]], 1)
-
-                if debugFlag:
-                    print "the anchors for these choice of nodes are: " + a1[0].taxon.label + ", and " + a2[
-                        0].taxon.label
-                anchs.append((a1[0].taxon.label, a2[0].taxon.label))
-                N = N - set(nodes)
+            idxs= generateRandomShuf(v.keys())
+            for idx in idxs:
+                node1 = sorted(v.keys())[idx[0]]
+                node2 = sorted(v.keys())[idx[1]]
+                nodes = sorted([node1,node2])
+                a1 = samples(sorted(list(v[nodes[0]]), key=lambda x: x.label), 1)
+                a2 = samples(sorted(v[nodes[1]], key=lambda x: x.label), 1)
+                anchs.append(tuple(sorted([a1[0].taxon.label, a2[0].taxon.label])))
+            #     a1 = samples(sorted(list[]))
+            # S = set(v.keys())
+            # N = set(v.keys())
+            # while len(N) > 0:
+            #     if len(N) > 1:
+            #         nodes = samples(sorted(list(N)), 2)
+            #     else:
+            #         Ntmp = list(N)
+            #         S = S - N
+            #         ntmp = samples(sorted(list(S)), 1)
+            #         nodes = [Ntmp[0], ntmp[0]]
+            #     if debugFlag:
+            #         "the nodes we picked around polytomy " + e.label + " are: " + nodes[0] + " " + nodes[1]
+            #     a1 = samples(sorted(list(v[nodes[0]]),key=lambda x: x.label), 1)
+            #     a2 = samples(sorted(v[nodes[1]],key = lambda x: x.label) , 1)
+            #
+            #     if debugFlag:
+            #         print "the anchors for these choice of nodes are: " + a1[0].taxon.label + ", and " + a2[
+            #             0].taxon.label
+            #     anchs.append(tuple(sorted([a1[0].taxon.label, a2[0].taxon.label])))
+            #     N = N - set(nodes)
 
     return anchs
+def generateRandomShuf(seq):
+    items = range(0,len(seq))
+    random.shuffle(items)
+    if len(seq) %2 != 0:
+        extra = samples(sorted(list(set(range(0,len(seq)))-{items[len(items)-1]})),1)[0]
+        items2 = items[:(len(seq))]
+        items2.append(extra)
+    else:
+        items2 = items
+    indx = list()
+
+    for k in range(0,len(items2),2):
+        tmp = (items[k],items2[k+1])
+        indx.append(tmp)
+    return indx
+
+
 def chooseAnchoresAll(list_taxa,num,debugFlag):
     ac = list()
-    taxa = set(list_taxa.keys())
-    for _ in range(0,num):
+    taxa = list(sorted(list_taxa.keys()))
+    for _ in range(num):
         actmp = list()
-        N=itertools.combinations(taxa,2)
-        for nodeAnchs in N:
-            if len(list_taxa[nodeAnchs[0]]) == 1:
-                a1 = list(list_taxa[nodeAnchs[0]])
-            else:
-                a1 = random.sample(list_taxa[nodeAnchs[0]],1)
-            if len(list_taxa[nodeAnchs[1]]) == 1:
-                a2 = list(list_taxa[nodeAnchs[1]])
-            else:
-                a2 = random.sample(list_taxa[nodeAnchs[1]],1)
-            actmp.append((a1[0],a2[0]))
-        ac.append(actmp)
+        for i in range(0, len(taxa)):
+            for j in range(i + 1, len(taxa)):
+                nodeAnchs = sorted([taxa[i],taxa[j]])
+                if len(list_taxa[nodeAnchs[0]]) == 1:
+                    a1 = list(list_taxa[nodeAnchs[0]])
+                else:
+                    a1 = samples(sorted(list_taxa[nodeAnchs[0]]),1)
+                if len(list_taxa[nodeAnchs[1]]) == 1:
+                    a2 = list(list_taxa[nodeAnchs[1]])
+                else:
+                    a2 = samples(sorted(list_taxa[nodeAnchs[1]]),1)
+                actmp.append(tuple(sorted([a1[0],a2[0]])))
+
+            ac.append(actmp)
     if debugFlag:
         for actmp in ac:
             print "printing another list!"

@@ -970,7 +970,7 @@ def addQuartetsAnchoredOverall(listTaxa,Q,taxaDict,e,anch,L1,L2,m,debugFlag,mult
         tm.toc()
     return 
     
-def buildEmptyQuartetsOverall(taxa_list,taxa_inv,C,taxa,k,geneIndTable,mapSpeciesToIdx):
+def buildEmptyQuartetsOverall(taxa_list,taxa_inv,C,taxa,k,geneIndTable,mapSpeciesToIdx,mults):
     taxaDict = dict()
     N1 = list(C)[0]
     N2 = list(C)[1]
@@ -981,14 +981,13 @@ def buildEmptyQuartetsOverall(taxa_list,taxa_inv,C,taxa,k,geneIndTable,mapSpecie
     dictClade = dict()
     N = len(taxa_list.keys())
     listPoly = taxa_list.keys()
-    mults = dict()
-    for key in taxa_list:
-        mults[key] = 0
-    for gIdx in range(0,k):
-        for key in taxa_list.keys():
-            for sp in taxa_list[key]:
-                for l in range(0,len(geneIndTable[gIdx][mapSpeciesToIdx[sp]])):
-                    mults[key] += geneIndTable[gIdx][mapSpeciesToIdx[sp]][l].mult
+    # for key in taxa_list:
+    #     mults[key] = 0
+    # for gIdx in range(0,k):
+    #     for key in taxa_list.keys():
+    #         for sp in taxa_list[key]:
+    #             for l in range(0,len(geneIndTable[gIdx][mapSpeciesToIdx[sp]])):
+    #                 mults[key] += geneIndTable[gIdx][mapSpeciesToIdx[sp]][l].mult
 
     for j in range(len(listPoly)):
         dictClade[listPoly[j]] = j
@@ -1027,16 +1026,16 @@ def findAnchoredDistanceTableOverall(anchPoly, trees,taxa, outpath,debugFlag):
     frq=findAnchoredQuartetsOverall(anchPoly, trees,taxa, outpath,debugFlag)
 
     return frq
-def findAnchoredDistanceTableOverallp(e,N,anch,taxa_list,taxa_inv, trees,taxa, outpath,debugFlag,mapSpeciesToIdx,mapping,A,geneIndTable):
-    frq=findAnchoredQuartetsOverallp(e,N,anch,taxa_list,taxa_inv, trees,taxa, outpath,debugFlag,mapSpeciesToIdx,mapping,A,geneIndTable)
+def findAnchoredDistanceTableOverallp(e,N,anch,taxa_list,taxa_inv, trees,taxa, outpath,debugFlag,mapSpeciesToIdx,mapping,A,geneIndTable,mults):
+    frq=findAnchoredQuartetsOverallp(e,N,anch,taxa_list,taxa_inv, trees,taxa, outpath,debugFlag,mapSpeciesToIdx,mapping,A,geneIndTable,mults)
 
     return frq
 
-def findAnchoredQuartetsOverallp(e,N,anch,taxa_list,taxa_inv, trees,taxa, outpath,debugFlag, mapSpeciesToIdx,mapping,A,geneIndTable):
+def findAnchoredQuartetsOverallp(e,N,anch,taxa_list,taxa_inv, trees,taxa, outpath,debugFlag, mapSpeciesToIdx,mapping,A,geneIndTable,mults):
     n = len(trees)
     anch = sorted(anch)
 
-    [Q,T,taxaDict,clades,L1,L2,m,listPoly] = buildEmptyQuartetsOverall(taxa_list,taxa_inv,N,taxa,n,geneIndTable,mapSpeciesToIdx)
+    [Q,T,taxaDict,clades,L1,L2,m,listPoly] = buildEmptyQuartetsOverall(taxa_list,taxa_inv,N,taxa,n,geneIndTable,mapSpeciesToIdx,mults)
       
     if debugFlag:
         print "Initializing arrays takes: "

@@ -12,7 +12,8 @@ import tableManipulationToolsAnchoring as tbsa
 import dendropy
 import gc
 import prodDistance as pd
-
+import random
+random.seed(a=121089923)
 
 class analyze:
     def __init__(self,opt):
@@ -24,10 +25,20 @@ class analyze:
         elif self.opt.strat == 2:
             self.minmethod()
         elif self.opt.strat == 3:
+            if self.opt.verbose:
+                tm.tic()
             self.distancesum()
-        elif self.opt.strat == 4:
-            self.treesum()
+            if self.opt.verbose:
+                print "Species Tree infered after :"
+                tm.toc()
 
+        elif self.opt.strat == 4:
+            if self.opt.verbose:
+                tm.tic()
+            self.treesum()
+            if self.opt.verbose:
+                print "Species Tree infered after :"
+                tm.toc()
     def prodmethod(self):
         method = "prod"
 
@@ -43,7 +54,7 @@ class analyze:
         else:
             if self.opt.verbose:
                 tm.tic()
-            frq = tbs.findQuartetTable(self.opt.trees, self.opt.taxa, 0, self.opt.outpath, self.opt.verbose)
+            frq = tbs.findQuartetTable(self.opt.trees, self.opt.taxa, 0, self.opt.tempFold, self.opt.verbose)
             if self.opt.verbose:
                 print "time to find quartet lists: "
                 tm.toc()
@@ -64,10 +75,10 @@ class analyze:
                 if self.opt.verbose:
                     print "computing distance table using the method: " + str(method)
 
-                ftmp3 = tempfile.mkstemp(suffix='.d', prefix="distancet.d", dir=self.opt.outpath, text=None)
+                ftmp3 = tempfile.mkstemp(suffix='.d', prefix="distancet.d", dir=self.opt.tempFold, text=None)
                 tbs.distanceTable(quartTable, method, ftmp3[1], self.opt.met)
                 os.close(ftmp3[0])
-                ftmp4 = tempfile.mkstemp(suffix='.nwk', prefix="distance.d_fastme_tree.nwk", dir=self.opt.outpath, text=None)
+                ftmp4 = tempfile.mkstemp(suffix='.nwk', prefix="distance.d_fastme_tree.nwk", dir=self.opt.tempFold, text=None)
                 FNULL = open(os.devnull, 'w')
                 subprocess.call(
                     [self.opt.WS_LOC_FM + "/fastme", "-i", ftmp3[1], "-w", "none", "-o", ftmp4[1], "-I", "/dev/null"],
@@ -98,7 +109,7 @@ class analyze:
             frq = tbs.readTable(self.opt.filename)
         else:
             tm.tic()
-            frq = tbs.findQuartetTable(self.opt.trees, self.opt.taxa, 0, self.opt.outpath, self.opt.verbose)
+            frq = tbs.findQuartetTable(self.opt.trees, self.opt.taxa, 0, self.opt.tempFold, self.opt.verbose)
 
             print "time to find quartet lists: "
             tm.toc()
@@ -112,10 +123,10 @@ class analyze:
                 quartTable = tbs.findTrueAverageTable(frq, self.opt.taxa_list, self.opt.av, self.opt.met)
                 if self.opt.verbose:
                     print "computing distance table using the method: " + str(method)
-                ftmp3 = tempfile.mkstemp(suffix='.d', prefix="distancet.d", dir=self.opt.outpath, text=None)
+                ftmp3 = tempfile.mkstemp(suffix='.d', prefix="distancet.d", dir=self.opt.tempFold, text=None)
                 tbs.distanceTable(quartTable, method, ftmp3[1], self.opt.met)
                 os.close(ftmp3[0])
-                ftmp4 = tempfile.mkstemp(suffix='.nwk', prefix="distance.d_fastme_tree.nwk", dir=self.opt.outpath, text=None)
+                ftmp4 = tempfile.mkstemp(suffix='.nwk', prefix="distance.d_fastme_tree.nwk", dir=self.opt.tempFold, text=None)
                 FNULL = open(os.devnull, 'w')
                 subprocess.call(
                     [self.opt.WS_LOC_FM + "/fastme", "-i", ftmp3[1], "-w", "none", "-o", ftmp4[1], "-I", "/dev/null"],
@@ -135,18 +146,12 @@ class analyze:
         self.opt.con_tree.write(path=outfile, schema="newick", suppress_rooting=True, suppress_internal_node_labels=True)
 
     def distancesum(self):
-        if self.opt.verbose:
-            tm.tic()
-
         (to_resolvettt, _) = tstt.findPolytomies_with_names(self.opt.con_tree)
         (ac, acSmall, smallAnchs, numAnchors, n) = self.pickAnchors(to_resolvettt)
-
         skippedPoly = self.printInfo(n, numAnchors, smallAnchs)
-
         listPoly = self.opt.to_resolve.keys()
 
         self.initializeTables(listPoly)
-
         if len(ac) != 0:
             self.computeAllFinalDistanceTablesBigPoly(listPoly, skippedPoly, ac)
         self.computeAllFinalDistanceTablesSmallPoly(listPoly,skippedPoly,acSmall,smallAnchs)
@@ -164,9 +169,6 @@ class analyze:
 
         tstt.changeLabelsToNames(self.opt.con_tree, self.opt.new_labels, self.opt.verbose)
         self.opt.con_tree.write(path=outfile, schema="newick", suppress_rooting=True, suppress_internal_node_labels=True)
-        if self.opt.verbose:
-            print "The overall time to infer the species tree is: "
-            tm.toc()
 
 
 
@@ -190,11 +192,11 @@ class analyze:
             if self.opt.verbose:
                 print "removeing outliers"
             for e in self.TreeList:
-                tstt.remove_outliers(self.TreeList[e], self.opt.strategy, self.opt.outpath, e, self.opt.summary)
+                tstt.remove_outliers(self.TreeList[e], self.opt.strategy, self.opt.tempFold, e, self.opt.summary)
 
         for e in self.opt.con_tree.postorder_node_iter():
             if e in self.opt.to_resolve:
-                ftmp4 = tstt.findMRL(self.TreeList[e.label], e.label, self.opt.outpath, self.opt.summary)
+                ftmp4 = tstt.findMRL(self.TreeList[e.label], e.label, self.opt.tempFold, self.opt.summary)
 
                 atbs.resolvePolytomy(ftmp4, e, self.opt.verbose)
         tstt.prune_tree_trivial_nodes(self.opt.con_tree)
@@ -216,11 +218,11 @@ class analyze:
                 z = listPoly.index(e)
                 keyDict = sorted(list(np.unique((" ".join(normalizedD[z].keys())).split(" "))))
                 fileDistance = "distancet-" + str(e.label) + ".d"
-                ftmp3 = tempfile.mkstemp(suffix='.d', prefix=fileDistance, dir=self.opt.outpath, text=None)
+                ftmp3 = tempfile.mkstemp(suffix='.d', prefix=fileDistance, dir=self.opt.tempFold, text=None)
                 pr.printDistanceTableToFile(normalizedD[z], keyDict, ftmp3[1])
                 print "writing distance table to " + str(ftmp3[1])
                 os.close(ftmp3[0])
-                ftmp4 = tempfile.mkstemp(suffix='.nwk', prefix=fileDistance + "_fastme_tree.nwk", dir=self.opt.outpath,
+                ftmp4 = tempfile.mkstemp(suffix='.nwk', prefix=fileDistance + "_fastme_tree.nwk", dir=self.opt.tempFold,
                                          text=None)
                 tstt.buildTreeFromDistanceMatrix(ftmp3[1], ftmp4[1], self.opt.sumProg, self.opt.sumProgOption)
                 os.close(ftmp4[0])
@@ -228,7 +230,7 @@ class analyze:
 
     def writeAnchorsTofile(self, ac, acSmall):
         fileAnch = "listAnchors"
-        ftmp3 = tempfile.mkstemp(suffix='.txt', prefix=fileAnch, dir=self.opt.outpath, text=None)
+        ftmp3 = tempfile.mkstemp(suffix='.txt', prefix=fileAnch, dir=self.opt.tempFold, text=None)
         f = open(ftmp3[1], 'w')
         for anch in ac:
             anch = sorted(list(anch))
@@ -259,16 +261,16 @@ class analyze:
             print "The number of anchors are: " + str(numAnchors)
             print "The number of anchors for small polytomies is: " + str(len(smallAnchs))
             return skippedPoly
-    def computeFrqandQuartTables(self,anch,e,N,taxa_list,taxa_inv):
+    def computeFrqandQuartTables(self,anch,e,N,taxa_list,taxa_inv,mults):
         if self.opt.readFromFile:
-            frq = atbs.findAnchoredDistanceTableFromFile(anch, self.opt.frqT, self.opt.taxa, self.opt.outpath,self.opt.mapSpeciesToIdx,self.opt.mapping)
+            frq = atbs.findAnchoredDistanceTableFromFile(anch, self.opt.frqT, self.opt.taxa, self.opt.tempFold,self.opt.mapSpeciesToIdx,self.opt.mapping)
         else:
             anch1 = taxa_inv[anch[0]]
             anch2 = taxa_inv[anch[1]]
             A = sorted([anch1, anch2])
             frq = atbs.findAnchoredDistanceTableOverallp(e, N, anch, taxa_list, taxa_inv, self.opt.trees, self.opt.taxa,
-                                                         self.opt.outpath,
-                                                         self.opt.debugFlag,self.opt.mapSpeciesToIdx,self.opt.mapping,A,self.opt.geneIndTable)
+                                                         self.opt.tempFold,
+                                                         self.opt.debugFlag,self.opt.mapSpeciesToIdx,self.opt.mapping,A,self.opt.geneIndTable,mults)
 
         if self.opt.verbose:
             print "time elapsing time for counting number of quartets for anch " + anch[0] + " " + anch[1]
@@ -304,12 +306,13 @@ class analyze:
         return
 
     def pickAnchors(self,to_resolvettt):
+
         acSmall = dict()
-        numAnchors = 0
         if self.opt.randomSample:
-            ac = tstt.pickAnchors(self.opt.taxa, self.opt.to_resolve, self.opt.num, self.opt.debugFlag)
+            ac = tstt.pickAnchors(self.opt.taxa, self.opt.to_resolve, self.opt.num, self.opt.debugFlag,self.opt.seedNum)
+        numAnchors = len(ac)
         smallAnchs = set()
-        for e in to_resolvettt:
+        for e in sorted(to_resolvettt.keys()):
             if len(to_resolvettt[e].keys()) < 6:
                 val = to_resolvettt[e]
                 (taxa_list, taxa_inv) = tstt.getTaxaList(val)
@@ -317,7 +320,6 @@ class analyze:
                 for acList in acSmall[e]:
                     for anch in acList:
                         smallAnchs.add(anch)
-
                         if len(ac) == 0:
                             continue
                         ac.append(anch)
@@ -331,7 +333,7 @@ class analyze:
             numAnchors = len(ac)
         return (ac, acSmall, smallAnchs, numAnchors,n)
 
-    def computeDistancesForOneAnchor(self,anch,taxa_list,taxa_inv, z,e):
+    def computeDistancesForOneAnchor(self,anch,taxa_list,taxa_inv, z,e,mults):
         anch = sorted(list(anch))
 
         N1 = taxa_inv[anch[0]]
@@ -340,7 +342,7 @@ class analyze:
             contFlag = False
             return(None, None, contFlag)
         N = {N1, N2}
-        (quartTable, frq) = self.computeFrqandQuartTables(anch, e, N, taxa_list, taxa_inv)
+        (quartTable, frq) = self.computeFrqandQuartTables(anch, e, N, taxa_list, taxa_inv,mults)
         [Dtmp, Ctmp] = atbs.anchoredDistanceFromFrqAddDistances(quartTable, sorted(list(N)), taxa_list)
         atbs.fillEmptyElementsDistanceTable(Dtmp, Ctmp, self.opt.fillmethod)
         contFlag = True
@@ -350,10 +352,10 @@ class analyze:
         return (contFlag)
 
 
-    def computeDistancesForAllAnchors(self,ac,taxa_list,taxa_inv,z,e,count):
+    def computeDistancesForAllAnchors(self,ac,taxa_list,taxa_inv,z,e,count,mults):
         for anch in ac:
             A = anch
-            (contFlag) = self.computeDistancesForOneAnchor(A, taxa_list,taxa_inv,z,e)
+            (contFlag) = self.computeDistancesForOneAnchor(A, taxa_list,taxa_inv,z,e,mults)
             if not contFlag:
                 continue
 
@@ -377,7 +379,9 @@ class analyze:
                 continue
             val = self.opt.to_resolve[e]
             (taxa_list, taxa_inv) = tstt.getTaxaList2(val,self.opt.mapping,self.opt.mapSpeciesToIdx)
-            (count) = self.computeDistancesForAllAnchors(ac, taxa_list,taxa_inv,z,e, count)
+            mults = self.preprocessEmptyQuartTables(len(self.opt.trees), taxa_list)
+
+            (count) = self.computeDistancesForAllAnchors(ac, taxa_list,taxa_inv,z,e, count, mults)
         return
 
     def computeAllFinalDistanceTablesSmallPoly(self,listPoly,skippedPoly,acSmall,smallAnchs):
@@ -388,9 +392,12 @@ class analyze:
             val = self.opt.to_resolve[e]
             (taxa_list, taxa_inv) = tstt.getTaxaList2(val,self.opt.mapping,self.opt.mapSpeciesToIdx)
             countT = 1
+            mults = self.preprocessEmptyQuartTables(len(self.opt.trees), taxa_list)
+
 
             for achList in acSmall[e.label]:
-                (countT) = self.computeDistancesForAllAnchors(achList,taxa_list,taxa_inv,z, e,countT)
+
+                (countT) = self.computeDistancesForAllAnchors(achList,taxa_list,taxa_inv,z, e,countT,mults)
             print "Number of small polytomies finished is " + str(countR) + " out of " + str(len(acSmall.keys()))
             countR += 1
         return
@@ -416,11 +423,11 @@ class analyze:
     def computeFrqandQuartTablesTreesum(self,anch,e,N1,N2,taxa_list,taxa_inv):
         N = {N1,N2}
         if self.opt.readFromFile:
-            frq = atbs.findAnchoredDistanceTableFromFile(anch, self.opt.frqT, self.opt.taxa, self.opt.outpath,self.opt.mapSpeciesToIdx,self.opt.mapping)
+            frq = atbs.findAnchoredDistanceTableFromFile(anch, self.opt.frqT, self.opt.taxa, self.opt.tempFold,self.opt.mapSpeciesToIdx,self.opt.mapping)
 
         else:
             frq = atbs.findAnchoredDistanceTableOverallp(e, N, anch, taxa_list, taxa_inv, self.opt.trees, self.opt.taxa,
-                                                         self.opt.outpath,
+                                                         self.opt.tempFold,
                                                          self.opt.debugFlag,self.opt.mapSpeciesToIdx,self.opt.mapping)
 
         if self.opt.readFromFile:
@@ -438,11 +445,12 @@ class analyze:
 
         N = {N1, N2}
         if self.opt.readFromFile:
-            frq = atbs.findAnchoredDistanceTableFromFile(anch, self.opt.frqT, self.opt.taxa, self.opt.outpath,self.opt.mapSpeciesToIdx,self.opt.mapping)
+            frq = atbs.findAnchoredDistanceTableFromFile(anch, self.opt.frqT, self.opt.taxa,self.opt.tempFold,self.opt.mapSpeciesToIdx,self.opt.mapping)
 
         else:
+
             frq = atbs.findAnchoredDistanceTableOverallp(e, N, anch, taxa_list, taxa_inv, self.opt.trees, self.opt.taxa,
-                                                         self.opt.outpath,
+                                                         self.opt.tempFold,
                                                          self.opt.debugFlag,self.opt.mapSpeciesToIdx,self.opt.mapping)
 
         if self.opt.readFromFile:
@@ -458,10 +466,10 @@ class analyze:
         D = atbs.anchoredDistanceFromFrq(quartTable, anch)
         keyDict = sorted(list(np.unique((" ".join(D.keys())).split(" "))))
         fileDistance = "distancet-" + str(anch[0]) + "-" + str(anch[1]) + ".d"
-        ftmp3 = tempfile.mkstemp(suffix='.d', prefix=fileDistance, dir=self.opt.outpath, text=None)
+        ftmp3 = tempfile.mkstemp(suffix='.d', prefix=fileDistance, dir=self.opt.tempFold, text=None)
         pr.printDistanceTableToFile(D, keyDict, ftmp3[1])
         os.close(ftmp3[0])
-        ftmp4 = tempfile.mkstemp(suffix='.nwk', prefix=fileDistance + "_fastme_tree.nwk", dir=self.opt.outpath,
+        ftmp4 = tempfile.mkstemp(suffix='.nwk', prefix=fileDistance + "_fastme_tree.nwk", dir=self.opt.tempFold,
                                  text=None)
         tstt.buildTreeFromDistanceMatrix(ftmp3[1], ftmp4[1], self.opt.sumProg, self.opt.sumProgOption)
         os.close(ftmp4[0])
@@ -473,10 +481,10 @@ class analyze:
         D = pd.prodDistance(Frq, self.opt.met)
         keyDict = sorted(list(np.unique((" ".join(D.keys())).split(" "))))
         fileDistance = "distancet-anchList-" + str(i) + ".d"
-        ftmp3 = tempfile.mkstemp(suffix='.d', prefix=fileDistance, dir=self.opt.outpath, text=None)
+        ftmp3 = tempfile.mkstemp(suffix='.d', prefix=fileDistance, dir=self.opt.tempFold, text=None)
         pr.printDistanceTableToFile(D, keyDict, ftmp3[1])
         os.close(ftmp3[0])
-        ftmp4 = tempfile.mkstemp(suffix='.nwk', prefix=fileDistance + "_fastme_tree.nwk", dir=self.opt.outpath,
+        ftmp4 = tempfile.mkstemp(suffix='.nwk', prefix=fileDistance + "_fastme_tree.nwk", dir=self.opt.tempFold,
                                  text=None)
         tstt.buildTreeFromDistanceMatrix(ftmp3[1], ftmp4[1], self.opt.sumProg, self.opt.sumProgOption)
         os.close(ftmp4[0])
@@ -561,3 +569,15 @@ class analyze:
 
     def taxaToIndlist(self,taxa_list ):
         return
+
+    def preprocessEmptyQuartTables(self,k,taxa_list):
+        mults = dict()
+
+        for gIdx in range(0, k):
+            for key in taxa_list.keys():
+                if key not in mults:
+                    mults[key] = 0
+                for sp in taxa_list[key]:
+                    for l in range(0, len(self.opt.geneIndTable[gIdx][self.opt.mapSpeciesToIdx[sp]])):
+                        mults[key] += self.opt.geneIndTable[gIdx][self.opt.mapSpeciesToIdx[sp]][l].mult
+        return mults
