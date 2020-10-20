@@ -79,9 +79,11 @@ class asllOptions:
         self.reader()
         self.tempFold = tempfile.mkdtemp(prefix="distique-temp", dir=self.outpath)
     def reader(self):
-        #(self.converted_labels, self.new_labels2) = tstt.changeLabelsToNumbers(self.trees, self.verbose)
+        # (self.converted_labels, self.new_labels2) = tstt.changeLabelsToNumbers(self.trees, self.verbose)
+
         self.makeBackBoneTree()
         (self.to_resolve, self.maxPolyOrder) = tstt.findPolytomies(self.con_tree)
+
         self.summerizeGeneTrees()
         self.simplifyGenes()
         self.makeMappings()
@@ -149,6 +151,11 @@ class asllOptions:
         self.con_tree.write(path=self.outpath + "/consensus_tree.trees", schema="newick", suppress_rooting=True)
 
         (self.species_converted_labels, self.new_labels) = self.changeLabelsToNumbers(self.con_tree)
+
+        if self.initTree:
+            for node in self.trees[0].leaf_node_iter():
+                node.taxon.label = self.species_converted_labels[node.taxon.label]
+
         tstt.labelNodes(self.con_tree)
         self.n = len(self.con_tree.leaf_nodes())
 
@@ -178,23 +185,33 @@ class asllOptions:
                 self.mapIndToSpNames[listLine[0]] = self.species_converted_labels[species]
                 self._indTaxa.append(listLine[0])
                 self._listIndForSpecies[spIdx].append(listLine[0])
-
+        else:
+            for species in self.species_converted_labels:
+                self.mapIndToSp[species] = self.species_converted_labels[species]
+                spIdx = self.mapSpeciesToIdx[self.species_converted_labels[species]]
+                self.mapIndToSp[species] = spIdx
+                self.mapIndToSpNames[species] = self.species_converted_labels[species]
+                self._indTaxa.append(species)
+                self._listIndForSpecies[spIdx].append(species)
 
 
 
     def summerizeGeneTrees(self):
         self._speciesList = [leaf.taxon.label for leaf in self.con_tree.leaf_nodes()]
+
         for idx,sp in enumerate(self._speciesList):
             self.mapSpeciesToIdx[sp] = idx
-        self.readMappingFile()
 
+        self.readMappingFile()
         for tree in self.trees:
             for leaf in tree.leaf_nodes():
-                leaf.spidx = self.mapIndToSpNames[leaf.taxon.label]
+                spIdx = self.new_labels[leaf.taxon.label]
+                leaf.spidx = self.mapIndToSpNames[spIdx]
                 leaf.label = leaf.spidx
 
         for t in self.trees[0].leaf_nodes():
-            t.taxon.label =  self.mapIndToSpNames[t.taxon.label]
+            spIdx = self.new_labels[t.taxon.label]
+            t.taxon.label =  self.mapIndToSpNames[spIdx]
 
 
     def simplifyGenes(self):
